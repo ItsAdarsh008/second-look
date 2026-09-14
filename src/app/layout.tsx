@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Instrument_Serif, Schibsted_Grotesk } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { MotionProviders } from "@/components/motion/providers";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import "./globals.css";
@@ -66,6 +67,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <SiteFooter />
           </div>
         </MotionProviders>
+        <Analytics />
       </body>
     </html>
   );
