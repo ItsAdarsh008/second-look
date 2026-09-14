@@ -34,10 +34,7 @@ const FAILURE_HELP: Record<string, string> = {
 
 function toInput(values: BriefValues, imageUrl: string | null): { input: CampaignInput | null; errors: FieldErrors } {
   const errors: FieldErrors = {};
-  if (!imageUrl) errors.image = "Put the creative on the light table. Even when the risk is in the words, the picture changes how they read.";
-  if (!values.productName.trim() && !values.headline.trim() && !values.bodyCopy.trim()) {
-    errors.productName = "Add at least a product name, headline or body copy.";
-  }
+  if (!imageUrl) errors.image = "Put the ad on the light table first. Second Look reads its copy from the creative.";
   if (values.markets.length === 0) errors.markets = "Pick at least one market.";
   if (!imageUrl || Object.keys(errors).length > 0) return { input: null, errors };
 
@@ -97,7 +94,7 @@ function SubmittedBrief({ input, onEdit, result }: { input: CampaignInput; onEdi
   return (
     <div className="border-y border-rule py-5">
       <p className="text-[0.82rem] text-ink-3">The campaign under review</p>
-      <p className="mt-1 font-serif text-[1.7rem] leading-tight">{input.headline || input.productName}</p>
+      <p className="mt-1 font-serif text-[1.7rem] leading-tight">{input.headline || input.productName || "Your creative"}</p>
       <p className="mt-2 text-[0.92rem] text-ink-2">
         {[input.productName && `“${input.productName}”`, input.markets.map(marketName).join(", "), input.launchDate ? formatDate(input.launchDate) : "no launch date", CHANNEL_LABELS[input.channel].toLowerCase()]
           .filter(Boolean)
@@ -147,10 +144,17 @@ export function ReviewApp({
     };
   }, [previewUrl]);
 
+  /** Leaving a case: its copy and notes must not ride along with the user's own creative. */
+  const dropCaseCopy = () => {
+    if (!activeSlug) return;
+    setValues((v) => ({ ...v, productName: "", headline: "", bodyCopy: "", brandName: "", brandNotes: "" }));
+    setActiveSlug(null);
+  };
+
   const onFile = async (file: File) => {
     setPreviewUrl(URL.createObjectURL(file));
     setPlacedKey(`${file.name}-${file.size}-${Date.now()}`);
-    setActiveSlug(null);
+    dropCaseCopy();
     setImageUrl(null);
     setUpload({ status: "uploading" });
     setErrors((e) => ({ ...e, image: undefined }));
@@ -263,8 +267,8 @@ export function ReviewApp({
                 <RiseLines lines={["Know what your ad means", "before it launches."]} />
               </h1>
               <p className="fade-up mt-5 max-w-[50ch] text-[1.1rem] leading-relaxed text-ink-2" style={{ animationDelay: "220ms" }}>
-                Add the creative, product name, copy, markets and launch date. Second Look checks each one against local history, language and
-                calendars, and shows the precedent behind anything it flags.
+                Drop in the ad and say where and when it runs. Second Look reads the image and its copy against each market&rsquo;s history,
+                language and calendar, and shows the precedent behind anything it flags.
               </p>
             </div>
           </div>
@@ -326,7 +330,7 @@ export function ReviewApp({
                 onClear={() => {
                   setImageUrl(null);
                   setPreviewUrl(null);
-                  setActiveSlug(null);
+                  dropCaseCopy();
                   setUpload({ status: "idle" });
                 }}
                 placedKey={placedKey}

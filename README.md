@@ -1,6 +1,8 @@
 # Second Look
 
-A cultural pre-flight check for ad campaigns. Submit the creative, the copy, the product name, the markets and the launch date. Second Look returns cultural-risk findings, each tied to a named referent and a documented precedent, then uses the [Magic Hour API](https://docs.magichour.ai) to render alternative creative for the findings that live in the picture.
+A cultural pre-flight check for ad campaigns. Drop in the ad and say where and when it runs: markets, launch date, channel, and optional brand notes. Second Look reads the image and the copy printed on it, returns cultural-risk findings each tied to a named referent and a documented precedent, then uses the [Magic Hour API](https://docs.magichour.ai) to render alternative creative for the findings that live in the picture.
+
+The form doesn't ask for copy separately; the analyst reads it from the creative. Anything the image doesn't show (a social caption, a campaign or product name used elsewhere) belongs in the brand notes, or the analyst won't see it. Case studies still carry their own copy, shown read-only when a case is loaded, and the API accepts `productName`, `headline` and `bodyCopy` for callers that have them.
 
 ## Why it exists
 

@@ -109,6 +109,8 @@ function ZeroFindings({ result, incidents }: { result: AnalysisResult; incidents
     input.productName && `Product name “${input.productName}”`,
     input.headline && `Headline “${input.headline}”`,
     input.bodyCopy && "Body copy",
+    !input.productName && !input.headline && !input.bodyCopy && "Every word in the creative",
+    input.brandNotes && "Campaign details in the brand notes",
     input.launchDate ? `Launch date ${formatDate(input.launchDate)} against each market's calendar` : "No launch date given, so timing was not checked",
     `The creative image`,
     `Channel: ${CHANNEL_LABELS[input.channel]}`,
@@ -235,13 +237,27 @@ export function Report({
                     <dd>{input.brandName}</dd>
                   </div>
                 )}
+                {input.productName && (
+                  <div>
+                    <dt className="text-ink-3">Product name</dt>
+                    <dd>{input.productName}</dd>
+                  </div>
+                )}
+                {input.headline && (
+                  <div>
+                    <dt className="text-ink-3">Headline</dt>
+                    <dd className="font-serif text-[1.15rem] leading-snug">{input.headline}</dd>
+                  </div>
+                )}
+                {!input.productName && !input.headline && (
+                  <div>
+                    <dt className="text-ink-3">Copy</dt>
+                    <dd>Read from the creative</dd>
+                  </div>
+                )}
                 <div>
-                  <dt className="text-ink-3">Product name</dt>
-                  <dd>{input.productName || "(none)"}</dd>
-                </div>
-                <div>
-                  <dt className="text-ink-3">Headline</dt>
-                  <dd className="font-serif text-[1.15rem] leading-snug">{input.headline || "(none)"}</dd>
+                  <dt className="text-ink-3">Markets</dt>
+                  <dd>{input.markets.map(marketName).join(", ")}</dd>
                 </div>
                 <div>
                   <dt className="text-ink-3">Launch</dt>

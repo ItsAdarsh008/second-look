@@ -7,8 +7,10 @@ describe("screenCampaignInput", () => {
     expect(screenCampaignInput(tankInput)).toEqual({ ok: true });
   });
 
-  it("requires some copy", () => {
-    expect(screenCampaignInput({ ...tankInput, productName: "", headline: " ", bodyCopy: "" })).toMatchObject({ ok: false, code: "empty_campaign" });
+  it("accepts a campaign with no typed copy, since copy is read from the creative", () => {
+    expect(screenCampaignInput({ ...tankInput, productName: "", headline: "", bodyCopy: "", brandName: undefined, brandNotes: undefined })).toEqual({
+      ok: true,
+    });
   });
 
   it("rejects attempts to use the analyzer as a general image describer", () => {

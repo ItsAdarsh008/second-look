@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useId, useState } from "react";
+import { useId } from "react";
 import { CHANNELS, CHANNEL_LABELS, type Channel, type Market } from "@/lib/schema";
 import { useTypewriter } from "../motion/primitives";
 import { MarketPicker } from "./market-picker";
@@ -99,6 +99,41 @@ function TextField({
   );
 }
 
+function TypedLine({ text, fillKey, delay, className }: { text: string; fillKey: number; delay: number; className?: string }) {
+  const typed = useTypewriter(text, fillKey, delay);
+  return (
+    <span className={className}>
+      <span aria-hidden>{typed.text}</span>
+      <span className="sr-only">{text}</span>
+    </span>
+  );
+}
+
+/** A case's own copy, shown read-only: it travels with the case so the analyzer sees what the real campaign said. */
+function CaseCopy({ values, fillKey }: { values: BriefValues; fillKey: number }) {
+  const rows = [
+    { label: "Product", text: values.productName, delay: 0, className: "text-ink" },
+    { label: "Headline", text: values.headline, delay: 120, className: "font-serif text-[1.35rem] leading-snug text-ink" },
+    { label: "Body copy", text: values.bodyCopy, delay: 260, className: "text-[0.95rem] text-ink-2" },
+  ].filter((r) => r.text.trim());
+
+  return (
+    <div className="rounded-[8px] border border-rule bg-sheet px-4 py-3.5">
+      <p className="text-[0.82rem] text-ink-3">Copy from this case{values.brandName ? `, ${values.brandName}` : ""}</p>
+      <dl className="mt-2 space-y-1.5">
+        {rows.map((r) => (
+          <div key={r.label} className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-baseline gap-3">
+            <dt className="text-[0.8rem] text-ink-3">{r.label}</dt>
+            <dd>
+              <TypedLine text={r.text} fillKey={fillKey} delay={r.delay} className={r.className} />
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
 export function BriefForm({
   values,
   onChange,
@@ -118,9 +153,9 @@ export function BriefForm({
   fillKey: number;
   analysisAvailable: boolean;
 }) {
-  const [notesOpen, setNotesOpen] = useState(false);
   const ids = useId();
-  const showNotes = notesOpen || values.brandNotes.length > 0;
+  // Cases ship with their own copy; a user's upload has none and the copy is read from the creative.
+  const caseCopy = [values.productName, values.headline, values.bodyCopy].some((v) => v.trim().length > 0);
 
   return (
     <form
@@ -138,14 +173,20 @@ export function BriefForm({
       }}
       className="space-y-5"
     >
-      <div className="grid gap-5 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-        <TextField label="Product name" value={values.productName} onChange={(v) => onChange({ productName: v })} fillKey={fillKey} delay={0} error={errors.productName} maxLength={120} placeholder="What's it called?" />
-        <TextField label="Brand" value={values.brandName} onChange={(v) => onChange({ brandName: v })} fillKey={fillKey} delay={80} maxLength={80} placeholder="Optional" />
-      </div>
-
-      <TextField label="Headline" value={values.headline} onChange={(v) => onChange({ headline: v })} fillKey={fillKey} delay={160} error={errors.headline} maxLength={300} serif placeholder="The line people will read" />
-
-      <TextField label="Body copy" value={values.bodyCopy} onChange={(v) => onChange({ bodyCopy: v })} fillKey={fillKey} delay={320} error={errors.bodyCopy} maxLength={2000} multiline placeholder="In the language it will run in" />
+      <AnimatePresence initial={false}>
+        {caseCopy && (
+          <motion.div
+            key={fillKey}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <CaseCopy values={values} fillKey={fillKey} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="grid gap-5 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
         <MarketPicker value={values.markets} onChange={(markets) => onChange({ markets })} error={errors.markets} disabled={submitting} />
@@ -180,28 +221,18 @@ export function BriefForm({
         </div>
       </div>
 
-      <div>
-        {!showNotes ? (
-          <button type="button" onClick={() => setNotesOpen(true)} className="text-[0.88rem] text-ink-2 underline decoration-rule-strong underline-offset-4 hover:text-ink">
-            Add brand notes
-          </button>
-        ) : (
-          <AnimatePresence initial={false}>
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="overflow-hidden">
-              <TextField
-                label="Brand notes"
-                value={values.brandNotes}
-                onChange={(v) => onChange({ brandNotes: v })}
-                fillKey={fillKey}
-                delay={480}
-                maxLength={1000}
-                multiline
-                hint="What any alternative must keep: logo placement, palette, product."
-              />
-            </motion.div>
-          </AnimatePresence>
-        )}
-      </div>
+      <TextField
+        label="Brand notes (optional)"
+        value={values.brandNotes}
+        onChange={(v) => onChange({ brandNotes: v })}
+        fillKey={fillKey}
+        delay={240}
+        maxLength={1000}
+        multiline
+        error={errors.brandNotes}
+        placeholder="Caption, campaign name, what an alternative must keep"
+        hint="Second Look reads the copy from the creative. Add anything the image doesn't show."
+      />
 
       {errors.image && (
         <p className="text-[0.9rem] text-critical" role="alert">

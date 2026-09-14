@@ -24,18 +24,24 @@ function highlight(text: string, excerpt: string): React.ReactNode {
 
 export function CopyLocus({ locus, input }: { locus: Extract<Locus, { kind: "copy" }>; input: CampaignInput }) {
   const text = locus.field === "headline" ? input.headline : locus.field === "body" ? input.bodyCopy : input.productName;
-  const found = text.toLowerCase().includes(locus.excerpt.toLowerCase());
+  const contains = (s: string | undefined) => Boolean(s && s.toLowerCase().includes(locus.excerpt.toLowerCase()));
+  const display = locus.field === "body" ? "text-[1.02rem]" : "font-serif text-[1.45rem] leading-snug";
+
+  // Typed copy (case studies), the brand notes, or words the analyst read off the creative itself.
+  const source = contains(text) ? "field" : contains(input.brandNotes) ? "notes" : "creative";
+
   return (
     <div className="rounded-[4px] border border-rule bg-sheet px-4 py-3">
-      <p className="text-sm text-ink-3">{FIELD_LABEL[locus.field]}, as submitted</p>
-      <p className={`mt-1 ${locus.field === "body" ? "text-[1.02rem]" : "font-serif text-[1.45rem] leading-snug"}`}>
-        {found ? highlight(text, locus.excerpt) : text || "(empty)"}
+      <p className="text-sm text-ink-3">
+        {source === "field"
+          ? `${FIELD_LABEL[locus.field]}, as submitted`
+          : source === "notes"
+            ? `${FIELD_LABEL[locus.field]}, from the brand notes`
+            : `${FIELD_LABEL[locus.field]}, read from the creative`}
       </p>
-      {!found && (
-        <p className="mt-1 text-sm text-ink-3">
-          Flagged wording: <mark className="excerpt">{locus.excerpt}</mark>
-        </p>
-      )}
+      <p className={`mt-1 ${source === "notes" ? "text-[1.02rem]" : display}`}>
+        {source === "field" ? highlight(text, locus.excerpt) : source === "notes" ? highlight(input.brandNotes ?? "", locus.excerpt) : <mark className="excerpt">{locus.excerpt}</mark>}
+      </p>
     </div>
   );
 }

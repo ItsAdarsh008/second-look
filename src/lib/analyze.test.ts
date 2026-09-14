@@ -187,6 +187,20 @@ describe("groundFindings", () => {
   });
 });
 
+describe("campaign brief", () => {
+  it("tells the analyst to read copy from the creative when none was typed", async () => {
+    const createMessage = vi.fn<CreateMessage>().mockResolvedValue(toolCall({ isAdvertisingCreative: true, reviewNotes: "Checked.", findings: [] }));
+    await analyzeCampaign(
+      { ...tankInput, productName: "", headline: "", bodyCopy: "", brandName: undefined, brandNotes: "Caption: Tank Day, May 18 only" },
+      { createMessage, loadImage, corpus },
+    );
+    const brief = JSON.stringify(createMessage.mock.calls[0][0].messages[0].content);
+    expect(brief).toContain("Product name: (not supplied; read it from the creative)");
+    expect(brief).toContain("No copy was typed in: first read every word in the creative");
+    expect(brief).toContain("Caption: Tank Day, May 18 only");
+  });
+});
+
 describe("analyst prompt", () => {
   it("does not leak any fixture case into the system prompt", () => {
     expect(ANALYST_SYSTEM_PROMPT).not.toMatch(/tank|gwangju|starbucks|thwack|pajero|rising sun|purity/i);
