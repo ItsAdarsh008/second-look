@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <!-- Synthetic creative for Second Look. Fictional brand "Solara Air". -->
+  <defs>
+    <clipPath id="win">
+      <rect x="174" y="334" width="292" height="420" rx="120"/>
+    </clipPath>
+  </defs>
+  <rect width="1080" height="1350" fill="#EDE5D8"/>
+
+  <!-- Wordmark -->
+  <circle cx="540" cy="78" r="26" fill="#F29A2E"/>
+  <text x="540" y="170" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700" letter-spacing="12" fill="#3B2A20">SOLARA AIR</text>
+
+  <!-- Cabin floor -->
+  <rect x="0" y="1180" width="1080" height="170" fill="#CFC3B2"/>
+  <rect x="0" y="1180" width="1080" height="6" fill="#BCAE9B"/>
+
+  <!-- Airplane window -->
+  <rect x="150" y="310" width="340" height="468" rx="144" fill="#DCD1C1"/>
+  <g clip-path="url(#win)">
+    <rect x="174" y="334" width="292" height="420" fill="#9CC9E8"/>
+    <rect x="174" y="600" width="292" height="154" fill="#C4DFF1"/>
+    <ellipse cx="250" cy="640" rx="90" ry="34" fill="#FFFFFF"/>
+    <ellipse cx="360" cy="622" rx="70" ry="30" fill="#FFFFFF"/>
+    <ellipse cx="420" cy="680" rx="80" ry="26" fill="#FFFFFF"/>
+    <rect x="174" y="334" width="292" height="96" fill="#F6F0E6"/>
+    <rect x="174" y="424" width="292" height="8" fill="#DCD1C1"/>
+  </g>
+
+  <!-- Seat shadow -->
+  <ellipse cx="640" cy="1188" rx="240" ry="18" fill="#B3A48F"/>
+
+  <!-- Leather business-class seat (side view, facing left toward the window) -->
+  <rect x="580" y="1020" width="120" height="162" fill="#7A736C"/>
+  <rect x="510" y="1170" width="260" height="18" rx="8" fill="#5F5852"/>
+  <g transform="translate(740 930) rotate(14)">
+    <rect x="-82" y="-500" width="164" height="540" rx="64" fill="#8A4B2A"/>
+    <rect x="-72" y="-622" width="144" height="136" rx="54" fill="#7A3F22"/>
+    <line x1="-40" y1="-560" x2="40" y2="-560" stroke="#D8A57A" stroke-width="4" stroke-dasharray="10 8"/>
+    <line x1="-52" y1="-400" x2="52" y2="-400" stroke="#6F3A1F" stroke-width="6" stroke-linecap="round"/>
+    <line x1="-52" y1="-280" x2="52" y2="-280" stroke="#6F3A1F" stroke-width="6" stroke-linecap="round"/>
+    <line x1="-52" y1="-160" x2="52" y2="-160" stroke="#6F3A1F" stroke-width="6" stroke-linecap="round"/>
+    <rect x="-58" y="-480" width="14" height="440" rx="7" fill="#A5603A" opacity="0.8"/>
+  </g>
+  <rect x="440" y="852" width="380" height="100" rx="44" fill="#8A4B2A"/>
+  <rect x="456" y="864" width="300" height="12" rx="6" fill="#A5603A" opacity="0.8"/>
+  <line x1="480" y1="904" x2="780" y2="904" stroke="#D8A57A" stroke-width="4" stroke-dasharray="10 8"/>
+  <rect x="470" y="940" width="360" height="92" rx="22" fill="#6F3A1F"/>
+  <rect x="520" y="772" width="300" height="50" rx="25" fill="#6F3A1F"/>
+  <rect x="560" y="818" width="36" height="40" fill="#6F3A1F"/>
+
+  <!-- Line -->
+  <text x="540" y="1290" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" letter-spacing="8" fill="#3B2A20">SOLARA BUSINESS</text>
+</svg>

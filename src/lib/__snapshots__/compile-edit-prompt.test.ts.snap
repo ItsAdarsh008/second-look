@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`compileEditPrompt > matches the snapshot 1`] = `"Make a minimal, surgical retouch of this advertisement image, not a redesign. Replace the radiating red-and-white ray pattern behind the can with a flat warm-orange background. Change the hand in the lower right to hold the can with a relaxed open grip. Keep everything else exactly as it is: the product and its packaging, the logo and its placement, every piece of existing text and its legibility, the brand colors, the composition and framing, and the lighting and illustration style. Brand direction to respect: Keep the can artwork and the Volt wordmark exactly as they are. Do not add any new text, logos, people or objects."`;
+
+exports[`compileEditPrompt > matches the snapshot 2`] = `
+[
+  {
+    "findingId": "f-rays",
+    "prompt": "Make a minimal, surgical retouch of this advertisement image, not a redesign. Replace the radiating red-and-white ray pattern behind the can with a flat warm-orange background. Keep everything else exactly as it is: the product and its packaging, the logo and its placement, every piece of existing text and its legibility, the brand colors, the composition and framing, and the lighting and illustration style. Brand direction to respect: Keep the can artwork and the Volt wordmark exactly as they are. Do not add any new text, logos, people or objects.",
+  },
+  {
+    "findingId": "f-hand",
+    "prompt": "Make a minimal, surgical retouch of this advertisement image, not a redesign. Change the hand in the lower right to hold the can with a relaxed open grip. Keep everything else exactly as it is: the product and its packaging, the logo and its placement, every piece of existing text and its legibility, the brand colors, the composition and framing, and the lighting and illustration style. Brand direction to respect: Keep the can artwork and the Volt wordmark exactly as they are. Do not add any new text, logos, people or objects.",
+  },
+]
+`;

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <!-- Synthetic creative for Second Look. Fictional brand "Harbor Coffee Korea". -->
+  <rect width="1080" height="1350" fill="#F3EAD7"/>
+
+  <!-- Wordmark -->
+  <circle cx="540" cy="92" r="42" fill="#22335A"/>
+  <path d="M511 86 q14.5 -12 29 0 t29 0 M511 103 q14.5 -12 29 0 t29 0" fill="none" stroke="#F3EAD7" stroke-width="6" stroke-linecap="round"/>
+  <text x="540" y="196" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700" letter-spacing="8" fill="#22335A">HARBOR COFFEE</text>
+  <text x="540" y="238" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="12" fill="#4A5A7C">KOREA</text>
+
+  <!-- Table -->
+  <rect x="0" y="1010" width="1080" height="240" fill="#C99A6B"/>
+  <rect x="0" y="1010" width="1080" height="8" fill="#DDB287"/>
+  <rect x="0" y="1240" width="1080" height="110" fill="#8F6440"/>
+
+  <!-- Shadows -->
+  <ellipse cx="560" cy="1154" rx="190" ry="20" fill="#8F6440" opacity="0.45"/>
+  <ellipse cx="250" cy="1154" rx="68" ry="12" fill="#8F6440" opacity="0.45"/>
+
+  <!-- Tumbler: straw -->
+  <rect x="566" y="300" width="30" height="150" rx="8" fill="#1A2747" transform="rotate(10 581 450)"/>
+  <!-- Side handle -->
+  <path d="M700 560 L770 560 Q812 560 812 602 L812 830 Q812 872 770 872 L690 872" fill="none" stroke="#1A2747" stroke-width="34" stroke-linejoin="round"/>
+  <!-- Lid -->
+  <rect x="384" y="418" width="312" height="66" rx="18" fill="#1A2747"/>
+  <rect x="396" y="448" width="288" height="6" fill="#33477A"/>
+  <!-- Body: wide cup that steps in to a narrow base -->
+  <path d="M392 480 L688 480 L678 920 Q676 960 650 972 L640 978 L632 1122 Q630 1152 602 1152 L478 1152 Q450 1152 448 1122 L440 978 L430 972 Q404 960 402 920 Z" fill="#22335A"/>
+  <path d="M420 500 L448 500 L440 930 L428 930 Z" fill="#3A4F82" opacity="0.85"/>
+  <path d="M462 990 L474 990 L478 1120 L468 1120 Z" fill="#3A4F82" opacity="0.85"/>
+  <rect x="404" y="930" width="272" height="10" fill="#1A2747"/>
+  <!-- Emblem on body -->
+  <circle cx="540" cy="700" r="62" fill="#F3EAD7"/>
+  <path d="M500 692 q20 -17 40 0 t40 0 M500 716 q20 -17 40 0 t40 0" fill="none" stroke="#22335A" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Regular cup for scale -->
+  <rect x="172" y="968" width="156" height="28" rx="10" fill="#22335A"/>
+  <path d="M182 996 L318 996 L298 1136 Q296 1150 282 1150 L218 1150 Q204 1150 202 1136 Z" fill="#FFFDF6"/>
+  <path d="M190 1040 L310 1040 L304 1090 L196 1090 Z" fill="#22335A"/>
+
+  <!-- Line -->
+  <text x="540" y="1312" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="700" letter-spacing="8" fill="#F3EAD7">NEW 2L TUMBLER</text>
+</svg>

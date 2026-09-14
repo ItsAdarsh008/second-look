@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <!-- Synthetic creative for Second Look. Fictional brand "Northline". -->
+  <rect width="1080" height="1350" fill="#CCD6DF"/>
+
+  <!-- Wordmark -->
+  <text x="540" y="150" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="700" letter-spacing="14" fill="#24303B">NORTHLINE</text>
+  <rect x="470" y="178" width="140" height="4" fill="#24303B"/>
+
+  <!-- Floor -->
+  <rect x="0" y="1245" width="1080" height="105" fill="#B4C1CD"/>
+  <ellipse cx="540" cy="1252" rx="230" ry="16" fill="#9AAAB8"/>
+
+  <!-- Legs and shoes -->
+  <rect x="402" y="1140" width="128" height="96" fill="#3A3F46"/>
+  <rect x="550" y="1140" width="128" height="96" fill="#3A3F46"/>
+  <rect x="384" y="1224" width="150" height="30" rx="12" fill="#1F2328"/>
+  <rect x="546" y="1224" width="150" height="30" rx="12" fill="#1F2328"/>
+
+  <!-- Sleeves and hands -->
+  <path d="M382 598 Q348 620 340 700 L318 1030 L380 1036 L408 720 Z" fill="#B27A45"/>
+  <path d="M698 598 Q732 620 740 700 L762 1030 L700 1036 L672 720 Z" fill="#B27A45"/>
+  <circle cx="348" cy="1060" r="27" fill="#D9A77E"/>
+  <circle cx="732" cy="1060" r="27" fill="#D9A77E"/>
+
+  <!-- Neck and turtleneck -->
+  <rect x="512" y="505" width="56" height="60" fill="#C8946B"/>
+  <rect x="496" y="540" width="88" height="44" rx="12" fill="#2F3338"/>
+
+  <!-- Camel coat -->
+  <path d="M378 602 Q382 562 432 552 L648 552 Q698 562 702 602 L736 1152 L344 1152 Z" fill="#C38B55"/>
+  <path d="M490 556 L540 700 L590 556 Z" fill="#2F3338"/>
+  <path d="M490 556 L540 700 L518 770 L452 604 Z" fill="#A8723F"/>
+  <path d="M590 556 L540 700 L562 770 L628 604 Z" fill="#A8723F"/>
+  <line x1="540" y1="700" x2="540" y2="1152" stroke="#9A6737" stroke-width="4"/>
+  <circle cx="566" cy="810" r="10" fill="#5B3B1F"/>
+  <circle cx="566" cy="910" r="10" fill="#5B3B1F"/>
+  <circle cx="566" cy="1010" r="10" fill="#5B3B1F"/>
+  <line x1="398" y1="970" x2="476" y2="970" stroke="#9A6737" stroke-width="6" stroke-linecap="round"/>
+  <line x1="604" y1="970" x2="682" y2="970" stroke="#9A6737" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Head (minimal face) -->
+  <circle cx="458" cy="448" r="15" fill="#CF9A70"/>
+  <circle cx="622" cy="448" r="15" fill="#CF9A70"/>
+  <circle cx="540" cy="440" r="84" fill="#D9A77E"/>
+  <circle cx="512" cy="452" r="6" fill="#2A2522"/>
+  <circle cx="568" cy="452" r="6" fill="#2A2522"/>
+  <path d="M522 490 Q540 498 558 490" fill="none" stroke="#8C5E3F" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Bright green hat: the focal point -->
+  <path d="M450 384 L462 290 Q468 258 504 258 L576 258 Q612 258 618 290 L630 384 Z" fill="#1DB34A"/>
+  <path d="M500 262 Q540 290 580 262" fill="none" stroke="#139A3C" stroke-width="6" stroke-linecap="round"/>
+  <path d="M455 346 L625 346 L630 378 L450 378 Z" fill="#11813A"/>
+  <ellipse cx="540" cy="384" rx="156" ry="30" fill="#1DB34A"/>
+  <ellipse cx="540" cy="392" rx="140" ry="16" fill="#16A042"/>
+
+  <!-- Line -->
+  <text x="540" y="1316" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" letter-spacing="8" fill="#24303B">AUTUMN COLLECTION</text>
+</svg>

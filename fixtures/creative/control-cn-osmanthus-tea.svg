@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <!-- Synthetic creative for Second Look. Fictional brand "Lanting Tea". -->
+  <defs>
+    <g id="blossom">
+      <circle cx="0" cy="-10" r="9"/>
+      <circle cx="9.5" cy="-3.1" r="9"/>
+      <circle cx="5.9" cy="8.1" r="9"/>
+      <circle cx="-5.9" cy="8.1" r="9"/>
+      <circle cx="-9.5" cy="-3.1" r="9"/>
+      <circle cx="0" cy="0" r="5" fill="#B8650C"/>
+    </g>
+    <path id="leafT" d="M0 0 Q30 -22 80 0 Q30 22 0 0 Z" fill="#5C7440"/>
+    <path id="cup" d="M330 540 L750 540 L702 1130 Q700 1156 672 1156 L408 1156 Q380 1156 378 1130 Z"/>
+    <clipPath id="cupClip"><use xlink:href="#cup"/></clipPath>
+  </defs>
+  <rect width="1080" height="1350" fill="#F3E3C3"/>
+
+  <!-- Wordmark -->
+  <text x="540" y="140" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="60" font-weight="700" letter-spacing="12" fill="#6B3E22">LANTING TEA</text>
+  <rect x="470" y="166" width="140" height="5" fill="#C98A2B"/>
+
+  <!-- Osmanthus branch, left -->
+  <path d="M0 560 Q140 600 260 720" fill="none" stroke="#7A4A2A" stroke-width="10" stroke-linecap="round"/>
+  <use xlink:href="#leafT" transform="translate(90 585) rotate(-30) scale(1.1)"/>
+  <use xlink:href="#leafT" transform="translate(180 640) rotate(60) scale(1.1)"/>
+  <g fill="#F2A91E">
+    <use xlink:href="#blossom" transform="translate(120 560)"/>
+    <use xlink:href="#blossom" transform="translate(150 610)"/>
+    <use xlink:href="#blossom" transform="translate(206 648)"/>
+    <use xlink:href="#blossom" transform="translate(236 694)"/>
+    <use xlink:href="#blossom" transform="translate(60 600)"/>
+    <use xlink:href="#blossom" transform="translate(262 742)"/>
+    <use xlink:href="#blossom" transform="translate(196 700)"/>
+  </g>
+
+  <!-- Osmanthus branch, right -->
+  <path d="M1080 880 Q940 920 830 1050" fill="none" stroke="#7A4A2A" stroke-width="10" stroke-linecap="round"/>
+  <use xlink:href="#leafT" transform="translate(990 900) rotate(200) scale(1.1)"/>
+  <use xlink:href="#leafT" transform="translate(900 950) rotate(120) scale(1.1)"/>
+  <g fill="#F2A91E">
+    <use xlink:href="#blossom" transform="translate(960 880)"/>
+    <use xlink:href="#blossom" transform="translate(930 930)"/>
+    <use xlink:href="#blossom" transform="translate(880 960)"/>
+    <use xlink:href="#blossom" transform="translate(850 1010)"/>
+    <use xlink:href="#blossom" transform="translate(1020 910)"/>
+    <use xlink:href="#blossom" transform="translate(900 1020)"/>
+    <use xlink:href="#blossom" transform="translate(828 1060)"/>
+  </g>
+
+  <!-- Straw -->
+  <rect x="580" y="250" width="38" height="420" rx="10" fill="#8C5A35" transform="rotate(10 599 670)"/>
+
+  <!-- Cup contents -->
+  <use xlink:href="#cup" fill="#FFFFFF" opacity="0.35" stroke="#D8C096" stroke-width="12"/>
+  <g clip-path="url(#cupClip)">
+    <rect x="320" y="580" width="440" height="600" fill="#C99A6A"/>
+    <rect x="320" y="580" width="440" height="80" fill="#EAD7B8"/>
+    <rect x="320" y="1040" width="440" height="140" fill="#A87444"/>
+  </g>
+  <g fill="#E9A521">
+    <circle cx="420" cy="604" r="6"/><circle cx="470" cy="628" r="5"/><circle cx="530" cy="600" r="6"/>
+    <circle cx="590" cy="630" r="5"/><circle cx="650" cy="606" r="6"/><circle cx="700" cy="630" r="5"/>
+    <circle cx="380" cy="640" r="5"/>
+  </g>
+  <!-- Sleeve -->
+  <path d="M349 780 L731 780 L720 910 L360 910 Z" fill="#6B3E22"/>
+  <text x="540" y="862" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" letter-spacing="8" fill="#F6D38A">LANTING</text>
+  <use xlink:href="#cup" fill="none" stroke="#FFFFFF" stroke-width="6" opacity="0.85"/>
+
+  <!-- Dome lid -->
+  <path d="M332 530 Q340 404 540 392 Q740 404 748 530 Z" fill="#FFFFFF" fill-opacity="0.45" stroke="#D8C096" stroke-width="5"/>
+  <path d="M390 500 Q410 440 490 424" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+  <rect x="316" y="516" width="448" height="32" rx="12" fill="#FFFFFF" stroke="#D8C096" stroke-width="4"/>
+
+  <!-- Bottom band -->
+  <rect x="0" y="1210" width="1080" height="140" fill="#6B3E22"/>
+  <text x="540" y="1300" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700" letter-spacing="6" fill="#F6D38A">OSMANTHUS OOLONG</text>
+</svg>

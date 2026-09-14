@@ -1,0 +1,246 @@
+@import "tailwindcss";
+
+/*
+  Second Look — proof-sheet palette.
+  Paper and ink for content, blue pencil for the reviewer's annotations and
+  interaction, oxblood reserved for risk severity. Nothing else gets a color.
+*/
+:root {
+  --paper: #f3f4f1;
+  --sheet: #fbfbf9;
+  --ink: #17191c;
+  --ink-2: #4a4f57;
+  --ink-3: #646a73;
+  --rule: #d6d9d3;
+  --rule-strong: #b9bdb6;
+  --pencil: #2750b8;
+  --pencil-wash: #e2e9f7;
+  --critical: #8c1d1d;
+  --critical-ink: #fbfbf9;
+  --critical-wash: #f4e3e0;
+  --high: #8c1d1d;
+  --moderate: #5e4b2e;
+  --moderate-rule: #b9a98e;
+  --low: #5c636d;
+  --low-rule: #c9cdd3;
+  --mark: #f3dfa6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1a1d22;
+    --sheet: #20242a;
+    --ink: #e8e9e4;
+    --ink-2: #b1b5bc;
+    --ink-3: #8d939c;
+    --rule: #333841;
+    --rule-strong: #4a505a;
+    --pencil: #93b1f3;
+    --pencil-wash: #26324a;
+    --critical: #a8302e;
+    --critical-ink: #fbfbf9;
+    --critical-wash: #3a2324;
+    --high: #eb9d93;
+    --moderate: #d8c49b;
+    --moderate-rule: #6f624b;
+    --low: #a3a9b2;
+    --low-rule: #4a505a;
+    --mark: #5b4a1c;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-sheet: var(--sheet);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-pencil: var(--pencil);
+  --color-pencil-wash: var(--pencil-wash);
+  --color-critical: var(--critical);
+  --color-critical-ink: var(--critical-ink);
+  --color-critical-wash: var(--critical-wash);
+  --color-high: var(--high);
+  --color-moderate: var(--moderate);
+  --color-moderate-rule: var(--moderate-rule);
+  --color-low: var(--low);
+  --color-low-rule: var(--low-rule);
+  --color-mark: var(--mark);
+
+  --font-sans: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument), "Times New Roman", serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+html {
+  color-scheme: light dark;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  font-feature-settings: "ss01", "tnum" 0;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--pencil-wash);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--pencil);
+  outline-offset: 2px;
+}
+
+.font-serif {
+  font-feature-settings: normal;
+  letter-spacing: -0.005em;
+}
+
+/*
+  The Magic Hour API plate: an inverted, printer's-plate panel so the request
+  reads as a feature of the page rather than debug output.
+*/
+.code-plate {
+  --plate-bg: #17191c;
+  --plate-fg: #e6e7e2;
+  --plate-dim: #8e949c;
+  --plate-rule: #30343a;
+  --tok-key: #f1f2ee;
+  --tok-string: #a9c2f7;
+  --tok-number: #e7c98f;
+  --tok-keyword: #d9a6a0;
+  --tok-comment: #7d838b;
+  background: var(--plate-bg);
+  color: var(--plate-fg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .code-plate {
+    --plate-bg: #0f1114;
+    --plate-rule: #2a2e34;
+  }
+}
+
+.code-plate .tok-key { color: var(--tok-key); font-weight: 500; }
+.code-plate .tok-string { color: var(--tok-string); }
+.code-plate .tok-number { color: var(--tok-number); }
+.code-plate .tok-keyword { color: var(--tok-keyword); }
+.code-plate .tok-comment { color: var(--tok-comment); font-style: italic; }
+
+/* Proof-mark underline used for highlighted copy excerpts. */
+mark.excerpt {
+  background: var(--mark);
+  color: inherit;
+  padding: 0 0.12em;
+  border-radius: 2px;
+  box-decoration-break: clone;
+}
+
+/*
+  The light table: the backlit surface printers review proofs on. It stays dark
+  in both themes, like the API plate, so the creative is always the brightest
+  thing on screen.
+*/
+.light-table {
+  --table: #1c1f24;
+  --table-grid: #262a31;
+  --table-ink: #eceee8;
+  --table-dim: #939aa3;
+  --table-rule: #353a42;
+  --table-pencil: #8fb0f7;
+  background-color: var(--table);
+  color: var(--table-ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  .light-table {
+    --table: #121418;
+    --table-grid: #1d2026;
+    --table-rule: #2c3037;
+  }
+}
+
+/*
+  Above-the-fold entrances run in CSS so they start at first paint instead of
+  waiting for hydration (keeps LCP fast). Scroll-triggered reveals use Motion.
+*/
+@keyframes rise {
+  from { transform: translateY(105%); }
+  to { transform: translateY(0); }
+}
+.rise-line {
+  animation: rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.fade-up {
+  animation: fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Selection outline that crawls, for the finding currently in focus. */
+@keyframes marching-ants {
+  to { stroke-dashoffset: -16; }
+}
+.marching-ants {
+  stroke-dasharray: 6 10;
+  animation: marching-ants 0.6s linear infinite;
+}
+
+/* The scan line that reads the creative while an analysis runs. */
+@keyframes scan {
+  0% { transform: translateY(-8%); }
+  100% { transform: translateY(108%); }
+}
+.scan-line {
+  animation: scan 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
+}
+
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 60s linear infinite;
+}
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+.caret::after {
+  content: "";
+  display: inline-block;
+  width: 0.08em;
+  height: 1em;
+  margin-left: 0.06em;
+  vertical-align: -0.12em;
+  background: currentColor;
+  animation: blink 1s steps(1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .scan-line,
+  .marquee-track {
+    animation: none !important;
+  }
+}

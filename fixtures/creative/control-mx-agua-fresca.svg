@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <!-- Synthetic creative for Second Look. Fictional brand "Río Claro". -->
+  <defs>
+    <path id="bottle" d="M505 400 L505 470 Q505 520 432 560 Q400 580 400 624 L400 1120 Q400 1160 440 1160 L640 1160 Q680 1160 680 1120 L680 624 Q680 580 648 560 Q575 520 575 470 L575 400 Z"/>
+    <clipPath id="bottleClip"><use xlink:href="#bottle"/></clipPath>
+    <g id="flower">
+      <ellipse cx="0" cy="-58" rx="42" ry="62" transform="rotate(0)"/>
+      <ellipse cx="0" cy="-58" rx="42" ry="62" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-58" rx="42" ry="62" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-58" rx="42" ry="62" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-58" rx="42" ry="62" transform="rotate(288)"/>
+      <circle cx="0" cy="0" r="22" fill="#8A1234"/>
+      <line x1="0" y1="0" x2="34" y2="-58" stroke="#F6C343" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="36" cy="-62" r="10" fill="#F6C343"/>
+    </g>
+  </defs>
+  <rect width="1080" height="1350" fill="#CDEBE6"/>
+
+  <!-- Wordmark -->
+  <text x="540" y="150" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="66" font-weight="700" letter-spacing="12" fill="#7A1030">RÍO CLARO</text>
+  <path d="M430 190 q27 -16 55 0 t55 0 t55 0 t55 0" fill="none" stroke="#7A1030" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Ground -->
+  <rect x="0" y="1180" width="1080" height="170" fill="#A7DAD2"/>
+
+  <!-- Hibiscus flowers -->
+  <use xlink:href="#flower" fill="#D6285A" transform="translate(830 560) rotate(-12) scale(0.75)"/>
+  <use xlink:href="#flower" fill="#C21D4F" transform="translate(236 1060) rotate(20) scale(1.05)"/>
+  <use xlink:href="#flower" fill="#D6285A" transform="translate(860 1020) rotate(-30) scale(0.9)"/>
+
+  <!-- Bottle -->
+  <ellipse cx="540" cy="1172" rx="170" ry="16" fill="#86C4BA"/>
+  <use xlink:href="#bottle" fill="#FFFFFF" opacity="0.45"/>
+  <g clip-path="url(#bottleClip)">
+    <rect x="390" y="486" width="300" height="690" fill="#9E1B3C"/>
+    <rect x="390" y="486" width="300" height="12" fill="#B8325A"/>
+  </g>
+  <use xlink:href="#bottle" fill="none" stroke="#FFFFFF" stroke-width="6" opacity="0.8"/>
+  <rect x="424" y="630" width="20" height="480" rx="10" fill="#FFFFFF" opacity="0.3"/>
+  <rect x="494" y="340" width="92" height="64" rx="10" fill="#D9A13B"/>
+  <rect x="494" y="360" width="92" height="6" fill="#B8842A"/>
+  <!-- Label -->
+  <rect x="400" y="760" width="280" height="200" fill="#FFF8EE"/>
+  <text x="540" y="832" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="3" fill="#7A1030">RÍO CLARO</text>
+  <text x="540" y="894" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" letter-spacing="5" fill="#9E1B3C">JAMAICA</text>
+  <text x="540" y="934" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="1" fill="#7A1030">SIN AZÚCAR AÑADIDA</text>
+
+  <!-- Ice cubes -->
+  <g fill="#FFFFFF" fill-opacity="0.75" stroke="#8FD0DA" stroke-width="4">
+    <rect x="-45" y="-45" width="90" height="90" rx="16" transform="translate(330 1206) rotate(12)"/>
+    <rect x="-40" y="-40" width="80" height="80" rx="14" transform="translate(750 1210) rotate(-15)"/>
+    <rect x="-34" y="-34" width="68" height="68" rx="12" transform="translate(624 1222) rotate(6)"/>
+  </g>
+
+  <!-- Line -->
+  <text x="540" y="1316" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700" letter-spacing="5" fill="#7A1030">AGUA DE JAMAICA</text>
+</svg>

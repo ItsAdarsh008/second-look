@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <!-- Synthetic creative for Second Look. Fictional brand "Kanto Motors". -->
+  <rect width="1080" height="1350" fill="#F4C88E"/>
+
+  <!-- Wordmark -->
+  <text x="540" y="140" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700" letter-spacing="12" fill="#2F3D4C">KANTO MOTORS</text>
+  <rect x="440" y="166" width="200" height="5" fill="#2F3D4C"/>
+
+  <!-- Mountains -->
+  <path d="M0 700 L150 540 L300 660 L470 470 L660 690 L820 560 L1080 720 L1080 900 L0 900 Z" fill="#E3A474"/>
+  <path d="M0 800 L200 620 L360 760 L560 600 L760 780 L920 670 L1080 790 L1080 900 L0 900 Z" fill="#C97B4F"/>
+
+  <!-- Desert ground and dirt road -->
+  <rect x="0" y="880" width="1080" height="470" fill="#D9A46A"/>
+  <rect x="0" y="1010" width="1080" height="130" fill="#A8744A"/>
+  <rect x="0" y="1010" width="1080" height="6" fill="#95633D"/>
+  <g fill="#8E5E3A">
+    <rect x="60" y="1122" width="70" height="6" rx="3"/>
+    <rect x="930" y="1122" width="90" height="6" rx="3"/>
+    <rect x="880" y="1030" width="60" height="5" rx="2"/>
+  </g>
+
+  <!-- Dust -->
+  <g fill="#EBCB9C">
+    <circle cx="110" cy="1060" r="46"/>
+    <circle cx="60" cy="1030" r="34"/>
+    <circle cx="150" cy="1010" r="28"/>
+  </g>
+
+  <!-- SUV (side view, facing right) -->
+  <rect x="352" y="624" width="440" height="14" rx="6" fill="#1E2833"/>
+  <rect x="400" y="636" width="14" height="22" fill="#1E2833"/>
+  <rect x="730" y="636" width="14" height="22" fill="#1E2833"/>
+  <path d="M292 822 L346 654 L806 654 L846 822 Z" fill="#2F3D4C"/>
+  <path d="M322 812 L366 674 L552 674 L552 812 Z" fill="#BFD6E3"/>
+  <path d="M576 812 L576 674 L788 674 L820 812 Z" fill="#BFD6E3"/>
+  <rect x="190" y="812" width="700" height="220" rx="28" fill="#2F3D4C"/>
+  <rect x="196" y="892" width="688" height="12" fill="#F2A33A"/>
+  <rect x="860" y="846" width="30" height="34" rx="6" fill="#F7E3A1"/>
+  <rect x="872" y="950" width="44" height="58" rx="8" fill="#1E2833"/>
+  <rect x="164" y="950" width="40" height="58" rx="8" fill="#1E2833"/>
+  <!-- Spare tire on tailgate -->
+  <circle cx="186" cy="872" r="60" fill="#1B1F24"/>
+  <circle cx="186" cy="872" r="30" fill="#4A5561"/>
+  <!-- Wheel arches and wheels -->
+  <circle cx="345" cy="1032" r="96" fill="#1E2833"/>
+  <circle cx="735" cy="1032" r="96" fill="#1E2833"/>
+  <circle cx="345" cy="1040" r="80" fill="#15181C"/>
+  <circle cx="735" cy="1040" r="80" fill="#15181C"/>
+  <circle cx="345" cy="1040" r="38" fill="#9AA5B1"/>
+  <circle cx="735" cy="1040" r="38" fill="#9AA5B1"/>
+  <circle cx="345" cy="1040" r="12" fill="#5A6570"/>
+  <circle cx="735" cy="1040" r="12" fill="#5A6570"/>
+  <!-- Badge -->
+  <text x="540" y="978" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" letter-spacing="5" fill="#FFFFFF">PAJERO</text>
+
+  <!-- Line -->
+  <text x="540" y="1280" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="68" font-weight="700" letter-spacing="4" fill="#2F3D4C">NUEVO PAJERO 4x4</text>
+</svg>
