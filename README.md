@@ -83,7 +83,7 @@ npx tsx scripts/smoke-magichour.ts ./fixtures/test.png "make the sky purple" --m
 
 Evals run **leave-one-out**: each reconstruction's own incident is removed from the reference corpus, and reconstructions use fictional brands. The question is whether the tool would have caught Tank Day before May 2026, not whether it can look it up. The analyst system prompt contains no fixture case, and a test enforces that.
 
-The fixtures include three control campaigns for the same markets as the risky cases. Look at those first: a tool that flags everything is useless.
+The app shows three cases (Tank Day, Rising Sun rays, The green hat). The eval set (`EVAL_CASES`) scores more: three language cases (White Is Purity, Pajero, Vuela en cuero), the only tests of risk in the words, and three control campaigns for the same markets as the risky cases, the only measure of false positives. Look at the controls first: a tool that flags everything is useless.
 
 ## Deploying to Vercel
 

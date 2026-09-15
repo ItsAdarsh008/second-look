@@ -232,7 +232,7 @@ export function LightTable({
                   {dragging ? "Let go to place it" : "Drop the ad here"}
                 </motion.span>
                 <span id={helpId} className="text-sm text-[var(--table-dim)]">
-                  or click to choose a file, or try a case on the left
+                  or click to choose a file, or try one of the cases
                 </span>
               </button>
             </motion.div>

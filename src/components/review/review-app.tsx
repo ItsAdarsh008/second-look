@@ -2,10 +2,11 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ApiRequestError, analyzeWithProgress, uploadLocal, uploadToBlob } from "@/lib/clients/secondlook";
 import { formatDate } from "@/lib/format";
-import { severityCounts, verdictLine } from "@/lib/report";
+import { KIND_LABEL, severityCounts, verdictLine } from "@/lib/report";
 import type { ExampleCase } from "@/lib/examples";
 import { CHANNEL_LABELS, CampaignInputSchema, marketName, type AnalysisResult, type CampaignInput } from "@/lib/schema";
 import { BriefForm, EMPTY_BRIEF, type BriefValues, type FieldErrors } from "../brief/brief-form";
@@ -26,7 +27,6 @@ const FAILURE_HELP: Record<string, string> = {
   rate_limited: "Rate limit reached",
   not_ad_creative: "That doesn't look like an ad",
   off_purpose: "That doesn't look like a campaign",
-  empty_campaign: "Add some copy",
   image_unavailable: "The creative couldn't be read",
   refused: "The model declined this one",
   not_configured: "Analysis isn't configured",
@@ -61,30 +61,66 @@ function toInput(values: BriefValues, imageUrl: string | null): { input: Campaig
   return { input: parsed.data, errors };
 }
 
-function ExampleChips({ examples, onLoad, activeSlug, disabled }: { examples: readonly ExampleCase[]; onLoad: (slug: string) => void; activeSlug: string | null; disabled: boolean }) {
+/** Case tiles: a proof thumbnail, the case name and what it tests. The selected highlight slides between tiles. */
+function CasePicker({ examples, onLoad, activeSlug, disabled }: { examples: readonly ExampleCase[]; onLoad: (slug: string) => void; activeSlug: string | null; disabled: boolean }) {
   return (
     <div>
-      <p className="text-[0.82rem] text-ink-3">Or start from a case</p>
-      <ul className="mt-2 flex flex-wrap gap-2">
-        {examples.map((c, i) => (
-          <li key={c.slug} className="fade-up" style={{ animationDelay: `${320 + i * 35}ms` }}>
-            <button
-              type="button"
-              disabled={disabled}
-              onClick={() => onLoad(c.slug)}
-              aria-pressed={activeSlug === c.slug}
-              className={`group flex items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-[0.85rem] transition-colors disabled:opacity-50 ${
-                activeSlug === c.slug ? "border-ink bg-ink text-paper" : "border-rule bg-sheet text-ink-2 hover:border-ink hover:text-ink"
-              }`}
-            >
-              <span className="relative h-6 w-6 overflow-hidden rounded-full">
-                <Image src={`/cases/${c.slug}-thumb.png`} alt="" fill sizes="24px" className="object-cover transition-transform duration-300 group-hover:scale-125" />
-              </span>
-              {c.title}
-              {c.kind === "control" && <span className={activeSlug === c.slug ? "text-paper/70" : "text-ink-3"}>control</span>}
-            </button>
-          </li>
-        ))}
+      <div className="flex items-baseline justify-between gap-4">
+        <p id="case-picker-label" className="text-[0.82rem] text-ink-3">
+          Try it on a case
+        </p>
+        <Link href="/cases" className="text-[0.82rem] text-ink-3 underline decoration-rule-strong underline-offset-4 hover:text-ink">
+          About these cases
+        </Link>
+      </div>
+      <ul aria-labelledby="case-picker-label" className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {examples.map((c, i) => {
+          const active = activeSlug === c.slug;
+          return (
+            <li key={c.slug} className="fade-up" style={{ animationDelay: `${320 + i * 45}ms` }}>
+              <motion.button
+                type="button"
+                disabled={disabled}
+                onClick={() => onLoad(c.slug)}
+                aria-pressed={active}
+                whileHover={active ? undefined : { y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 420, damping: 28 }}
+                className={`group relative flex w-full items-center gap-3 rounded-[8px] border p-1.5 pr-3 text-left transition-colors disabled:opacity-50 ${
+                  active ? "border-ink text-paper" : "border-rule bg-sheet text-ink hover:border-rule-strong"
+                }`}
+              >
+                {active && <motion.span layoutId="case-picker-active" className="absolute inset-0 rounded-[7px] bg-ink" transition={{ type: "spring", stiffness: 380, damping: 32 }} aria-hidden />}
+                <span className={`relative h-[3.25rem] w-[2.6rem] shrink-0 overflow-hidden rounded-[4px] border ${active ? "border-paper/30" : "border-rule"}`}>
+                  <Image
+                    src={`/cases/${c.slug}-thumb.png`}
+                    alt=""
+                    fill
+                    sizes="42px"
+                    className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110"
+                  />
+                </span>
+                <span className="relative min-w-0">
+                  <span className="block font-serif text-[1.08rem] leading-[1.1] sm:truncate sm:text-[1.2rem]">{c.title}</span>
+                  <span className={`block truncate text-[0.74rem] ${active ? "text-paper/70" : "text-ink-3"}`}>{KIND_LABEL[c.kind]}</span>
+                </span>
+                {active && (
+                  <motion.svg
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    className="relative ml-auto shrink-0 text-paper"
+                    aria-hidden
+                  >
+                    <path d="M2.5 7.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                  </motion.svg>
+                )}
+              </motion.button>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -277,7 +313,7 @@ export function ReviewApp({
             <AnimatePresence mode="wait" initial={false}>
               {editing ? (
                 <motion.div key="brief" className="flex flex-col gap-7" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
-                  <ExampleChips examples={examples} onLoad={loadExample} activeSlug={activeSlug} disabled={false} />
+                  <CasePicker examples={examples} onLoad={loadExample} activeSlug={activeSlug} disabled={false} />
                   <div className="fade-up" style={{ animationDelay: "480ms" }}>
                     <BriefForm
                       values={values}

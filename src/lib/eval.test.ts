@@ -1,19 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { CASES } from "@/data/cases";
+import { CASES, EVAL_CASES } from "@/data/cases";
 import { aggregate, diffRuns, erroredCase, scoreCase, type EvalRun } from "./eval";
 import { CaseFixtureSchema } from "./schema";
 import { copyFindingTank, finding, imageFindingRays, timingFinding } from "@/test/fixtures";
 
 const tank = CASES.find((c) => c.slug === "starbucks-korea")!;
-const control = CASES.find((c) => c.kind === "control")!;
+const control = EVAL_CASES.find((c) => c.kind === "control")!;
 
 describe("case fixtures", () => {
-  it("are schema-valid, include the required mix, and give Tank Day zero image expectations", () => {
-    for (const c of CASES) expect(() => CaseFixtureSchema.parse(c), c.slug).not.toThrow();
-    expect(CASES.length).toBeGreaterThanOrEqual(8);
+  it("are schema-valid, keep controls out of the app, and give Tank Day zero image expectations", () => {
+    for (const c of EVAL_CASES) expect(() => CaseFixtureSchema.parse(c), c.slug).not.toThrow();
+    expect(EVAL_CASES.length).toBeGreaterThanOrEqual(8);
     expect(CASES[0].slug).toBe("starbucks-korea");
-    expect(CASES.filter((c) => c.kind === "control").length).toBeGreaterThanOrEqual(2);
-    expect(CASES.filter((c) => c.kind === "synthetic-visual").length).toBeGreaterThanOrEqual(2);
+    // Controls stay in the eval set (false positives) but never appear in the app.
+    expect(EVAL_CASES.filter((c) => c.kind === "control").length).toBeGreaterThanOrEqual(2);
+    expect(CASES.some((c) => c.kind === "control")).toBe(false);
+    expect(EVAL_CASES.filter((c) => c.kind === "synthetic-visual").length).toBeGreaterThanOrEqual(2);
     expect(tank.expected.some((e) => e.locusKind === "image")).toBe(false);
   });
 });

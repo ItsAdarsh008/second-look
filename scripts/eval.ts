@@ -15,7 +15,7 @@ async function main(): Promise<void> {
   if (ensureServerConditions()) return;
   loadEnv();
 
-  const { CASES } = await import("../src/data/cases");
+  const { EVAL_CASES: CASES } = await import("../src/data/cases");
   const { analyzeCampaign, AnalysisError } = await import("../src/lib/analyze");
   const { ANALYST_MODEL } = await import("../src/lib/clients/anthropic");
   const { aggregate, diffRuns, erroredCase, scoreCase, EvalRunSchema } = await import("../src/lib/eval");

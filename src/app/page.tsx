@@ -16,8 +16,8 @@ export default function Home() {
   return (
     <>
       <ReviewApp examples={toExampleCases(CASES)} incidents={incidentSummaries()} {...caps} />
-      <Story />
       <HowItWorks incidents={INCIDENTS.length} dates={CALENDAR.length} markets={MARKETS.length} />
+      <Story />
       <CaseMarquee cases={CASES} />
     </>
   );

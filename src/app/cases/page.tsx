@@ -5,13 +5,13 @@ import { CASES } from "@/data/cases";
 import { getCaseResult } from "@/data/cases/results";
 import { Reveal, RiseLines } from "@/components/motion/primitives";
 import { scoreCase } from "@/lib/eval";
-import { CASE_GROUPS, CATEGORY_LABEL, KIND_LABEL, expectationSummary } from "@/lib/report";
+import { CASE_GROUPS, CATEGORY_LABEL, expectationSummary } from "@/lib/report";
 import { marketName, type CaseFixture } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: "Case studies",
   description:
-    "Real campaign failures rebuilt with fictional brands, risks planted in the picture or the words, and clean controls, each run through Second Look.",
+    "A real campaign failure rebuilt with a fictional brand, and risks planted in the picture, each run through Second Look.",
 };
 
 /** What the card promises, or what the published run actually did. */
@@ -92,12 +92,14 @@ function CaseCard({ c, delay }: { c: CaseFixture; delay: number }) {
   );
 }
 
-function FeaturedCase({ c }: { c: CaseFixture }) {
+function FeaturedCase({ c, solo }: { c: CaseFixture; solo: boolean }) {
   return (
-    <li className="lg:col-span-2">
+    <li className={solo ? "" : "lg:col-span-2"}>
       <Link
         href={`/cases/${c.slug}`}
-        className="group fade-up grid h-full grid-cols-[minmax(0,1fr)] gap-6 rounded-[10px] border border-ink bg-sheet p-5 sm:grid-cols-[13rem_minmax(0,1fr)] sm:gap-8 sm:p-6"
+        className={`group fade-up grid h-full grid-cols-[minmax(0,1fr)] gap-6 rounded-[10px] border border-ink bg-sheet p-5 sm:gap-8 sm:p-6 ${
+          solo ? "sm:grid-cols-[15rem_minmax(0,1fr)] lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-12 lg:p-8" : "sm:grid-cols-[13rem_minmax(0,1fr)]"
+        }`}
         style={{ animationDelay: "240ms" }}
       >
         <div className="light-table self-start rounded-[8px] p-3">
@@ -141,11 +143,12 @@ function FeaturedCase({ c }: { c: CaseFixture }) {
 export default function CasesPage() {
   const [featured] = CASES;
   const published = CASES.some((c) => getCaseResult(c.slug));
-  const counts = {
-    real: CASES.filter((c) => c.kind === "incident-reconstruction").length,
-    planted: CASES.filter((c) => c.kind === "synthetic-visual" || c.kind === "synthetic-language").length,
-    controls: CASES.filter((c) => c.kind === "control").length,
-  };
+  const count = (kind: CaseFixture["kind"]) => CASES.filter((c) => c.kind === kind).length;
+  const stats = [
+    { n: count("incident-reconstruction"), label: count("incident-reconstruction") === 1 ? "real failure" : "real failures" },
+    { n: count("synthetic-visual"), label: "in the picture" },
+    { n: count("synthetic-language"), label: "in the words" },
+  ].filter((s) => s.n > 0);
 
   return (
     <div className="mx-auto max-w-[88rem] px-5 pt-12 sm:px-8">
@@ -159,12 +162,8 @@ export default function CasesPage() {
             Real incidents are left out of the reference material while they&rsquo;re tested, so it can&rsquo;t look up the answer.
           </p>
         </div>
-        <dl className="fade-up grid grid-cols-3 gap-4 lg:justify-self-end" style={{ animationDelay: "220ms" }}>
-          {[
-            { n: counts.real, label: "real failures" },
-            { n: counts.planted, label: "planted risks" },
-            { n: counts.controls, label: "controls" },
-          ].map((s) => (
+        <dl className="fade-up flex gap-4 lg:justify-self-end" style={{ animationDelay: "220ms" }}>
+          {stats.map((s) => (
             <div key={s.label} className="border-l border-rule pl-4">
               <dt className="sr-only">{s.label}</dt>
               <dd className="text-[2.6rem] font-medium leading-none tabular-nums">{s.n}</dd>
@@ -200,11 +199,15 @@ export default function CasesPage() {
               </Reveal>
               <ul
                 className={`mt-6 grid grid-cols-[minmax(0,1fr)] gap-5 ${
-                  cases.length === 2 && !cases.some((c) => c.slug === featured.slug) ? "md:grid-cols-2" : "md:grid-cols-2 lg:grid-cols-3"
+                  cases.length === 1
+                    ? ""
+                    : cases.length === 2 && !cases.some((c) => c.slug === featured.slug)
+                      ? "md:grid-cols-2"
+                      : "md:grid-cols-2 lg:grid-cols-3"
                 }`}
               >
                 {cases.map((c, i) => {
-                  if (c.slug === featured.slug) return <FeaturedCase key={c.slug} c={c} />;
+                  if (c.slug === featured.slug) return <FeaturedCase key={c.slug} c={c} solo={cases.length === 1} />;
                   if (cases.some((x) => x.slug === featured.slug)) return <StackedCaseCard key={c.slug} c={c} />;
                   return <CaseCard key={c.slug} c={c} delay={Math.min(i, 3) * 0.07} />;
                 })}
@@ -215,8 +218,7 @@ export default function CasesPage() {
       </div>
 
       <p className="mt-16 text-[0.92rem] text-ink-3">
-        Markets covered by these cases: {[...new Set(CASES.flatMap((c) => c.input.markets))].map(marketName).join(", ")}. {KIND_LABEL.control}s use the
-        same markets as the risky cases, so a clean result means something.
+        Markets covered by these cases: {[...new Set(CASES.flatMap((c) => c.input.markets))].map(marketName).join(", ")}.
       </p>
     </div>
   );

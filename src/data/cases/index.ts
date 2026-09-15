@@ -10,14 +10,19 @@ import { starbucksKorea } from "./starbucks-korea";
 import { vuelaEnCuero } from "./vuela-en-cuero";
 import { whiteIsPurity } from "./white-is-purity";
 
-/** Case studies for the gallery and the eval harness. `starbucks-korea` leads. */
-export const CASES: CaseFixture[] = [
-  starbucksKorea,
-  risingSunRays,
-  greenHat,
+/** Case studies shown in the app: the example picker, the gallery and the case pages. `starbucks-korea` leads. */
+export const CASES: CaseFixture[] = [starbucksKorea, risingSunRays, greenHat];
+
+/**
+ * Everything `npm run eval` scores. The extra cases aren't shown in the app, but the
+ * language cases are the only tests of risk in the words and the controls are the only
+ * measure of false positives, so they stay in the eval set.
+ */
+export const EVAL_CASES: CaseFixture[] = [
+  ...CASES,
+  whiteIsPurity,
   pajero,
   vuelaEnCuero,
-  whiteIsPurity,
   controlKrSweetPotatoLatte,
   controlMxAguaFresca,
   controlCnOsmanthusTea,
