@@ -1,9 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useId } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { CHANNELS, CHANNEL_LABELS, type Channel, type Market } from "@/lib/schema";
 import { useTypewriter } from "../motion/primitives";
+import { useScrollTo } from "../motion/providers";
 import { MarketPicker } from "./market-picker";
 
 export interface BriefValues {
@@ -81,7 +83,7 @@ function TextField({
         {label}
       </label>
       {multiline ? (
-        <textarea {...common} rows={2} className={`${className} resize-none`} onChange={(e) => onChange(e.target.value)} data-lenis-prevent />
+        <textarea {...common} rows={1} className={`${className} max-h-40 resize-none field-sizing-content`} onChange={(e) => onChange(e.target.value)} data-lenis-prevent />
       ) : (
         <input {...common} className={className} autoComplete="off" onChange={(e) => onChange(e.target.value)} />
       )}
@@ -134,6 +136,21 @@ function CaseCopy({ values, fillKey }: { values: BriefValues; fillKey: number })
   );
 }
 
+function SubmitButton({ form, disabled, submitting, className = "" }: { form: string; disabled: boolean; submitting: boolean; className?: string }) {
+  return (
+    <motion.button
+      type="submit"
+      form={form}
+      whileTap={{ scale: 0.97 }}
+      disabled={disabled}
+      className={`group relative overflow-hidden rounded-[6px] bg-ink px-6 py-3.5 text-[1rem] font-medium text-paper disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+    >
+      <span className="absolute inset-0 origin-left scale-x-0 bg-pencil transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-enabled:group-hover:scale-x-100" aria-hidden />
+      <span className="relative">{submitting ? "Reading the campaign…" : "Run a second look"}</span>
+    </motion.button>
+  );
+}
+
 export function BriefForm({
   values,
   onChange,
@@ -154,24 +171,76 @@ export function BriefForm({
   analysisAvailable: boolean;
 }) {
   const ids = useId();
+  const formId = `${ids}-form`;
+  const formRef = useRef<HTMLFormElement>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
+  const attempted = useRef(false);
+  const scrollTo = useScrollTo();
   // Cases ship with their own copy; a user's upload has none and the copy is read from the creative.
   const caseCopy = [values.productName, values.headline, values.bodyCopy].some((v) => v.trim().length > 0);
+  const disabled = submitting || uploading || !analysisAvailable;
+
+  // Below lg the light table sits above the brief, so the submit button starts off screen.
+  // Pin a copy to the bottom of the viewport until the real one scrolls into view. Null until measured.
+  const [pinned, setPinned] = useState<boolean | null>(null);
+  useEffect(() => {
+    const el = actionsRef.current;
+    if (!el) return;
+    // Two observers because a jump (scroll restoration, the End key) can carry the button from below the fold
+    // to above it without ever intersecting the viewport, which a single observer never reports.
+    let onScreen = false;
+    let onScreenOrBelow = false;
+    const update = () => setPinned(onScreenOrBelow && !onScreen);
+    const screen = new IntersectionObserver(([entry]) => {
+      if (!entry) return;
+      onScreen = entry.isIntersecting;
+      update();
+    });
+    const belowFold = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+        onScreenOrBelow = entry.isIntersecting;
+        update();
+      },
+      { rootMargin: "0px 0px 100000px 0px" },
+    );
+    screen.observe(el);
+    belowFold.observe(el);
+    return () => {
+      screen.disconnect();
+      belowFold.disconnect();
+    };
+  }, []);
+
+  // A submit from the pinned bar can fail validation with the fields off screen: bring them into view.
+  useEffect(() => {
+    if (!attempted.current) return;
+    attempted.current = false;
+    if (pinned && Object.values(errors).some(Boolean)) scrollTo(formRef.current, -24);
+  }, [errors, pinned, scrollTo]);
+
+  const attempt = () => {
+    attempted.current = true;
+    onSubmit();
+  };
 
   return (
     <form
+      ref={formRef}
+      id={formId}
       noValidate
       aria-label="Campaign brief"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit();
+        attempt();
       }}
       onKeyDown={(e) => {
         if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
           e.preventDefault();
-          onSubmit();
+          attempt();
         }
       }}
-      className="space-y-5"
+      className="space-y-4"
     >
       <AnimatePresence initial={false}>
         {caseCopy && (
@@ -234,22 +303,14 @@ export function BriefForm({
         hint="Second Look reads the copy from the creative. Add anything the image doesn't show."
       />
 
-      {errors.image && (
-        <p className="text-[0.9rem] text-critical" role="alert">
-          {errors.image}
-        </p>
-      )}
-
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-1">
-        <motion.button
-          type="submit"
-          whileTap={{ scale: 0.97 }}
-          disabled={submitting || uploading || !analysisAvailable}
-          className="group relative overflow-hidden rounded-[6px] bg-ink px-6 py-3.5 text-[1rem] font-medium text-paper disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <span className="absolute inset-0 origin-left scale-x-0 bg-pencil transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-enabled:group-hover:scale-x-100" aria-hidden />
-          <span className="relative">{submitting ? "Reading the campaign…" : "Run a second look"}</span>
-        </motion.button>
+      {/* On lg the actions stick to the bottom of the viewport, so a loaded case's copy can't push the button below the fold. */}
+      <div ref={actionsRef} className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-1 lg:sticky lg:bottom-0 lg:z-10 lg:border-t lg:border-rule lg:bg-paper lg:py-3">
+        {errors.image && (
+          <p className="basis-full text-[0.9rem] text-critical" role="alert">
+            {errors.image}
+          </p>
+        )}
+        <SubmitButton form={formId} disabled={disabled} submitting={submitting} />
         <p className="max-w-[40ch] text-[0.85rem] text-ink-3">
           {analysisAvailable ? (
             <>
@@ -261,6 +322,20 @@ export function BriefForm({
           )}
         </p>
       </div>
+
+      {pinned !== null &&
+        analysisAvailable &&
+        createPortal(
+          <div
+            inert={!pinned}
+            className={`fixed inset-x-0 bottom-0 z-40 border-t border-rule bg-paper px-5 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 lg:hidden ${
+              pinned ? "translate-y-0" : "translate-y-full"
+            }`}
+          >
+            <SubmitButton form={formId} disabled={disabled} submitting={submitting} className="w-full" />
+          </div>,
+          document.body,
+        )}
     </form>
   );
 }

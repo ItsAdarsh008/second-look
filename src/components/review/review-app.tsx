@@ -296,15 +296,15 @@ export function ReviewApp({
   return (
     <>
       <section ref={workspaceRef} aria-labelledby="workspace-title" className="border-b border-rule">
-        <div className="mx-auto grid max-w-[88rem] grid-cols-[minmax(0,1fr)] gap-x-12 gap-y-7 px-5 pb-10 pt-8 [grid-template-areas:'title'_'table'_'work'] sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:grid-rows-[auto_1fr] lg:pb-14 lg:pt-10 lg:[grid-template-areas:'title_table'_'work_table']">
+        <div className="mx-auto grid max-w-[88rem] grid-cols-[minmax(0,1fr)] gap-x-12 gap-y-5 px-5 pb-10 pt-6 [grid-template-areas:'title'_'table'_'work'] sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:grid-rows-[auto_1fr] lg:pb-14 lg:pt-6 lg:[grid-template-areas:'title_table'_'work_table']">
           <div className="min-w-0 [grid-area:title]">
             <div>
-              <h1 id="workspace-title" className="font-serif text-[2.6rem] leading-[0.98] tracking-tight sm:text-[3.6rem] xl:text-[4.2rem]">
-                <RiseLines lines={["Know what your ad means", "before it launches."]} />
+              <h1 id="workspace-title" className="font-serif text-[2.1rem] leading-[1.02] tracking-tight sm:text-[2.5rem] xl:text-[2.8rem]">
+                <RiseLines lines={["Cultural risk review for ad campaigns"]} />
               </h1>
-              <p className="fade-up mt-5 max-w-[50ch] text-[1.1rem] leading-relaxed text-ink-2" style={{ animationDelay: "220ms" }}>
-                Drop in the ad and say where and when it runs. Second Look reads the image and its copy against each market&rsquo;s history,
-                language and calendar, and shows the precedent behind anything it flags.
+              <p className="fade-up mt-2.5 max-w-[64ch] text-[1rem] leading-relaxed text-ink-2" style={{ animationDelay: "220ms" }}>
+                Second Look checks an ad&rsquo;s image, name, copy and launch date against each market&rsquo;s history, language and calendar, and
+                cites precedent for every flag.
               </p>
             </div>
           </div>
@@ -312,7 +312,7 @@ export function ReviewApp({
           <div className="min-w-0 [grid-area:work]">
             <AnimatePresence mode="wait" initial={false}>
               {editing ? (
-                <motion.div key="brief" className="flex flex-col gap-7" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
+                <motion.div key="brief" className="flex flex-col gap-5" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
                   <CasePicker examples={examples} onLoad={loadExample} activeSlug={activeSlug} disabled={false} />
                   <div className="fade-up" style={{ animationDelay: "480ms" }}>
                     <BriefForm
@@ -357,7 +357,7 @@ export function ReviewApp({
           </div>
 
           <div className="fade-up min-w-0 [grid-area:table]" style={{ animationDelay: "120ms" }}>
-            <div className="lg:sticky lg:top-6 lg:h-[calc(100dvh-7.5rem)] lg:max-h-[56rem] lg:min-h-[34rem]">
+            <div className="lg:sticky lg:top-6 lg:h-[calc(100dvh-6.5rem)] lg:max-h-[56rem] lg:min-h-[34rem]">
               <LightTable
                 imageUrl={previewUrl}
                 mode={tableMode}
