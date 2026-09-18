@@ -87,6 +87,8 @@ The app shows three cases (Tank Day, Rising Sun rays, The green hat). The eval s
 
 ## Deploying to Vercel
 
+Step-by-step instructions, and how much to put into the Anthropic API for your expected traffic, are in [DEPLOY.md](DEPLOY.md). In short:
+
 1. Import the repo. Framework preset: Next.js.
 2. Add a Blob store and an Upstash Redis database from the Vercel Marketplace; their env vars are injected automatically.
 3. Set `ANTHROPIC_API_KEY`, `MAGIC_HOUR_API_KEY` and `MAX_DAILY_CREDITS`.
@@ -111,7 +113,7 @@ The control that matters is a person who lives in the market reading the campaig
 ## Notes on the build
 
 - The landing page is the tool: a brief on the left and a "light table" on the right, where the creative is scanned and finding regions are drawn on. `/?case=<slug>` opens any case study in the tool.
-- Motion (`motion/react`) drives the scroll reveals, report and generation animations; Lenis provides smooth scrolling. Both are disabled under `prefers-reduced-motion`. Above-the-fold entrances are plain CSS so they start at first paint. Nested scroll areas opt out of Lenis with `data-lenis-prevent`.
+- Motion (`motion/react`) drives the scroll reveals, report and generation animations, and is reduced under `prefers-reduced-motion`. Scrolling is native; programmatic scrolls (to the report, to a new case) are animated frame by frame so Motion's layout measurements can't cancel them. Above-the-fold entrances are plain CSS so they start at first paint.
 - The home page is statically rendered, so whether analysis and generation are enabled is decided from env vars at build time. After adding keys, rebuild (on Vercel, redeploy).
 - Creative in the gallery is synthetic, drawn for this project with fictional brands. No brand assets are used.
 - Markets appear as ISO code tags rather than flags. The design spec excludes emoji, and a cultural-review tool shouldn't hand-draw national flags.
