@@ -62,7 +62,11 @@ function Row({ label, text, className, delay, fillKey, spot, field }: { label: s
     return (
       <li>
         <button type="button" onClick={() => spot.onGuess({ kind: "line", field })} aria-label={`Flag the ${label.toLowerCase()}: ${text}`} className={`group ${rowGrid} transition-colors hover:bg-pencil-wash focus-visible:bg-pencil-wash`}>
-          {cells(<span className="text-[0.78rem] font-medium text-pencil opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">Flag</span>)}
+          {cells(
+            <span className="rounded-[4px] border border-pencil/35 px-1.5 py-0.5 text-[0.74rem] font-medium text-pencil transition-colors group-hover:border-pencil group-hover:bg-pencil group-hover:text-paper group-focus-visible:border-pencil group-focus-visible:bg-pencil group-focus-visible:text-paper">
+              Flag
+            </span>,
+          )}
         </button>
       </li>
     );

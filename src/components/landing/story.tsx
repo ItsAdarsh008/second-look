@@ -59,7 +59,7 @@ export function Story({ photos }: { photos: readonly HistoryPhoto[] }) {
       <div className="mx-auto grid max-w-[88rem] grid-cols-[minmax(0,1fr)] gap-12 px-5 pb-14 pt-20 sm:px-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:gap-20 lg:pb-16 lg:pt-28">
         <div>
           <h2 id="story-title" className="font-serif text-[2.8rem] leading-[1] tracking-tight sm:text-[4.4rem]">
-            <MaskedLines lines={["Nothing was wrong", "with the picture."]} inView />
+            <MaskedLines lines={["The picture was fine.", "The words weren’t."]} inView />
           </h2>
           <Reveal delay={0.15}>
             <p className="mt-8 max-w-[30ch] font-serif text-[1.7rem] leading-[1.3] text-ink-2 sm:text-[2.1rem]">
@@ -95,7 +95,7 @@ export function Story({ photos }: { photos: readonly HistoryPhoto[] }) {
         <div className="relative flex flex-col justify-center">
           <motion.div style={{ y: drift, rotate: tilt }} className="light-table mx-auto w-full max-w-[20rem] rounded-[10px] p-6 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.5)]">
             <Image src={creativeUrl("starbucks-korea")} alt="Synthetic reconstruction of the Tank Day tumbler ad, with a fictional brand" width={1080} height={1350} className="w-full rounded-[2px]" sizes="320px" />
-            <p className="mt-3 text-[0.8rem] text-[var(--table-dim)]">Rebuilt with a fictional brand. The tumbler is fine; the words aren&rsquo;t.</p>
+            <p className="mt-3 text-[0.8rem] text-[var(--table-dim)]">Rebuilt with a fictional brand.</p>
           </motion.div>
         </div>
       </div>

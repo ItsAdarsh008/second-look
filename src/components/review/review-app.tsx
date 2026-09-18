@@ -18,6 +18,7 @@ import { EASE_OUT, RiseLines } from "../motion/primitives";
 import { useScrollTo } from "../motion/providers";
 import { Report, type IncidentSummary } from "../report/report";
 import { CaseBrief } from "../spot/case-brief";
+import { UploadCard } from "./upload-card";
 import { AnalysisProgress, INITIAL_PROGRESS, progressCaption, reduceProgress, type ProgressState } from "./analysis-progress";
 
 type Phase =
@@ -121,7 +122,7 @@ function CasePicker({
     <div>
       <div className="flex items-baseline justify-between gap-4">
         <p id="case-picker-label" className="text-[0.82rem] text-ink-3">
-          Try a case
+          Or try a case first
         </p>
         {settled.length > 0 && (
           <p className="text-[0.82rem] tabular-nums text-ink-3" aria-live="polite">
@@ -387,7 +388,8 @@ export function ReviewApp({
           <div className="min-w-0 [grid-area:work]">
             <AnimatePresence mode="wait" initial={false}>
               {editing ? (
-                <motion.div key="brief" className="flex flex-col gap-8" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
+                <motion.div key="brief" className="flex flex-col gap-7" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
+                  <UploadCard onFile={onFile} own={!activeSlug && previewUrl ? { previewUrl, upload } : null} />
                   <CasePicker examples={examples} onLoad={goTo} activeSlug={activeSlug} plays={plays} />
                   <div className="fade-up" style={{ animationDelay: "480ms" }}>
                     <BriefForm

@@ -19,7 +19,7 @@ const ZOOM = 2.2;
  * magnifies what's under it, with a "Flag" tag; clicking flags the spot under the
  * crosshair. Touch taps flag directly. Enter or Space (no position) flag the picture as a whole.
  */
-export function SpotTarget({ src, onGuess, disabled }: { src: string; onGuess: (g: Guess) => void; disabled: boolean }) {
+export function SpotTarget({ src, onGuess, disabled, onEngage }: { src: string; onGuess: (g: Guess) => void; disabled: boolean; onEngage?: () => void }) {
   const [lens, setLens] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const [pressed, setPressed] = useState(false);
 
@@ -34,8 +34,13 @@ export function SpotTarget({ src, onGuess, disabled }: { src: string; onGuess: (
         const r = e.currentTarget.getBoundingClientRect();
         setLens({ x: e.clientX - r.left, y: e.clientY - r.top, w: r.width, h: r.height });
       }}
+      onPointerEnter={onEngage}
+      onFocus={onEngage}
       onPointerLeave={() => setLens(null)}
-      onPointerDown={() => setPressed(true)}
+      onPointerDown={() => {
+        setPressed(true);
+        onEngage?.();
+      }}
       onPointerUp={() => setPressed(false)}
       onClick={(e) => {
         // Lift the loupe so the mark just made shows; it returns when the pointer moves.

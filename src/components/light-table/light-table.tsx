@@ -3,13 +3,13 @@
 import { AnimatePresence, motion, useAnimate, useReducedMotion } from "motion/react";
 import { useEffect, useId, useRef, useState } from "react";
 import { MAX_TRIES, triesLeft, type Guess, type SpotKey, type SpotProgress } from "@/lib/spot";
+import { CREATIVE_TYPES, creativeFileError } from "@/lib/upload-rules";
 import { CreativeWithBoxes, type Box } from "../report/creative-boxes";
 import { EASE_OUT } from "../motion/primitives";
+import { SpotCoach } from "../spot/spot-coach";
 import { SpotMarks, SpotTarget } from "../spot/spot-marks";
 import { SpotPrompt, SpotResult } from "../spot/spot-panels";
-
-const ACCEPT = ["image/png", "image/jpeg", "image/webp"];
-const MAX_BYTES = 10 * 1024 * 1024;
+import { UploadIcon } from "../review/upload-card";
 
 export type UploadState = { status: "idle" } | { status: "uploading" } | { status: "error"; message: string } | { status: "done" };
 
@@ -147,9 +147,9 @@ export function LightTable({
 
   const accept = (file: File | undefined) => {
     if (!file || locked) return;
-    if (!ACCEPT.includes(file.type)) return setLocalError("Use a PNG, JPEG or WebP image.");
-    if (file.size > MAX_BYTES) return setLocalError("That image is over 10MB.");
-    setLocalError(null);
+    const problem = creativeFileError(file);
+    setLocalError(problem);
+    if (problem) return;
     onFile(file);
   };
 
@@ -166,6 +166,9 @@ export function LightTable({
   const error = localError ?? (upload.status === "error" ? upload.message : null);
   const playing = spot && imageUrl ? spot : null;
   const guessing = Boolean(playing && !playing.progress.outcome);
+  // The demo cursor plays until the player first reaches for the picture, then stays away.
+  const [engaged, setEngaged] = useState(false);
+  const coaching = guessing && !engaged && (playing?.progress.misses.length ?? 0) === 0;
 
   // A wrong tap on the picture gives the sheet a small shake.
   const [sheet, shake] = useAnimate<HTMLDivElement>();
@@ -210,7 +213,7 @@ export function LightTable({
             aria-hidden
             className={`inline-block h-2 w-2 rounded-full ${mode.kind === "scanning" ? "animate-pulse bg-[var(--table-pencil)]" : mode.kind === "reviewed" ? (mode.critical ? "bg-[#e0625c]" : "bg-[var(--table-pencil)]") : imageUrl ? "bg-[var(--table-ink)]" : "bg-[var(--table-rule)]"}`}
           />
-          {mode.kind === "scanning" ? "Reading" : mode.kind === "reviewed" ? "Reviewed" : imageUrl ? "On the table" : "Empty"}
+          {mode.kind === "scanning" ? "Reading" : mode.kind === "reviewed" ? "Reviewed" : imageUrl ? (spot ? "Example case" : "Your ad") : "Empty"}
         </span>
         {guessing && playing ? <Tries left={triesLeft(playing.progress)} /> : <span className="tabular-nums">{dims ? `${dims.w} × ${dims.h} px` : "PNG, JPEG or WebP, up to 10MB"}</span>}
       </header>
@@ -260,7 +263,8 @@ export function LightTable({
                 {playing && (
                   <>
                     <SpotMarks spot={playing.spot} progress={playing.progress} />
-                    <SpotTarget src={imageUrl} onGuess={playing.onGuess} disabled={!guessing} />
+                    <SpotTarget src={imageUrl} onGuess={playing.onGuess} disabled={!guessing} onEngage={() => setEngaged(true)} />
+                    <AnimatePresence>{coaching && <SpotCoach key="coach" />}</AnimatePresence>
                   </>
                 )}
                 {mode.kind === "scanning" && (
@@ -325,20 +329,27 @@ export function LightTable({
             {error}
           </span>
         ) : playing ? (
-          <span className="hidden text-[var(--table-dim)] sm:inline">Or drop your own ad on the table.</span>
+          <span className="hidden text-[var(--table-dim)] sm:inline">Have your own? Drop it here.</span>
         ) : imageUrl ? (
           <span className="text-[var(--table-dim)]">Hover to inspect with the loupe.</span>
         ) : (
           <span className="text-[var(--table-dim)]">Nothing on the table yet.</span>
         )}
         {imageUrl && !locked && (
-          <span className="ml-auto flex shrink-0 gap-4 text-[0.85rem]">
-            <button type="button" className="text-[var(--table-pencil)] underline underline-offset-2" onClick={() => inputRef.current?.click()}>
+          <span className="ml-auto flex shrink-0 items-center gap-4 text-[0.85rem]">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-[6px] border border-[var(--table-dim)] px-3 py-1.5 text-[var(--table-ink)] transition-colors hover:border-[var(--table-ink)] hover:bg-[var(--table-ink)] hover:text-[var(--table)]"
+              onClick={() => inputRef.current?.click()}
+            >
+              <UploadIcon size={14} />
               {playing ? "Upload your ad" : "Replace"}
             </button>
-            <button type="button" className="text-[var(--table-dim)] underline underline-offset-2 hover:text-[var(--table-ink)]" onClick={onClear}>
-              Remove
-            </button>
+            {!playing && (
+              <button type="button" className="text-[var(--table-dim)] underline underline-offset-2 hover:text-[var(--table-ink)]" onClick={onClear}>
+                Remove
+              </button>
+            )}
           </span>
         )}
       </footer>
@@ -346,7 +357,7 @@ export function LightTable({
       <input
         ref={inputRef}
         type="file"
-        accept={ACCEPT.join(",")}
+        accept={CREATIVE_TYPES.join(",")}
         className="sr-only"
         tabIndex={-1}
         aria-label="Choose creative image"
