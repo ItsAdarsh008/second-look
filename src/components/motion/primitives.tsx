@@ -96,7 +96,8 @@ export function CountUp({ value, className, duration = 0.9 }: { value: number; c
   const reduced = useReducedMotion();
   const mv = useMotionValue(0);
   const rounded = useTransform(mv, (v) => Math.round(v));
-  const [display, setDisplay] = useState(reduced ? value : 0);
+  // Starts at 0 on server and client alike; the effect jumps straight to the value under reduced motion.
+  const [display, setDisplay] = useState(0);
 
   useEffect(() => rounded.on("change", (v) => setDisplay(v)), [rounded]);
   useEffect(() => {

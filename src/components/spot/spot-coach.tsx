@@ -7,9 +7,13 @@ const PENCIL = "#2750b8";
 const HALO = "#fbfbf9";
 const RING = 84;
 
-/** True on devices without hover (phones, tablets), where the picture is tapped. */
-function useTouchOnly(): boolean {
-  const [touch, setTouch] = useState(false);
+/**
+ * Null until the page is running in the browser, then whether the device has no hover
+ * (phones, tablets). Which cue to draw depends on the device and its motion settings,
+ * which the server can't know, so nothing is drawn until then and hydration matches.
+ */
+function useTouchOnly(): boolean | null {
+  const [touch, setTouch] = useState<boolean | null>(null);
   useEffect(() => {
     const query = window.matchMedia("(hover: none)");
     const update = () => setTouch(query.matches);
@@ -63,6 +67,7 @@ export function SpotCoach() {
   const touch = useTouchOnly();
   const reduced = useReducedMotion();
 
+  if (touch === null) return null;
   if (touch || reduced) {
     return (
       // Keyed apart from the gliding version, so none of its animated position carries over.
