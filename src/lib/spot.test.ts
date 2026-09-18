@@ -43,9 +43,12 @@ describe("spot the issue", () => {
     expect(stepSpot(hat, caught, onCoat)).toBe(caught);
   });
 
-  it("treats the real failure as a clean picture with the risk in the brief", () => {
-    expect(isHit(tank, { kind: "point", x: 0.5, y: 0.5 })).toBe(false);
-    expect(missLine(tank, { kind: "point", x: 0.5, y: 0.5 })).toBe("Nothing wrong in the picture.");
+  it("finds the real failure in the words and date on the ad, not in the tumbler", () => {
+    expect(isHit(tank, { kind: "point", x: 0.4, y: 0.2 })).toBe(true); // TANK DAY
+    expect(isHit(tank, { kind: "point", x: 0.82, y: 0.34 })).toBe(true); // 5.18
+    expect(isHit(tank, { kind: "point", x: 0.78, y: 0.5 })).toBe(true); // the slogan
+    expect(isHit(tank, { kind: "point", x: 0.38, y: 0.6 })).toBe(false); // the tumbler
+    expect(missLine(tank, { kind: "point", x: 0.38, y: 0.6 })).toBe("Not there.");
     expect(isHit(tank, { kind: "line", field: "launchDate" })).toBe(true);
     expect(isHit(tank, { kind: "line", field: "headline" })).toBe(true);
     expect(missLine(hat, { kind: "line", field: "headline" })).toBe("The words are fine.");

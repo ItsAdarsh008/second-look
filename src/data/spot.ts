@@ -1,9 +1,9 @@
 import type { SpotKey } from "@/lib/spot";
 
 /**
- * Answer keys for "Can you spot the issue?", in play order. The two picture risks come
- * first, so by the last case the player is hunting in the image, which is exactly where
- * the real failure wasn't.
+ * Answer keys for "Can you spot the issue?", in play order. The two planted risks come
+ * first; the real campaign comes last, where the imagery is ordinary and the risk is in
+ * the words and the date printed on it.
  */
 export const SPOT_KEYS: readonly SpotKey[] = [
   {
@@ -24,14 +24,21 @@ export const SPOT_KEYS: readonly SpotKey[] = [
   },
   {
     slug: "starbucks-korea",
-    regions: [],
+    // The words printed on the ad: the TANK DAY wordmark, the 5.18 badge, the slogan and the product line.
+    // The tumbler itself is ordinary, so it's left out.
+    regions: [
+      [0.065, 0.144, 0.805, 0.098],
+      [0.731, 0.265, 0.176, 0.139],
+      [0.613, 0.422, 0.352, 0.172],
+      [0.1, 0.93, 0.8, 0.065],
+    ],
     lines: [
       { field: "productName", excerpt: "Tank" },
       { field: "headline", excerpt: "Thwack" },
       { field: "bodyCopy", excerpt: "Tank Day, May 18" },
       { field: "launchDate" },
     ],
-    hint: "The picture is clean. Read the brief against the launch date.",
+    hint: "The tumbler itself is fine. Read the words the way someone in Korea would, and check the date.",
     answer: "The name, the date and the slogan.",
     why: "May 18 is the anniversary of the 1980 Gwangju Uprising, when martial-law troops sent tanks against protesters. “Thwack it on the table” echoes the police account of Park Jong-chul's death under torture in 1987. This is Starbucks Korea's real campaign, rebuilt: it was pulled within hours and the CEO was fired.",
   },

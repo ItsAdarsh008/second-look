@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
   <!-- Synthetic creative for Second Look. Fictional brand "Harbor Coffee Korea".
-       Deliberately clean: no date, no "tank", no military imagery. -->
+       Rebuilds the promotion as it ran: the Tank name, the 5.18 date and the slogan are
+       printed on it. The imagery itself is ordinary: a tumbler on a table, no military imagery. -->
   <defs>
-    <radialGradient id="wall" cx="0.5" cy="0.46" r="0.72">
+    <radialGradient id="wall" cx="0.55" cy="0.5" r="0.75">
       <stop offset="0" stop-color="#FBF5E9"/>
       <stop offset="0.6" stop-color="#F1E6D1"/>
       <stop offset="1" stop-color="#E4D5BA"/>
     </radialGradient>
-    <!-- Powder-coated steel: dark edges, a soft highlight a quarter of the way in. -->
     <linearGradient id="steel" x1="0" x2="1" y1="0" y2="0">
       <stop offset="0" stop-color="#121B33"/>
       <stop offset="0.12" stop-color="#1E2D52"/>
@@ -27,24 +27,12 @@
       <stop offset="0.55" stop-color="#2B3E6C"/>
       <stop offset="1" stop-color="#121B36"/>
     </linearGradient>
-    <linearGradient id="paper" x1="0" x2="1" y1="0" y2="0">
-      <stop offset="0" stop-color="#E6DFD2"/>
-      <stop offset="0.3" stop-color="#FFFDF8"/>
-      <stop offset="1" stop-color="#DCD3C3"/>
-    </linearGradient>
     <linearGradient id="tabletop" x1="0" x2="0" y1="0" y2="1">
       <stop offset="0" stop-color="#D9B084"/>
       <stop offset="1" stop-color="#C39263"/>
     </linearGradient>
-    <linearGradient id="tableedge" x1="0" x2="0" y1="0" y2="1">
-      <stop offset="0" stop-color="#9A6B43"/>
-      <stop offset="1" stop-color="#7E5534"/>
-    </linearGradient>
     <filter id="soft" x="-30%" y="-200%" width="160%" height="500%">
       <feGaussianBlur stdDeviation="12"/>
-    </filter>
-    <filter id="softer" x="-30%" y="-200%" width="160%" height="500%">
-      <feGaussianBlur stdDeviation="5"/>
     </filter>
     <clipPath id="body-clip">
       <path d="M384 486 L696 486 L684 912 Q682 944 660 956 L644 964 L636 1118 Q634 1146 606 1146 L474 1146 Q446 1146 444 1118 L436 964 L420 956 Q398 944 396 912 Z"/>
@@ -53,77 +41,77 @@
 
   <rect width="1080" height="1350" fill="url(#wall)"/>
 
-  <!-- Wordmark -->
-  <circle cx="540" cy="96" r="40" fill="#22335A"/>
-  <path d="M513 89 q13.5 -11 27 0 t27 0 M513 105 q13.5 -11 27 0 t27 0" fill="none" stroke="#F4EBDA" stroke-width="5.5" stroke-linecap="round"/>
-  <text x="540" y="196" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700" letter-spacing="9" fill="#22335A">HARBOR COFFEE</text>
-  <text x="540" y="234" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" letter-spacing="13" fill="#5A6A8C">KOREA</text>
+  <!-- Brand -->
+  <circle cx="104" cy="92" r="30" fill="#22335A"/>
+  <path d="M84 87 q10 -8 20 0 t20 0 M84 99 q10 -8 20 0 t20 0" fill="none" stroke="#F4EBDA" stroke-width="4.5" stroke-linecap="round"/>
+  <text x="150" y="104" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="6" fill="#22335A">HARBOR COFFEE KOREA</text>
+
+  <!-- The promotion -->
+  <text x="76" y="318" font-family="'Arial Black', Arial, Helvetica, sans-serif" font-size="156" font-weight="900" letter-spacing="-3" fill="#22335A">TANK DAY</text>
+  <text x="82" y="392" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="10" fill="#D9542F">ONE DAY ONLY</text>
+  <circle cx="884" cy="452" r="92" fill="#D9542F"/>
+  <circle cx="884" cy="452" r="80" fill="none" stroke="#FFF8EC" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/>
+  <text x="884" y="473" text-anchor="middle" font-family="'Arial Black', Arial, Helvetica, sans-serif" font-size="56" font-weight="900" fill="#FFF8EC">5.18</text>
 
   <!-- Table -->
-  <rect x="0" y="1012" width="1080" height="228" fill="url(#tabletop)"/>
-  <rect x="0" y="1012" width="1080" height="3" fill="#E7C49C"/>
+  <rect x="0" y="1080" width="1080" height="170" fill="url(#tabletop)"/>
+  <rect x="0" y="1080" width="1080" height="3" fill="#E7C49C"/>
   <g fill="none" stroke="#B98552" stroke-width="2" opacity="0.45">
-    <path d="M0 1062 C 220 1056, 420 1070, 640 1060 S 960 1054, 1080 1064"/>
-    <path d="M0 1128 C 180 1122, 380 1136, 600 1126 S 900 1118, 1080 1130"/>
-    <path d="M0 1196 C 260 1190, 500 1204, 720 1194 S 980 1188, 1080 1198"/>
+    <path d="M0 1128 C 220 1122, 420 1136, 640 1126 S 960 1120, 1080 1130"/>
+    <path d="M0 1196 C 180 1190, 380 1204, 600 1194 S 900 1186, 1080 1198"/>
   </g>
-  <rect x="0" y="1240" width="1080" height="110" fill="url(#tableedge)"/>
-
-  <!-- Contact shadows -->
-  <ellipse cx="548" cy="1150" rx="176" ry="16" fill="#6E4A2C" opacity="0.4" filter="url(#soft)"/>
-  <ellipse cx="540" cy="1147" rx="92" ry="6" fill="#4F341F" opacity="0.5" filter="url(#softer)"/>
-  <ellipse cx="236" cy="1150" rx="70" ry="10" fill="#6E4A2C" opacity="0.42" filter="url(#soft)"/>
+  <ellipse cx="452" cy="1146" rx="150" ry="14" fill="#6E4A2C" opacity="0.45" filter="url(#soft)"/>
 
   <!-- Coffee beans -->
   <g fill="#5A3A22">
-    <ellipse cx="846" cy="1112" rx="17" ry="11" transform="rotate(-18 846 1112)"/>
-    <ellipse cx="884" cy="1128" rx="16" ry="10.5" transform="rotate(24 884 1128)"/>
-    <ellipse cx="820" cy="1142" rx="16" ry="10.5" transform="rotate(8 820 1142)"/>
+    <ellipse cx="880" cy="1160" rx="17" ry="11" transform="rotate(-18 880 1160)"/>
+    <ellipse cx="918" cy="1176" rx="16" ry="10.5" transform="rotate(24 918 1176)"/>
+    <ellipse cx="854" cy="1190" rx="16" ry="10.5" transform="rotate(8 854 1190)"/>
   </g>
   <g fill="none" stroke="#2F1D10" stroke-width="2.5" stroke-linecap="round">
-    <path d="M832 1116 q14 -1 28 -8" />
-    <path d="M871 1123 q13 4 26 11" />
-    <path d="M805 1141 q15 3 30 1" />
+    <path d="M866 1164 q14 -1 28 -8"/>
+    <path d="M905 1171 q13 4 26 11"/>
+    <path d="M839 1189 q15 3 30 1"/>
   </g>
 
-  <!-- Regular cup, for scale -->
-  <path d="M184 994 L288 994 L272 1140 Q270 1150 260 1150 L212 1150 Q202 1150 200 1140 Z" fill="url(#paper)"/>
-  <path d="M188 1030 L284 1030 L278 1090 L194 1090 Z" fill="#22335A"/>
-  <circle cx="236" cy="1060" r="17" fill="#F4EBDA"/>
-  <path d="M225 1057 q5.5 -4.5 11 0 t11 0 M225 1065 q5.5 -4.5 11 0 t11 0" fill="none" stroke="#22335A" stroke-width="2.5" stroke-linecap="round"/>
-  <rect x="176" y="978" width="120" height="20" rx="7" fill="#F7F3EA"/>
-  <rect x="190" y="970" width="92" height="12" rx="5" fill="#EEE8DC"/>
-  <rect x="176" y="992" width="120" height="4" fill="#D8D0C1"/>
-
-  <!-- Tumbler: handle sits behind the body -->
-  <path d="M676 540 H772 Q830 540 830 598 V822 Q830 880 772 880 H666 V834 H762 Q784 834 784 812 V608 Q784 586 762 586 H676 Z" fill="url(#handle)"/>
-  <rect x="664" y="528" width="42" height="70" rx="12" fill="#18234A"/>
-  <rect x="656" y="822" width="42" height="70" rx="12" fill="#18234A"/>
-
-  <!-- Body, with a narrower base that fits a car cup holder -->
-  <path d="M384 486 L696 486 L684 912 Q682 944 660 956 L644 964 L636 1118 Q634 1146 606 1146 L474 1146 Q446 1146 444 1118 L436 964 L420 956 Q398 944 396 912 Z" fill="url(#steel)"/>
-  <g clip-path="url(#body-clip)">
-    <rect x="452" y="486" width="16" height="660" fill="#FFFFFF" opacity="0.14"/>
-    <rect x="476" y="486" width="5" height="660" fill="#FFFFFF" opacity="0.1"/>
-    <rect x="380" y="918" width="320" height="6" fill="#0C1328" opacity="0.55"/>
-    <rect x="380" y="924" width="320" height="2" fill="#4D64A0" opacity="0.5"/>
-    <rect x="380" y="486" width="320" height="10" fill="#0C1328" opacity="0.35"/>
+  <!-- Impact lines where the tumbler meets the table -->
+  <g stroke="#22335A" stroke-width="7" stroke-linecap="round">
+    <path d="M318 1124 L268 1102"/>
+    <path d="M312 1090 L262 1052"/>
+    <path d="M586 1124 L636 1102"/>
+    <path d="M594 1090 L646 1054"/>
   </g>
 
-  <!-- Emblem -->
-  <circle cx="540" cy="712" r="58" fill="#F4EBDA"/>
-  <circle cx="540" cy="712" r="50" fill="none" stroke="#22335A" stroke-width="2"/>
-  <path d="M503 704 q18.5 -15 37 0 t37 0 M503 726 q18.5 -15 37 0 t37 0" fill="none" stroke="#22335A" stroke-width="7" stroke-linecap="round"/>
+  <!-- The Tank tumbler, tipped as it's thwacked down -->
+  <g transform="rotate(-7 452 1140) translate(20 223) scale(0.8)">
+    <path d="M676 540 H772 Q830 540 830 598 V822 Q830 880 772 880 H666 V834 H762 Q784 834 784 812 V608 Q784 586 762 586 H676 Z" fill="url(#handle)"/>
+    <rect x="664" y="528" width="42" height="70" rx="12" fill="#18234A"/>
+    <rect x="656" y="822" width="42" height="70" rx="12" fill="#18234A"/>
+    <path d="M384 486 L696 486 L684 912 Q682 944 660 956 L644 964 L636 1118 Q634 1146 606 1146 L474 1146 Q446 1146 444 1118 L436 964 L420 956 Q398 944 396 912 Z" fill="url(#steel)"/>
+    <g clip-path="url(#body-clip)">
+      <rect x="452" y="486" width="16" height="660" fill="#FFFFFF" opacity="0.14"/>
+      <rect x="476" y="486" width="5" height="660" fill="#FFFFFF" opacity="0.1"/>
+      <rect x="380" y="918" width="320" height="6" fill="#0C1328" opacity="0.55"/>
+      <rect x="380" y="924" width="320" height="2" fill="#4D64A0" opacity="0.5"/>
+      <rect x="380" y="486" width="320" height="10" fill="#0C1328" opacity="0.35"/>
+    </g>
+    <circle cx="540" cy="712" r="58" fill="#F4EBDA"/>
+    <circle cx="540" cy="712" r="50" fill="none" stroke="#22335A" stroke-width="2"/>
+    <path d="M503 704 q18.5 -15 37 0 t37 0 M503 726 q18.5 -15 37 0 t37 0" fill="none" stroke="#22335A" stroke-width="7" stroke-linecap="round"/>
+    <path d="M578 440 L604 300 Q606 290 616 292 L624 294 Q633 296 631 306 L606 444 Z" fill="#141D38"/>
+    <rect x="592" y="346" width="34" height="11" rx="4" fill="#0E1529" transform="rotate(10 609 351)"/>
+    <rect x="372" y="424" width="336" height="68" rx="20" fill="url(#lid)"/>
+    <rect x="384" y="452" width="312" height="5" rx="2.5" fill="#3D5287" opacity="0.7"/>
+    <rect x="378" y="484" width="324" height="8" rx="4" fill="#0A1022"/>
+    <ellipse cx="596" cy="428" rx="30" ry="7" fill="#0A1022"/>
+  </g>
 
-  <!-- Lid and straw -->
-  <path d="M578 440 L604 300 Q606 290 616 292 L624 294 Q633 296 631 306 L606 444 Z" fill="#141D38"/>
-  <path d="M606 304 L612 306" stroke="#3D5287" stroke-width="3" stroke-linecap="round"/>
-  <rect x="592" y="346" width="34" height="11" rx="4" fill="#0E1529" transform="rotate(10 609 351)"/>
-  <rect x="372" y="424" width="336" height="68" rx="20" fill="url(#lid)"/>
-  <rect x="384" y="452" width="312" height="5" rx="2.5" fill="#3D5287" opacity="0.7"/>
-  <rect x="378" y="484" width="324" height="8" rx="4" fill="#0A1022"/>
-  <ellipse cx="596" cy="428" rx="30" ry="7" fill="#0A1022"/>
+  <!-- The slogan -->
+  <path d="M692 572 H1012 Q1040 572 1040 600 V718 Q1040 746 1012 746 H760 L700 800 L716 746 H692 Q664 746 664 718 V600 Q664 572 692 572 Z" fill="#FFFDF6" stroke="#22335A" stroke-width="5" stroke-linejoin="round"/>
+  <text x="852" y="648" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="50" font-weight="700" font-style="italic" fill="#22335A">Thwack it</text>
+  <text x="852" y="708" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="50" font-weight="700" font-style="italic" fill="#22335A">on the table!</text>
 
   <!-- Line -->
-  <text x="540" y="1311" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" letter-spacing="10" fill="#F4EBDA">NEW 2L TUMBLER</text>
+  <rect x="0" y="1250" width="1080" height="100" fill="#22335A"/>
+  <text x="540" y="1314" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" letter-spacing="9" fill="#F4EBDA">NEW 2L TANK TUMBLER</text>
 </svg>

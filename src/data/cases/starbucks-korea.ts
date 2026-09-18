@@ -6,7 +6,7 @@ export const starbucksKorea: CaseFixture = {
   title: "Tank Day",
   subtitle: "Starbucks Korea, May 2026",
   kind: "incident-reconstruction",
-  dek: "A tumbler promotion with nothing wrong in the picture. The product name, the launch date and the slogan together evoked the Gwangju massacre.",
+  dek: "A tumbler promotion with nothing wrong in its imagery. The product name, the launch date and the slogan printed on it together evoked the Gwangju massacre.",
   input: {
     imageUrl: creativeUrl("starbucks-korea"),
     imageFilePath: null,
@@ -41,7 +41,7 @@ export const starbucksKorea: CaseFixture = {
   ],
   ownIncidentIds: ["starbucks-korea-tank-day-2026"],
   creativeNote:
-    "Synthetic reconstruction made for Second Look. This is not Starbucks' original creative. The brand, Harbor Coffee Korea, is fictional on purpose so the analyzer cannot recognize the incident by name and has to find the risk in the product name, launch date and slogan. The image is deliberately clean: no date, no 'tank', no military imagery.",
+    "Synthetic reconstruction made for Second Look. This is not Starbucks' original creative. The brand, Harbor Coffee Korea, is fictional on purpose so the analyzer cannot recognize the incident by name. Like the real promotion, the ad carries the Tank name, the 5.18 date and the slogan. The imagery itself is an ordinary tumbler on a table, with no military imagery, so the risk has to be read from the words and the date.",
   history: {
     whatHappened:
       "In May 2026 Starbucks Korea, majority-owned by Shinsegae Group's E-Mart, promoted a large tumbler size called the 'tank' with a 'Tank Day' on May 18 and the slogan 'Thwack it on the table!'. May 18 is the anniversary of the 1980 Gwangju Democratization Movement, when the military crushed pro-democracy protesters in Gwangju. The slogan echoed the 1987 police claim that student activist Park Jong-chul died after investigators struck a desk, not from torture. The promotion was cancelled within hours. Starbucks Korea CEO Sohn Jeong-hyun was fired. Shinsegae chairman Chung Yong-jin apologized on May 19 and again in a televised statement on May 26. Police opened an investigation after complaints from families of Gwangju victims.",

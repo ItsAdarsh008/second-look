@@ -9,7 +9,7 @@ export const CREATIVE_VERSIONS: Record<string, string> = {
   "green-hat": "eea3ee3e56",
   "pajero": "afbb3a0058",
   "rising-sun-rays": "88bcfcc3e9",
-  "starbucks-korea": "e028fc1d65",
+  "starbucks-korea": "fcac3adfbc",
   "vuela-en-cuero": "46d3df9c5c",
   "white-is-purity": "1192926c52",
 };
