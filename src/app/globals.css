@@ -99,6 +99,25 @@ body {
   outline-offset: 2px;
 }
 
+/* Tailwind v4 leaves buttons on the default cursor; anything clickable gets the pointer. Utilities still override it. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* Upload buttons: on hover the arrow lifts out of its tray. */
+@keyframes arrow-lift {
+  0% { transform: translateY(0); }
+  45% { transform: translateY(-3.5px); }
+  100% { transform: translateY(-2px); }
+}
+.group:hover .upload-arrow,
+.group:focus-visible .upload-arrow {
+  animation: arrow-lift 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 .font-serif {
   font-feature-settings: normal;
   letter-spacing: -0.005em;

@@ -126,6 +126,7 @@ export function BriefForm({
   fillKey,
   analysisAvailable,
   lead,
+  title = "The brief",
   collapsible = false,
   pinnable = true,
 }: {
@@ -139,6 +140,8 @@ export function BriefForm({
   analysisAvailable: boolean;
   /** Shown above the fields: a loaded case's own brief. */
   lead?: React.ReactNode;
+  /** Whose brief this is, e.g. "Northline’s brief". */
+  title?: string;
   /** Tuck the fields behind "Edit", for a case whose brief is already complete. */
   collapsible?: boolean;
   /** Whether the submit button may pin to the bottom of small screens. */
@@ -218,10 +221,10 @@ export function BriefForm({
           attempt();
         }
       }}
-      className="space-y-4"
+      className="space-y-3"
     >
       <div className="flex items-baseline justify-between gap-4">
-        <h2 className="text-[0.82rem] text-ink-3">The brief</h2>
+        <h2 className="text-[0.82rem] text-ink-3">{title}</h2>
         {collapsible && !fieldError && (
           <button
             type="button"

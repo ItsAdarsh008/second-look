@@ -6,6 +6,7 @@ import { MAX_TRIES, triesLeft, type Guess, type SpotKey, type SpotProgress } fro
 import { CREATIVE_TYPES, creativeFileError } from "@/lib/upload-rules";
 import { CreativeWithBoxes, type Box } from "../report/creative-boxes";
 import { EASE_OUT } from "../motion/primitives";
+import { CaseTabs, type CaseTab } from "../spot/case-tabs";
 import { SpotCoach } from "../spot/spot-coach";
 import { SpotMarks, SpotTarget } from "../spot/spot-marks";
 import { SpotPrompt, SpotResult } from "../spot/spot-panels";
@@ -125,6 +126,7 @@ export function LightTable({
   activeBoxId,
   onActivateBox,
   spot,
+  cases,
 }: {
   imageUrl: string | null;
   mode: TableMode;
@@ -137,6 +139,8 @@ export function LightTable({
   onActivateBox?: (id: string | null) => void;
   /** Only while a case is on the table and hasn't been run. */
   spot?: SpotMode | null;
+  /** The example cases, switchable from the header while nothing is being reviewed. */
+  cases?: { tabs: readonly CaseTab[]; active: string | null; onPick: (slug: string) => void } | null;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -213,15 +217,25 @@ export function LightTable({
         <rect width="100%" height="100%" fill="url(#table-grid)" />
       </svg>
 
-      <header className="relative flex items-center justify-between gap-4 border-b border-[var(--table-rule)] px-5 py-3 text-[0.82rem] text-[var(--table-dim)]">
-        <span className="flex items-center gap-2">
-          <span
-            aria-hidden
-            className={`inline-block h-2 w-2 rounded-full ${mode.kind === "scanning" ? "animate-pulse bg-[var(--table-pencil)]" : mode.kind === "reviewed" ? (mode.critical ? "bg-[#e0625c]" : "bg-[var(--table-pencil)]") : imageUrl ? "bg-[var(--table-ink)]" : "bg-[var(--table-rule)]"}`}
-          />
-          {mode.kind === "scanning" ? "Reading" : mode.kind === "reviewed" ? "Reviewed" : imageUrl ? (spot ? "Example case" : "Your ad") : "Empty"}
-        </span>
-        {guessing && playing ? <Tries left={triesLeft(playing.progress)} /> : <span className="tabular-nums">{dims ? `${dims.w} × ${dims.h} px` : "PNG, JPEG or WebP, up to 10MB"}</span>}
+      <header className="relative flex min-h-12 items-center justify-between gap-4 border-b border-[var(--table-rule)] px-4 py-2 text-[0.82rem] text-[var(--table-dim)] sm:px-5">
+        {cases && mode.kind === "idle" ? (
+          <CaseTabs tabs={cases.tabs} active={cases.active} onPick={cases.onPick} />
+        ) : (
+          <span className="flex items-center gap-2">
+            <span
+              aria-hidden
+              className={`inline-block h-2 w-2 rounded-full ${mode.kind === "scanning" ? "animate-pulse bg-[var(--table-pencil)]" : mode.kind === "reviewed" ? (mode.critical ? "bg-[#e0625c]" : "bg-[var(--table-pencil)]") : imageUrl ? "bg-[var(--table-ink)]" : "bg-[var(--table-rule)]"}`}
+            />
+            {mode.kind === "scanning" ? "Reading" : mode.kind === "reviewed" ? "Reviewed" : imageUrl ? (spot ? "Example case" : "Your ad") : "Empty"}
+          </span>
+        )}
+        {guessing && playing ? (
+          <Tries left={triesLeft(playing.progress)} />
+        ) : cases && mode.kind === "idle" && !spot ? (
+          <span className="shrink-0">{imageUrl ? "Your ad" : "Or drop your own"}</span>
+        ) : (
+          <span className="shrink-0 tabular-nums">{dims ? `${dims.w} × ${dims.h} px` : "PNG, JPEG or WebP, up to 10MB"}</span>
+        )}
       </header>
 
       <AnimatePresence initial={false}>
@@ -345,7 +359,7 @@ export function LightTable({
           <span className="ml-auto flex shrink-0 items-center gap-4 text-[0.85rem]">
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-[6px] border border-[var(--table-dim)] px-3 py-1.5 text-[var(--table-ink)] transition-colors hover:border-[var(--table-ink)] hover:bg-[var(--table-ink)] hover:text-[var(--table)]"
+              className="group inline-flex items-center gap-2 rounded-[6px] border border-[var(--table-dim)] px-3 py-1.5 text-[var(--table-ink)] transition-colors hover:border-[var(--table-ink)] hover:bg-[var(--table-ink)] hover:text-[var(--table)]"
               onClick={() => inputRef.current?.click()}
             >
               <UploadIcon size={14} />

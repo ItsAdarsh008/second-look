@@ -10,7 +10,10 @@ import { EASE_OUT } from "../motion/primitives";
 export function UploadIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" aria-hidden>
-      <path d="M8 10.5V2.5M4.75 5.75L8 2.5l3.25 3.25M2.5 10v3.5h11V10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <g className="upload-arrow">
+        <path d="M8 10.5V2.5M4.75 5.75L8 2.5l3.25 3.25" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+      <path d="M2.5 10v3.5h11V10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -49,7 +52,7 @@ export function UploadCard({ onFile, own }: { onFile: (file: File) => void; own:
         setDragging(false);
         take(e.dataTransfer.files[0]);
       }}
-      className={`rounded-[10px] border p-5 transition-colors duration-200 ${
+      className={`rounded-[10px] border px-4 py-4 transition-colors duration-200 sm:px-5 ${
         dragging ? "border-pencil bg-pencil-wash" : own ? "border-rule bg-sheet" : "border-dashed border-rule-strong bg-sheet"
       }`}
     >
@@ -68,42 +71,38 @@ export function UploadCard({ onFile, own }: { onFile: (file: File) => void; own:
             <button
               type="button"
               onClick={choose}
-              className="inline-flex shrink-0 items-center gap-2 rounded-[6px] border border-rule-strong px-3.5 py-2 text-[0.9rem] text-ink transition-colors hover:border-ink"
+              className="group inline-flex shrink-0 items-center gap-2 rounded-[6px] border border-rule-strong px-3.5 py-2 text-[0.9rem] text-ink transition-colors hover:border-ink"
             >
               <UploadIcon size={14} />
               Replace
             </button>
           </motion.div>
         ) : (
-          <motion.div key="ask" className="flex gap-4" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25, ease: EASE_OUT }}>
-            <span aria-hidden className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${dragging ? "bg-pencil text-paper" : "bg-ink text-paper"}`}>
+          <motion.div key="ask" className="flex flex-wrap items-center gap-x-4 gap-y-3" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25, ease: EASE_OUT }}>
+            <span aria-hidden className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${dragging ? "bg-pencil text-paper" : "bg-ink text-paper"}`}>
               <UploadIcon size={18} />
             </span>
-            <div className="min-w-0">
-              <p className="font-serif text-[1.6rem] leading-tight text-ink">{dragging ? "Let go to put it on the table" : "Review your own ad"}</p>
-              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-                <button
-                  type="button"
-                  onClick={choose}
-                  aria-describedby={hintId}
-                  className="group relative inline-flex items-center gap-2 overflow-hidden rounded-[6px] bg-ink px-5 py-3 text-[0.98rem] font-medium text-paper"
-                >
-                  <span className="absolute inset-0 origin-left scale-x-0 bg-pencil transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100" aria-hidden />
-                  <span className="relative">
-                    <UploadIcon />
-                  </span>
-                  <span className="relative">Choose an image</span>
-                </button>
-                <span id={hintId} className="text-[0.82rem] text-ink-3">
-                  <span className="hidden sm:inline">or drag it here. </span>PNG, JPEG or WebP, up to 10MB.
-                </span>
-              </div>
-              {shownError && (
-                <p role="alert" className="mt-2 text-[0.88rem] text-critical">
-                  {shownError}
-                </p>
-              )}
+            {/* Wide enough for the title on one line; below that the button wraps underneath. */}
+            <div className="min-w-[13rem] flex-1">
+              <p className="font-serif text-[1.45rem] leading-tight text-ink">{dragging ? "Let go to put it on the table" : "Review your own ad"}</p>
+              <p id={hintId} className="text-[0.82rem] text-ink-3">
+                <span className="hidden sm:inline">Drag it here or choose a file. </span>PNG, JPEG or WebP, up to 10MB.
+              </p>
             </div>
+            <button
+              type="button"
+              onClick={choose}
+              aria-describedby={hintId}
+              className="group inline-flex items-center justify-center gap-2 rounded-[6px] bg-ink px-5 py-3 text-[0.98rem] font-medium text-paper transition-colors duration-200 hover:bg-pencil focus-visible:bg-pencil max-sm:w-full"
+            >
+              <UploadIcon />
+              Choose an image
+            </button>
+            {shownError && (
+              <p role="alert" className="basis-full text-[0.88rem] text-critical">
+                {shownError}
+              </p>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

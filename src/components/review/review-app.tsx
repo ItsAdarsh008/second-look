@@ -1,8 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { creativeUrl } from "@/data/cases/creative";
 import { ApiRequestError, analyzeWithProgress, uploadLocal, uploadToBlob } from "@/lib/clients/secondlook";
@@ -76,108 +74,6 @@ function briefFrom(input: CampaignInput): BriefValues {
     channel: input.channel,
     brandNotes: input.brandNotes ?? "",
   };
-}
-
-function ResultBadge({ caught }: { caught: boolean }) {
-  return (
-    <span
-      aria-hidden
-      className={`absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full ${caught ? "bg-pencil text-paper" : "bg-sheet text-ink shadow-[0_0_0_1px_var(--rule-strong)]"}`}
-    >
-      {caught ? (
-        <svg width="9" height="9" viewBox="0 0 14 14">
-          <path d="M2.5 7.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      ) : (
-        <svg width="7" height="7" viewBox="0 0 12 12">
-          <path d="M2 2l8 8M10 2l-8 8" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-        </svg>
-      )}
-    </span>
-  );
-}
-
-/**
- * The cases, as spot-the-issue rounds. Tiles name the brand and market, never the case,
- * whose title would give the answer away; once played they show how it went.
- */
-function CasePicker({
-  examples,
-  onLoad,
-  activeSlug,
-  plays,
-}: {
-  examples: readonly ExampleCase[];
-  onLoad: (slug: string) => void;
-  activeSlug: string | null;
-  plays: Readonly<Record<string, SpotProgress>>;
-}) {
-  const rounds = examples.filter((c) => c.spot);
-  const settled = rounds.filter((c) => plays[c.slug]?.outcome);
-  const caught = settled.filter((c) => plays[c.slug]?.outcome?.kind === "caught").length;
-  const real = rounds.find((c) => c.kind === "incident-reconstruction");
-  const missedReal = settled.length === rounds.length && real !== undefined && plays[real.slug]?.outcome?.kind === "shown";
-
-  return (
-    <div>
-      <div className="flex items-baseline justify-between gap-4">
-        <p id="case-picker-label" className="text-[0.82rem] text-ink-3">
-          Or try a case first
-        </p>
-        {settled.length > 0 && (
-          <p className="text-[0.82rem] tabular-nums text-ink-3" aria-live="polite">
-            {caught} of {rounds.length} caught
-          </p>
-        )}
-      </div>
-      <ul aria-labelledby="case-picker-label" className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-3">
-        {examples.map((c, i) => {
-          const active = activeSlug === c.slug;
-          const outcome = plays[c.slug]?.outcome;
-          const sub = outcome ? `${outcome.kind === "caught" ? "Caught" : "Missed"}: ${c.title}` : c.input.markets.map(marketName).join(" and ");
-          return (
-            <li key={c.slug} className="fade-up" style={{ animationDelay: `${320 + i * 45}ms` }}>
-              <motion.button
-                type="button"
-                onClick={() => onLoad(c.slug)}
-                aria-pressed={active}
-                whileHover={active ? undefined : { y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                className={`group relative flex w-full items-center gap-3 rounded-[8px] border p-1.5 pr-3 text-left transition-colors ${
-                  active ? "border-ink text-paper" : "border-rule bg-sheet text-ink hover:border-rule-strong"
-                }`}
-              >
-                {active && <motion.span layoutId="case-picker-active" className="absolute inset-0 rounded-[7px] bg-ink" transition={{ type: "spring", stiffness: 380, damping: 32 }} aria-hidden />}
-                <span className={`relative h-[3.25rem] w-[2.6rem] shrink-0 overflow-hidden rounded-[4px] border ${active ? "border-paper/30" : "border-rule"}`}>
-                  <Image
-                    src={creativeUrl(c.slug, "thumb")}
-                    alt=""
-                    fill
-                    sizes="42px"
-                    className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110"
-                  />
-                  {outcome && <ResultBadge caught={outcome.kind === "caught"} />}
-                </span>
-                <span className="relative min-w-0">
-                  <span className="block font-serif text-[1.08rem] leading-[1.1] sm:truncate sm:text-[1.2rem]">{c.input.brandName ?? c.title}</span>
-                  <span className={`block truncate text-[0.74rem] ${active ? "text-paper/70" : "text-ink-3"}`}>{sub}</span>
-                </span>
-              </motion.button>
-            </li>
-          );
-        })}
-      </ul>
-      {missedReal && (
-        <p className="mt-3 text-[0.9rem] text-ink-2">
-          The one you missed really ran: {real.subtitle}.{" "}
-          <Link href={`/cases/${real.slug}`} className="text-pencil underline underline-offset-4">
-            What happened
-          </Link>
-        </p>
-      )}
-    </div>
-  );
 }
 
 function SubmittedBrief({ input, onEdit, result }: { input: CampaignInput; onEdit: () => void; result: AnalysisResult | null }) {
@@ -388,9 +284,8 @@ export function ReviewApp({
           <div className="min-w-0 [grid-area:work]">
             <AnimatePresence mode="wait" initial={false}>
               {editing ? (
-                <motion.div key="brief" className="flex flex-col gap-7" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
+                <motion.div key="brief" className="flex flex-col gap-5" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
                   <UploadCard onFile={onFile} own={!activeSlug && previewUrl ? { previewUrl, upload } : null} />
-                  <CasePicker examples={examples} onLoad={goTo} activeSlug={activeSlug} plays={plays} />
                   <div className="fade-up" style={{ animationDelay: "480ms" }}>
                     <BriefForm
                       values={values}
@@ -401,6 +296,7 @@ export function ReviewApp({
                       uploading={upload.status === "uploading"}
                       fillKey={fillKey}
                       analysisAvailable={analysisAvailable}
+                      title={active ? `${active.input.brandName ?? active.title}’s brief` : "Your ad’s brief"}
                       lead={active && <CaseBrief values={values} fillKey={fillKey} spot={spot && { key: spot, progress, onGuess: (guess) => play({ type: "guess", guess }) }} />}
                       collapsible={Boolean(active)}
                       pinnable={!spot || progress.outcome !== null}
@@ -452,6 +348,20 @@ export function ReviewApp({
                 placedKey={placedKey}
                 activeBoxId={activeBox}
                 onActivateBox={setActiveBox}
+                cases={
+                  editing
+                    ? {
+                        tabs: rounds.map((c) => ({
+                          slug: c.slug,
+                          name: c.input.brandName ?? c.title,
+                          thumb: creativeUrl(c.slug, "thumb"),
+                          outcome: plays[c.slug]?.outcome?.kind ?? null,
+                        })),
+                        active: activeSlug,
+                        onPick: goTo,
+                      }
+                    : null
+                }
                 spot={
                   spot && {
                     spot,

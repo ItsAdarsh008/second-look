@@ -24,14 +24,14 @@ function Marked({ text, excerpt }: { text: string; excerpt: string | undefined }
   );
 }
 
-const cell = "flex min-w-0 flex-col gap-1.5 px-4 py-3.5 text-left sm:px-5 sm:py-4";
+const cell = "flex min-w-0 flex-col gap-1 bg-sheet px-4 py-2.5 text-left";
 
 /** A plain field: where it runs, the channel. Context for the reviewer, not something to flag. */
 function Fact({ label, children, className = "" }: { label: string; children: React.ReactNode; className?: string }) {
   return (
     <div className={`${cell} ${className}`}>
       <span className="flex min-h-6 items-center text-[0.8rem] text-ink-3">{label}</span>
-      <span className="text-[1.05rem] leading-snug text-ink">{children}</span>
+      <span className="leading-snug text-ink">{children}</span>
     </div>
   );
 }
@@ -111,32 +111,38 @@ function Line({
 export function CaseBrief({ values, fillKey, spot }: { values: BriefValues; fillKey: number; spot: BriefSpot | null }) {
   const launch = values.launchDate ? formatDate(values.launchDate, { long: true }) : "";
   return (
-    <div className="overflow-hidden rounded-[10px] border border-rule bg-sheet">
-      <div className="grid grid-cols-2 border-b border-rule sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
-        <Fact label="Market" className="col-span-2 border-b border-rule sm:col-span-1 sm:border-b-0 sm:border-r">
+    // Cells sit on a hairline background with 1px gaps, so the dividers stay right at any column count.
+    <div className="grid gap-px overflow-hidden rounded-[10px] border border-rule bg-rule">
+      {/* The facts share one row where there's room, two otherwise; the words get the full width. */}
+      <div className="grid grid-cols-2 gap-px sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1.5fr)] lg:grid-cols-2 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1.5fr)]">
+        <Fact label="Market">
           {values.markets.map(marketName).join(" and ") || "None yet"}
         </Fact>
-        <Fact label="Channel" className="border-r border-rule">
+        <Fact label="Channel">
           {CHANNEL_LABELS[values.channel]}
         </Fact>
         {launch ? (
-          <Line field="launchDate" label="Launch" text={launch} valueClass="text-[1.05rem] leading-snug text-ink" delay={0} fillKey={fillKey} spot={spot} />
+          <Line field="launchDate" label="Launch" text={launch} valueClass="leading-snug text-ink" delay={0} fillKey={fillKey} spot={spot} />
         ) : (
           <Fact label="Launch">
             <span className="text-ink-3">Not set</span>
           </Fact>
         )}
-      </div>
-      <div className="divide-y divide-rule">
-        {values.productName.trim() && (
-          <Line field="productName" label="Product" text={values.productName} valueClass="text-[1.1rem] text-ink" delay={0} fillKey={fillKey} spot={spot} className="w-full" />
+        {values.productName.trim() ? (
+          <Line field="productName" label="Product" text={values.productName} valueClass="leading-snug text-ink" delay={0} fillKey={fillKey} spot={spot} />
+        ) : (
+          <Fact label="Product">
+            <span className="text-ink-3">Read from the ad</span>
+          </Fact>
         )}
+      </div>
+      <div className="grid gap-px">
         {values.headline.trim() && (
           <Line
             field="headline"
             label="Headline"
             text={values.headline}
-            valueClass="font-serif text-[1.75rem] leading-[1.15] text-ink sm:text-[2rem]"
+            valueClass="font-serif text-[1.6rem] leading-[1.15] text-ink sm:text-[1.8rem]"
             delay={110}
             fillKey={fillKey}
             spot={spot}
@@ -148,7 +154,7 @@ export function CaseBrief({ values, fillKey, spot }: { values: BriefValues; fill
             field="bodyCopy"
             label="Body text"
             text={values.bodyCopy}
-            valueClass="max-w-[60ch] text-[1.02rem] leading-relaxed text-ink-2"
+            valueClass="max-w-[64ch] leading-relaxed text-ink-2"
             delay={220}
             fillKey={fillKey}
             spot={spot}
