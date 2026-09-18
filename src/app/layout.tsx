@@ -59,8 +59,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${instrument.variable} ${schibsted.variable} ${plexMono.variable} antialiased`}>
+    // Browser extensions add classes and attributes to <html> and <body> before React loads (one adds
+    // class="hentry"). Suppressing the warning covers only these two elements' own attributes, not the page.
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${instrument.variable} ${schibsted.variable} ${plexMono.variable} antialiased`} suppressHydrationWarning>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-sheet focus:px-3 focus:py-2"
