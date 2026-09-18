@@ -14,7 +14,7 @@ Scroll past the creative to "What a competent reviewer must catch".
 
 > "Nobody in that approval chain was malicious. They didn't have the reference. Second Look reads the name, the words and the date against each market's history, not just the image."
 
-**0:25–0:35 — Submit a live campaign.** Switch to `/`. Click the **Rising Sun rays** case chip (it types itself into the brief and drops onto the light table), then click **Run a second look**.
+**0:25–0:35 — Submit a live campaign.** Switch to `/`. Click the **Morrow** case tile (it drops onto the light table with its brief), then click **Run a second look**.
 
 > "Here's a sunscreen poster for Korea and China."
 

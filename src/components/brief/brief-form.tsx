@@ -101,41 +101,6 @@ function TextField({
   );
 }
 
-function TypedLine({ text, fillKey, delay, className }: { text: string; fillKey: number; delay: number; className?: string }) {
-  const typed = useTypewriter(text, fillKey, delay);
-  return (
-    <span className={className}>
-      <span aria-hidden>{typed.text}</span>
-      <span className="sr-only">{text}</span>
-    </span>
-  );
-}
-
-/** A case's own copy, shown read-only: it travels with the case so the analyzer sees what the real campaign said. */
-function CaseCopy({ values, fillKey }: { values: BriefValues; fillKey: number }) {
-  const rows = [
-    { label: "Product", text: values.productName, delay: 0, className: "text-ink" },
-    { label: "Headline", text: values.headline, delay: 120, className: "font-serif text-[1.35rem] leading-snug text-ink" },
-    { label: "Body copy", text: values.bodyCopy, delay: 260, className: "text-[0.95rem] text-ink-2" },
-  ].filter((r) => r.text.trim());
-
-  return (
-    <div className="rounded-[8px] border border-rule bg-sheet px-4 py-3.5">
-      <p className="text-[0.82rem] text-ink-3">Copy from this case{values.brandName ? `, ${values.brandName}` : ""}</p>
-      <dl className="mt-2 space-y-1.5">
-        {rows.map((r) => (
-          <div key={r.label} className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-baseline gap-3">
-            <dt className="text-[0.8rem] text-ink-3">{r.label}</dt>
-            <dd>
-              <TypedLine text={r.text} fillKey={fillKey} delay={r.delay} className={r.className} />
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </div>
-  );
-}
-
 function SubmitButton({ form, disabled, submitting, className = "" }: { form: string; disabled: boolean; submitting: boolean; className?: string }) {
   return (
     <motion.button
@@ -160,6 +125,9 @@ export function BriefForm({
   uploading,
   fillKey,
   analysisAvailable,
+  lead,
+  collapsible = false,
+  pinnable = true,
 }: {
   values: BriefValues;
   onChange: (patch: Partial<BriefValues>) => void;
@@ -169,6 +137,12 @@ export function BriefForm({
   uploading: boolean;
   fillKey: number;
   analysisAvailable: boolean;
+  /** Shown above the fields: a loaded case's own brief. */
+  lead?: React.ReactNode;
+  /** Tuck the fields behind "Edit", for a case whose brief is already complete. */
+  collapsible?: boolean;
+  /** Whether the submit button may pin to the bottom of small screens. */
+  pinnable?: boolean;
 }) {
   const ids = useId();
   const formId = `${ids}-form`;
@@ -176,9 +150,13 @@ export function BriefForm({
   const actionsRef = useRef<HTMLDivElement>(null);
   const attempted = useRef(false);
   const scrollTo = useScrollTo();
-  // Cases ship with their own copy; a user's upload has none and the copy is read from the creative.
-  const caseCopy = [values.productName, values.headline, values.bodyCopy].some((v) => v.trim().length > 0);
   const disabled = submitting || uploading || !analysisAvailable;
+  const [editing, setEditing] = useState(false);
+  // Clip the fields only while they open or close: the market picker's list hangs below them.
+  const [clip, setClip] = useState(false);
+  const fieldError = Boolean(errors.markets || errors.launchDate || errors.channel || errors.brandNotes);
+  const showFields = !collapsible || editing || fieldError;
+  const fieldsId = `${ids}-fields`;
 
   // Below lg the light table sits above the brief, so the submit button starts off screen.
   // Pin a copy to the bottom of the viewport until the real one scrolls into view. Null until measured.
@@ -242,66 +220,85 @@ export function BriefForm({
       }}
       className="space-y-4"
     >
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="text-[0.82rem] text-ink-3">The brief</h2>
+        {collapsible && !fieldError && (
+          <button
+            type="button"
+            aria-expanded={showFields}
+            aria-controls={fieldsId}
+            onClick={() => {
+              setClip(true);
+              setEditing((v) => !v);
+            }}
+            className="text-[0.82rem] text-ink-3 underline decoration-rule-strong underline-offset-4 hover:text-ink"
+          >
+            {editing ? "Done" : "Edit"}
+          </button>
+        )}
+      </div>
+
+      {lead}
+
       <AnimatePresence initial={false}>
-        {caseCopy && (
+        {showFields && (
           <motion.div
-            key={fillKey}
+            id={fieldsId}
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="overflow-hidden"
+            onAnimationComplete={() => setClip(false)}
+            style={{ overflow: clip ? "hidden" : "visible" }}
+            className="space-y-4"
           >
-            <CaseCopy values={values} fillKey={fillKey} />
+            <div className="grid gap-5 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
+              <MarketPicker value={values.markets} onChange={(markets) => onChange({ markets })} error={errors.markets} disabled={submitting} />
+              <div>
+                <label htmlFor={`${ids}-date`} className="block text-[0.82rem] text-ink-3">
+                  Launch date
+                </label>
+                <input
+                  id={`${ids}-date`}
+                  type="date"
+                  value={values.launchDate}
+                  onChange={(e) => onChange({ launchDate: e.target.value })}
+                  className={`${lineInput} min-h-11 border-rule-strong`}
+                />
+              </div>
+              <div>
+                <label htmlFor={`${ids}-channel`} className="block text-[0.82rem] text-ink-3">
+                  Channel
+                </label>
+                <select
+                  id={`${ids}-channel`}
+                  value={values.channel}
+                  onChange={(e) => onChange({ channel: e.target.value as Channel })}
+                  className={`${lineInput} min-h-11 cursor-pointer border-rule-strong`}
+                >
+                  {CHANNELS.map((c) => (
+                    <option key={c} value={c}>
+                      {CHANNEL_LABELS[c]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <TextField
+              label="Brand notes (optional)"
+              value={values.brandNotes}
+              onChange={(v) => onChange({ brandNotes: v })}
+              fillKey={fillKey}
+              delay={240}
+              maxLength={1000}
+              multiline
+              error={errors.brandNotes}
+              placeholder="Anything the image doesn't show"
+            />
           </motion.div>
         )}
       </AnimatePresence>
-
-      <div className="grid gap-5 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
-        <MarketPicker value={values.markets} onChange={(markets) => onChange({ markets })} error={errors.markets} disabled={submitting} />
-        <div>
-          <label htmlFor={`${ids}-date`} className="block text-[0.82rem] text-ink-3">
-            Launch date
-          </label>
-          <input
-            id={`${ids}-date`}
-            type="date"
-            value={values.launchDate}
-            onChange={(e) => onChange({ launchDate: e.target.value })}
-            className={`${lineInput} min-h-11 border-rule-strong`}
-          />
-        </div>
-        <div>
-          <label htmlFor={`${ids}-channel`} className="block text-[0.82rem] text-ink-3">
-            Channel
-          </label>
-          <select
-            id={`${ids}-channel`}
-            value={values.channel}
-            onChange={(e) => onChange({ channel: e.target.value as Channel })}
-            className={`${lineInput} min-h-11 cursor-pointer border-rule-strong`}
-          >
-            {CHANNELS.map((c) => (
-              <option key={c} value={c}>
-                {CHANNEL_LABELS[c]}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <TextField
-        label="Brand notes (optional)"
-        value={values.brandNotes}
-        onChange={(v) => onChange({ brandNotes: v })}
-        fillKey={fillKey}
-        delay={240}
-        maxLength={1000}
-        multiline
-        error={errors.brandNotes}
-        placeholder="Caption, campaign name, what an alternative must keep"
-        hint="Second Look reads the copy from the creative. Add anything the image doesn't show."
-      />
 
       {/* On lg the actions stick to the bottom of the viewport, so a loaded case's copy can't push the button below the fold. */}
       <div ref={actionsRef} className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-1 lg:sticky lg:bottom-0 lg:z-10 lg:border-t lg:border-rule lg:bg-paper lg:py-3">
@@ -311,20 +308,12 @@ export function BriefForm({
           </p>
         )}
         <SubmitButton form={formId} disabled={disabled} submitting={submitting} />
-        <p className="max-w-[40ch] text-[0.85rem] text-ink-3">
-          {analysisAvailable ? (
-            <>
-              About a minute. <kbd className="rounded-[3px] border border-rule px-1 font-sans text-[0.78rem]">Ctrl</kbd> +{" "}
-              <kbd className="rounded-[3px] border border-rule px-1 font-sans text-[0.78rem]">Enter</kbd> works too.
-            </>
-          ) : (
-            "Live analysis isn't configured on this deployment. Browse the case studies instead."
-          )}
-        </p>
+        <p className="text-[0.85rem] text-ink-3">{analysisAvailable ? "Takes about a minute." : "Live analysis is off on this deployment."}</p>
       </div>
 
       {pinned !== null &&
         analysisAvailable &&
+        pinnable &&
         createPortal(
           <div
             inert={!pinned}

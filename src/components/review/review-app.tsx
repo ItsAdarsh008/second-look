@@ -7,16 +7,17 @@ import { useEffect, useRef, useState } from "react";
 import { creativeUrl } from "@/data/cases/creative";
 import { ApiRequestError, analyzeWithProgress, uploadLocal, uploadToBlob } from "@/lib/clients/secondlook";
 import { formatDate } from "@/lib/format";
-import { KIND_LABEL, severityCounts, verdictLine } from "@/lib/report";
+import { severityCounts, verdictLine } from "@/lib/report";
 import type { ExampleCase } from "@/lib/examples";
 import { CHANNEL_LABELS, CampaignInputSchema, marketName, type AnalysisResult, type CampaignInput } from "@/lib/schema";
-import { verdictLine as spotVerdict, type Guess, type SpotKey } from "@/lib/spot";
+import { NEW_PROGRESS, stepSpot, type Guess, type SpotProgress } from "@/lib/spot";
 import { BriefForm, EMPTY_BRIEF, type BriefValues, type FieldErrors } from "../brief/brief-form";
 import { GeneratePanel } from "../generate/generate-panel";
 import { LightTable, type TableMode, type UploadState } from "../light-table/light-table";
 import { EASE_OUT, RiseLines } from "../motion/primitives";
 import { useScrollTo } from "../motion/providers";
 import { Report, type IncidentSummary } from "../report/report";
+import { CaseBrief } from "../spot/case-brief";
 import { AnalysisProgress, INITIAL_PROGRESS, progressCaption, reduceProgress, type ProgressState } from "./analysis-progress";
 
 type Phase =
@@ -33,13 +34,6 @@ const FAILURE_HELP: Record<string, string> = {
   refused: "The model declined this one",
   not_configured: "Analysis isn't configured",
 };
-
-const LOAD_CASE_EVENT = "secondlook:load-case";
-
-/** Load a case into the tool from elsewhere on the page, and scroll the tool into view. */
-export function openCaseInTool(slug: string) {
-  window.dispatchEvent(new CustomEvent(LOAD_CASE_EVENT, { detail: slug }));
-}
 
 function toInput(values: BriefValues, imageUrl: string | null): { input: CampaignInput | null; errors: FieldErrors } {
   const errors: FieldErrors = {};
@@ -70,32 +64,86 @@ function toInput(values: BriefValues, imageUrl: string | null): { input: Campaig
   return { input: parsed.data, errors };
 }
 
-/** Case tiles: a proof thumbnail, the case name and what it tests. The selected highlight slides between tiles. */
-function CasePicker({ examples, onLoad, activeSlug, disabled }: { examples: readonly ExampleCase[]; onLoad: (slug: string) => void; activeSlug: string | null; disabled: boolean }) {
+function briefFrom(input: CampaignInput): BriefValues {
+  return {
+    brandName: input.brandName ?? "",
+    productName: input.productName,
+    headline: input.headline,
+    bodyCopy: input.bodyCopy,
+    markets: [...input.markets],
+    launchDate: input.launchDate ?? "",
+    channel: input.channel,
+    brandNotes: input.brandNotes ?? "",
+  };
+}
+
+function ResultBadge({ caught }: { caught: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={`absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full ${caught ? "bg-pencil text-paper" : "bg-sheet text-ink shadow-[0_0_0_1px_var(--rule-strong)]"}`}
+    >
+      {caught ? (
+        <svg width="9" height="9" viewBox="0 0 14 14">
+          <path d="M2.5 7.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : (
+        <svg width="7" height="7" viewBox="0 0 12 12">
+          <path d="M2 2l8 8M10 2l-8 8" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+        </svg>
+      )}
+    </span>
+  );
+}
+
+/**
+ * The cases, as spot-the-issue rounds. Tiles name the brand and market, never the case,
+ * whose title would give the answer away; once played they show how it went.
+ */
+function CasePicker({
+  examples,
+  onLoad,
+  activeSlug,
+  plays,
+}: {
+  examples: readonly ExampleCase[];
+  onLoad: (slug: string) => void;
+  activeSlug: string | null;
+  plays: Readonly<Record<string, SpotProgress>>;
+}) {
+  const rounds = examples.filter((c) => c.spot);
+  const settled = rounds.filter((c) => plays[c.slug]?.outcome);
+  const caught = settled.filter((c) => plays[c.slug]?.outcome?.kind === "caught").length;
+  const real = rounds.find((c) => c.kind === "incident-reconstruction");
+  const missedReal = settled.length === rounds.length && real !== undefined && plays[real.slug]?.outcome?.kind === "shown";
+
   return (
     <div>
       <div className="flex items-baseline justify-between gap-4">
         <p id="case-picker-label" className="text-[0.82rem] text-ink-3">
-          Pick a case. Can you spot the issue?
+          Try a case
         </p>
-        <Link href="/cases" className="text-[0.82rem] text-ink-3 underline decoration-rule-strong underline-offset-4 hover:text-ink">
-          About these cases
-        </Link>
+        {settled.length > 0 && (
+          <p className="text-[0.82rem] tabular-nums text-ink-3" aria-live="polite">
+            {caught} of {rounds.length} caught
+          </p>
+        )}
       </div>
       <ul aria-labelledby="case-picker-label" className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-3">
         {examples.map((c, i) => {
           const active = activeSlug === c.slug;
+          const outcome = plays[c.slug]?.outcome;
+          const sub = outcome ? `${outcome.kind === "caught" ? "Caught" : "Missed"}: ${c.title}` : c.input.markets.map(marketName).join(" and ");
           return (
             <li key={c.slug} className="fade-up" style={{ animationDelay: `${320 + i * 45}ms` }}>
               <motion.button
                 type="button"
-                disabled={disabled}
                 onClick={() => onLoad(c.slug)}
                 aria-pressed={active}
                 whileHover={active ? undefined : { y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                className={`group relative flex w-full items-center gap-3 rounded-[8px] border p-1.5 pr-3 text-left transition-colors disabled:opacity-50 ${
+                className={`group relative flex w-full items-center gap-3 rounded-[8px] border p-1.5 pr-3 text-left transition-colors ${
                   active ? "border-ink text-paper" : "border-rule bg-sheet text-ink hover:border-rule-strong"
                 }`}
               >
@@ -108,29 +156,25 @@ function CasePicker({ examples, onLoad, activeSlug, disabled }: { examples: read
                     sizes="42px"
                     className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110"
                   />
+                  {outcome && <ResultBadge caught={outcome.kind === "caught"} />}
                 </span>
                 <span className="relative min-w-0">
-                  <span className="block font-serif text-[1.08rem] leading-[1.1] sm:truncate sm:text-[1.2rem]">{c.title}</span>
-                  <span className={`block truncate text-[0.74rem] ${active ? "text-paper/70" : "text-ink-3"}`}>{KIND_LABEL[c.kind]}</span>
+                  <span className="block font-serif text-[1.08rem] leading-[1.1] sm:truncate sm:text-[1.2rem]">{c.input.brandName ?? c.title}</span>
+                  <span className={`block truncate text-[0.74rem] ${active ? "text-paper/70" : "text-ink-3"}`}>{sub}</span>
                 </span>
-                {active && (
-                  <motion.svg
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    className="relative ml-auto shrink-0 text-paper"
-                    aria-hidden
-                  >
-                    <path d="M2.5 7.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="1.8" />
-                  </motion.svg>
-                )}
               </motion.button>
             </li>
           );
         })}
       </ul>
+      {missedReal && (
+        <p className="mt-3 text-[0.9rem] text-ink-2">
+          The one you missed really ran: {real.subtitle}.{" "}
+          <Link href={`/cases/${real.slug}`} className="text-pencil underline underline-offset-4">
+            What happened
+          </Link>
+        </p>
+      )}
     </div>
   );
 }
@@ -153,17 +197,6 @@ function SubmittedBrief({ input, onEdit, result }: { input: CampaignInput; onEdi
   );
 }
 
-/** The answer to "Can you spot the issue?" for the case on the table, before it's run. */
-function SpotAnswer({ spot }: { spot: SpotKey }) {
-  return (
-    <motion.div role="status" className="border-l-2 border-ink pl-4" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
-      <p className="font-medium text-ink">{spot.answer}</p>
-      <p className="mt-1 max-w-[62ch] text-[0.95rem] leading-relaxed text-ink-2">{spot.why}</p>
-      <p className="mt-2 text-[0.9rem] text-ink-3">Run a second look for the full report and its sources.</p>
-    </motion.div>
-  );
-}
-
 export function ReviewApp({
   examples,
   incidents,
@@ -177,20 +210,24 @@ export function ReviewApp({
   analysisAvailable: boolean;
   generationAvailable: boolean;
 }) {
-  const [values, setValues] = useState<BriefValues>(EMPTY_BRIEF);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [placedKey, setPlacedKey] = useState("none");
-  const [upload, setUpload] = useState<UploadState>({ status: "idle" });
+  // The first case starts on the table, so "Can you spot the issue?" is the first thing on screen.
+  const first = examples[0] ?? null;
+  const [values, setValues] = useState<BriefValues>(() => (first ? briefFrom(first.input) : EMPTY_BRIEF));
+  const [imageUrl, setImageUrl] = useState<string | null>(first?.input.imageUrl ?? null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(first?.input.imageUrl ?? null);
+  const [placedKey, setPlacedKey] = useState(first?.slug ?? "none");
+  const [upload, setUpload] = useState<UploadState>(first ? { status: "done" } : { status: "idle" });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [phase, setPhase] = useState<Phase>({ kind: "brief" });
   const [submitted, setSubmitted] = useState<CampaignInput | null>(null);
   const [fillKey, setFillKey] = useState(0);
-  const [activeSlug, setActiveSlug] = useState<string | null>(null);
+  const [activeSlug, setActiveSlug] = useState<string | null>(first?.slug ?? null);
   const [activeBox, setActiveBox] = useState<string | null>(null);
-  const [guess, setGuess] = useState<Guess | null>(null);
+  /** Spot-the-issue play per case, kept while switching between them. */
+  const [plays, setPlays] = useState<Record<string, SpotProgress>>({});
   const reportRef = useRef<HTMLDivElement>(null);
   const workspaceRef = useRef<HTMLElement>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const scrollTo = useScrollTo();
 
@@ -206,7 +243,6 @@ export function ReviewApp({
     if (!activeSlug) return;
     setValues((v) => ({ ...v, productName: "", headline: "", bodyCopy: "", brandName: "", brandNotes: "" }));
     setActiveSlug(null);
-    setGuess(null);
   };
 
   const onFile = async (file: File) => {
@@ -229,21 +265,11 @@ export function ReviewApp({
     const example = examples.find((c) => c.slug === slug);
     if (!example) return;
     const { input } = example;
-    setValues({
-      brandName: input.brandName ?? "",
-      productName: input.productName,
-      headline: input.headline,
-      bodyCopy: input.bodyCopy,
-      markets: [...input.markets],
-      launchDate: input.launchDate ?? "",
-      channel: input.channel,
-      brandNotes: input.brandNotes ?? "",
-    });
+    setValues(briefFrom(input));
     setImageUrl(input.imageUrl);
     setPreviewUrl(input.imageUrl);
     setPlacedKey(slug);
     setActiveSlug(slug);
-    setGuess(null);
     setUpload({ status: "done" });
     setErrors({});
     setFillKey((k) => k + 1);
@@ -261,24 +287,6 @@ export function ReviewApp({
     return () => clearTimeout(t);
     // Load once on arrival; loadExample is recreated every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Requests from elsewhere on the page (the spot-the-problem rounds). Kept in a ref so one listener sees current state.
-  const openCase = useRef<(slug: string) => void>(() => {});
-  useEffect(() => {
-    openCase.current = (slug) => {
-      if (!examples.some((c) => c.slug === slug)) return;
-      abortRef.current?.abort();
-      loadExample(slug);
-      scrollTo(workspaceRef.current, 0);
-    };
-  });
-  useEffect(() => {
-    const onOpen = (e: Event) => {
-      if (e instanceof CustomEvent && typeof e.detail === "string") openCase.current(e.detail);
-    };
-    window.addEventListener(LOAD_CASE_EVENT, onOpen);
-    return () => window.removeEventListener(LOAD_CASE_EVENT, onOpen);
   }, []);
 
   const submit = async () => {
@@ -333,8 +341,32 @@ export function ReviewApp({
         : { kind: "idle" };
 
   const editing = phase.kind === "brief" || phase.kind === "failed";
+  const active = examples.find((c) => c.slug === activeSlug) ?? null;
   // "Can you spot the issue?" runs on a case until it's sent for review.
-  const spotKey = editing && tableMode.kind === "idle" ? (examples.find((c) => c.slug === activeSlug)?.spot ?? null) : null;
+  const spot = editing && tableMode.kind === "idle" ? (active?.spot ?? null) : null;
+  const progress = (activeSlug && plays[activeSlug]) || NEW_PROGRESS;
+  const play = (action: { type: "guess"; guess: Guess } | { type: "show" }) => {
+    if (!spot || !activeSlug) return;
+    setPlays((all) => ({ ...all, [activeSlug]: stepSpot(spot, all[activeSlug] ?? NEW_PROGRESS, action) }));
+  };
+  // The next case not yet played, after this one.
+  const rounds = examples.filter((c) => c.spot);
+  const at = rounds.findIndex((c) => c.slug === activeSlug);
+  const nextRound = rounds.map((_, k) => rounds[(at + 1 + k) % rounds.length]).find((c) => c.slug !== activeSlug && !plays[c.slug]?.outcome);
+  const goTo = (slug: string) => {
+    loadExample(slug);
+    // On narrow screens the result sits below the picture; bring the new case into view.
+    if ((tableRef.current?.getBoundingClientRect().top ?? 0) < 0) scrollTo(tableRef.current, -12);
+  };
+  const next = nextRound
+    ? { label: "Next case", onClick: () => goTo(nextRound.slug) }
+    : {
+        label: "Play again",
+        onClick: () => {
+          setPlays({});
+          if (rounds[0]) goTo(rounds[0].slug);
+        },
+      };
 
   return (
     <>
@@ -345,9 +377,9 @@ export function ReviewApp({
               <h1 id="workspace-title" className="font-serif text-[2.1rem] leading-[1.02] tracking-tight sm:text-[2.5rem] xl:text-[2.8rem]">
                 <RiseLines lines={["Cultural risk review for ad campaigns"]} />
               </h1>
-              <p className="fade-up mt-2.5 max-w-[64ch] text-[1rem] leading-relaxed text-ink-2" style={{ animationDelay: "220ms" }}>
-                Second Look checks an ad&rsquo;s image, name, copy and launch date against each market&rsquo;s history, language and calendar, and
-                cites precedent for every flag.
+              <p className="fade-up mt-2.5 max-w-[58ch] text-[1rem] leading-relaxed text-ink-2" style={{ animationDelay: "220ms" }}>
+                Second Look reads an ad&rsquo;s picture, words and launch date against each market&rsquo;s history, and cites the precedent for every
+                flag.
               </p>
             </div>
           </div>
@@ -355,9 +387,8 @@ export function ReviewApp({
           <div className="min-w-0 [grid-area:work]">
             <AnimatePresence mode="wait" initial={false}>
               {editing ? (
-                <motion.div key="brief" className="flex flex-col gap-5" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
-                  <CasePicker examples={examples} onLoad={loadExample} activeSlug={activeSlug} disabled={false} />
-                  {spotKey && guess && <SpotAnswer key={activeSlug} spot={spotKey} />}
+                <motion.div key="brief" className="flex flex-col gap-8" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
+                  <CasePicker examples={examples} onLoad={goTo} activeSlug={activeSlug} plays={plays} />
                   <div className="fade-up" style={{ animationDelay: "480ms" }}>
                     <BriefForm
                       values={values}
@@ -368,6 +399,9 @@ export function ReviewApp({
                       uploading={upload.status === "uploading"}
                       fillKey={fillKey}
                       analysisAvailable={analysisAvailable}
+                      lead={active && <CaseBrief values={values} fillKey={fillKey} spot={spot && { key: spot, progress, onGuess: (guess) => play({ type: "guess", guess }) }} />}
+                      collapsible={Boolean(active)}
+                      pinnable={!spot || progress.outcome !== null}
                     />
                   </div>
                   {phase.kind === "failed" && (
@@ -400,7 +434,7 @@ export function ReviewApp({
             </AnimatePresence>
           </div>
 
-          <div className="fade-up min-w-0 [grid-area:table]" style={{ animationDelay: "120ms" }}>
+          <div ref={tableRef} className="fade-up min-w-0 [grid-area:table]" style={{ animationDelay: "120ms" }}>
             <div className="lg:sticky lg:top-6 lg:h-[calc(100dvh-6.5rem)] lg:max-h-[56rem] lg:min-h-[34rem]">
               <LightTable
                 imageUrl={previewUrl}
@@ -416,7 +450,16 @@ export function ReviewApp({
                 placedKey={placedKey}
                 activeBoxId={activeBox}
                 onActivateBox={setActiveBox}
-                spot={spotKey && { regions: spotKey.regions, guess, verdict: guess && spotVerdict(spotKey, guess), onGuess: setGuess }}
+                spot={
+                  spot && {
+                    spot,
+                    progress,
+                    onGuess: (guess) => play({ type: "guess", guess }),
+                    onShow: () => play({ type: "show" }),
+                    next,
+                    onRun: analysisAvailable ? submit : null,
+                  }
+                }
               />
             </div>
           </div>

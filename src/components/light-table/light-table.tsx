@@ -1,24 +1,40 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useAnimate, useReducedMotion } from "motion/react";
 import { useEffect, useId, useRef, useState } from "react";
-import type { Guess, Region } from "@/lib/spot";
+import { MAX_TRIES, triesLeft, type Guess, type SpotKey, type SpotProgress } from "@/lib/spot";
 import { CreativeWithBoxes, type Box } from "../report/creative-boxes";
 import { EASE_OUT } from "../motion/primitives";
-import { marksCaption, SpotMarks, SpotTarget } from "../spot/spot-marks";
+import { SpotMarks, SpotTarget } from "../spot/spot-marks";
+import { SpotPrompt, SpotResult } from "../spot/spot-panels";
 
 const ACCEPT = ["image/png", "image/jpeg", "image/webp"];
 const MAX_BYTES = 10 * 1024 * 1024;
 
 export type UploadState = { status: "idle" } | { status: "uploading" } | { status: "error"; message: string } | { status: "done" };
 
-/** "Can you spot the issue?" for a loaded case: tap to guess, then the answer is drawn on. */
+/** "Can you spot the issue?" for a loaded case: flag a spot, get a hint after a miss, then the answer. */
 export interface SpotMode {
-  regions: readonly Region[];
-  guess: Guess | null;
-  /** The verdict once guessed, e.g. "Caught it." */
-  verdict: string | null;
+  spot: SpotKey;
+  progress: SpotProgress;
   onGuess: (g: Guess) => void;
+  onShow: () => void;
+  next: { label: string; onClick: () => void };
+  /** Runs the live analysis on this case; null when it isn't available. */
+  onRun: (() => void) | null;
+}
+
+function Tries({ left }: { left: number }) {
+  return (
+    <span className="flex items-center gap-2" aria-label={`${left} ${left === 1 ? "try" : "tries"} left`}>
+      <span aria-hidden>{left === 1 ? "Last try" : "Tries"}</span>
+      <span aria-hidden className="flex gap-1">
+        {Array.from({ length: MAX_TRIES }, (_, i) => (
+          <span key={i} className={`h-2 w-2 rounded-full transition-colors duration-300 ${i < left ? "bg-[var(--table-pencil)]" : "border border-[var(--table-dim)]"}`} />
+        ))}
+      </span>
+    </span>
+  );
 }
 
 export type TableMode =
@@ -148,7 +164,18 @@ export function LightTable({
   }, [imageUrl]);
 
   const error = localError ?? (upload.status === "error" ? upload.message : null);
-  const guessing = Boolean(spot && imageUrl && !spot.guess);
+  const playing = spot && imageUrl ? spot : null;
+  const guessing = Boolean(playing && !playing.progress.outcome);
+
+  // A wrong tap on the picture gives the sheet a small shake.
+  const [sheet, shake] = useAnimate<HTMLDivElement>();
+  const reduced = useReducedMotion();
+  const misses = playing?.progress.misses ?? [];
+  const lastMiss = misses.at(-1);
+  useEffect(() => {
+    if (!lastMiss || lastMiss.kind === "line" || reduced || !sheet.current) return;
+    void shake(sheet.current, { x: [0, -7, 7, -4, 0] }, { duration: 0.35 });
+  }, [misses.length, lastMiss, reduced, shake, sheet]);
 
   return (
     <section
@@ -185,39 +212,39 @@ export function LightTable({
           />
           {mode.kind === "scanning" ? "Reading" : mode.kind === "reviewed" ? "Reviewed" : imageUrl ? "On the table" : "Empty"}
         </span>
-        <span className="tabular-nums">{dims ? `${dims.w} × ${dims.h} px` : "PNG, JPEG or WebP, up to 10MB"}</span>
+        {guessing && playing ? <Tries left={triesLeft(playing.progress)} /> : <span className="tabular-nums">{dims ? `${dims.w} × ${dims.h} px` : "PNG, JPEG or WebP, up to 10MB"}</span>}
       </header>
 
-      <div className={`relative flex flex-1 items-center justify-center px-12 pb-12 sm:px-16 ${spot && imageUrl ? "pt-[4.5rem]" : "pt-12"}`}>
-        {spot && imageUrl && (
-          <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center px-6 pt-3" aria-live="polite">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.p
-                key={spot.verdict ?? "ask"}
-                className="text-center font-serif text-[1.4rem] leading-[1.1] text-[var(--table-ink)] sm:text-[1.8rem]"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.25, ease: EASE_OUT }}
-              >
-                {spot.verdict ?? "Can you spot the issue?"}
-              </motion.p>
-            </AnimatePresence>
-          </div>
+      <AnimatePresence initial={false}>
+        {playing && !playing.progress.outcome && (
+          <motion.div
+            key="prompt"
+            className="relative"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.35, ease: EASE_OUT }}
+          >
+            <SpotPrompt spot={playing.spot} progress={playing.progress} onShow={playing.onShow} />
+          </motion.div>
         )}
+      </AnimatePresence>
+
+      {/* On lg the table has a fixed height: the sheet sizes itself to whatever height the prompt and result leave. */}
+      <div className="relative flex min-h-0 flex-1 items-center justify-center px-12 py-10 sm:px-16 lg:[container-type:size]">
         {/* initial={false}: the first render is server-painted immediately; later placements animate. */}
         <AnimatePresence mode="wait" initial={false}>
           {imageUrl ? (
             <motion.div
               key={placedKey}
-              className="relative w-full max-w-[26rem]"
+              className="relative w-full max-w-[26rem] lg:w-[min(26rem,100cqw,100cqh*0.8)]"
               initial={{ opacity: 0, scale: 1.06, rotate: -1.2, y: -18 }}
               animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
               exit={{ opacity: 0, scale: 0.97, y: 12 }}
               transition={{ type: "spring", stiffness: 180, damping: 22 }}
             >
               <CropMarks spread={dragging} />
-              <div className="relative shadow-[0_0_0_1px_var(--table-rule)]">
+              <div ref={sheet} className="relative shadow-[0_0_0_1px_var(--table-rule)]">
                 <CreativeWithBoxes
                   src={imageUrl}
                   alt="The creative under review"
@@ -230,10 +257,10 @@ export function LightTable({
                   priority
                   drawDelay={0.2}
                 />
-                {spot && (
+                {playing && (
                   <>
-                    <SpotTarget onGuess={spot.onGuess} disabled={!guessing} />
-                    {spot.guess && <SpotMarks regions={spot.regions} guess={spot.guess} />}
+                    <SpotMarks spot={playing.spot} progress={playing.progress} />
+                    <SpotTarget src={imageUrl} onGuess={playing.onGuess} disabled={!guessing} />
                   </>
                 )}
                 {mode.kind === "scanning" && (
@@ -250,7 +277,7 @@ export function LightTable({
           ) : (
             <motion.div
               key="empty"
-              className="relative w-full max-w-[22rem]"
+              className="relative w-full max-w-[22rem] lg:w-[min(22rem,100cqw,100cqh*0.8)]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -277,6 +304,10 @@ export function LightTable({
         </AnimatePresence>
       </div>
 
+      <AnimatePresence initial={false}>
+        {playing?.progress.outcome && <SpotResult key={playing.spot.slug} spot={playing.spot} progress={playing.progress} next={playing.next} onRun={playing.onRun} />}
+      </AnimatePresence>
+
       <footer className="relative flex min-h-12 items-center justify-between gap-4 border-t border-[var(--table-rule)] px-5 py-3 text-[0.88rem]" aria-live="polite">
         {mode.kind === "scanning" ? (
           <span className="flex min-w-0 flex-1 items-center gap-3">
@@ -293,27 +324,17 @@ export function LightTable({
           <span role="alert" className="text-[#f0a39d]">
             {error}
           </span>
-        ) : spot && imageUrl ? (
-          spot.guess ? (
-            <span className="text-[var(--table-dim)]">{marksCaption(spot.regions, spot.guess)}</span>
-          ) : (
-            <span className="text-[var(--table-dim)]">
-              Tap the spot you&rsquo;d flag, or{" "}
-              <button type="button" className="text-[var(--table-pencil)] underline underline-offset-2" onClick={() => spot.onGuess({ kind: "words" })}>
-                it&rsquo;s not in the picture
-              </button>
-              .
-            </span>
-          )
+        ) : playing ? (
+          <span className="hidden text-[var(--table-dim)] sm:inline">Or drop your own ad on the table.</span>
         ) : imageUrl ? (
           <span className="text-[var(--table-dim)]">Hover to inspect with the loupe.</span>
         ) : (
           <span className="text-[var(--table-dim)]">Nothing on the table yet.</span>
         )}
         {imageUrl && !locked && (
-          <span className="flex shrink-0 gap-4 text-[0.85rem]">
+          <span className="ml-auto flex shrink-0 gap-4 text-[0.85rem]">
             <button type="button" className="text-[var(--table-pencil)] underline underline-offset-2" onClick={() => inputRef.current?.click()}>
-              Replace
+              {playing ? "Upload your ad" : "Replace"}
             </button>
             <button type="button" className="text-[var(--table-dim)] underline underline-offset-2 hover:text-[var(--table-ink)]" onClick={onClear}>
               Remove
