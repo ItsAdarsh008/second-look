@@ -298,7 +298,7 @@ export function ReviewApp({
                       analysisAvailable={analysisAvailable}
                       title={active ? `${active.input.brandName ?? active.title}’s brief` : "Your ad’s brief"}
                       lead={active && <CaseBrief values={values} fillKey={fillKey} spot={spot && { key: spot, progress, onGuess: (guess) => play({ type: "guess", guess }) }} />}
-                      collapsible={Boolean(active)}
+                      readOnly={Boolean(active)}
                       pinnable={!spot || progress.outcome !== null}
                     />
                   </div>

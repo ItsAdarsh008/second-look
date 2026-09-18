@@ -127,7 +127,7 @@ export function BriefForm({
   analysisAvailable,
   lead,
   title = "The brief",
-  collapsible = false,
+  readOnly = false,
   pinnable = true,
 }: {
   values: BriefValues;
@@ -142,8 +142,8 @@ export function BriefForm({
   lead?: React.ReactNode;
   /** Whose brief this is, e.g. "Northline’s brief". */
   title?: string;
-  /** Tuck the fields behind "Edit", for a case whose brief is already complete. */
-  collapsible?: boolean;
+  /** A case's brief is fixed: the lead shows it and there are no fields to edit. */
+  readOnly?: boolean;
   /** Whether the submit button may pin to the bottom of small screens. */
   pinnable?: boolean;
 }) {
@@ -154,12 +154,9 @@ export function BriefForm({
   const attempted = useRef(false);
   const scrollTo = useScrollTo();
   const disabled = submitting || uploading || !analysisAvailable;
-  const [editing, setEditing] = useState(false);
-  // Clip the fields only while they open or close: the market picker's list hangs below them.
-  const [clip, setClip] = useState(false);
+  // A field error always shows the fields, so it can be fixed.
   const fieldError = Boolean(errors.markets || errors.launchDate || errors.channel || errors.brandNotes);
-  const showFields = !collapsible || editing || fieldError;
-  const fieldsId = `${ids}-fields`;
+  const showFields = !readOnly || fieldError;
 
   // Below lg the light table sits above the brief, so the submit button starts off screen.
   // Pin a copy to the bottom of the viewport until the real one scrolls into view. Null until measured.
@@ -223,38 +220,13 @@ export function BriefForm({
       }}
       className="space-y-3"
     >
-      <div className="flex items-baseline justify-between gap-4">
-        <h2 className="text-[0.82rem] text-ink-3">{title}</h2>
-        {collapsible && !fieldError && (
-          <button
-            type="button"
-            aria-expanded={showFields}
-            aria-controls={fieldsId}
-            onClick={() => {
-              setClip(true);
-              setEditing((v) => !v);
-            }}
-            className="text-[0.82rem] text-ink-3 underline decoration-rule-strong underline-offset-4 hover:text-ink"
-          >
-            {editing ? "Done" : "Edit"}
-          </button>
-        )}
-      </div>
+      <h2 className="text-[0.82rem] text-ink-3">{title}</h2>
 
       {lead}
 
       <AnimatePresence initial={false}>
         {showFields && (
-          <motion.div
-            id={fieldsId}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            onAnimationComplete={() => setClip(false)}
-            style={{ overflow: clip ? "hidden" : "visible" }}
-            className="space-y-4"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
             {/* A sheet of fields, like a case's brief. Not overflow-hidden: the market list hangs below it. */}
             <div className="rounded-[10px] border border-rule bg-sheet">
               <div className="border-b border-rule px-4 py-4 sm:px-5">
