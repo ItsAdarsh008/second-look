@@ -1,4 +1,5 @@
 import type { CaseFixture } from "@/lib/schema";
+import { creativeUrl } from "./creative";
 
 export const controlMxAguaFresca: CaseFixture = {
   slug: "control-mx-agua-fresca",
@@ -7,7 +8,7 @@ export const controlMxAguaFresca: CaseFixture = {
   kind: "control",
   dek: "A hibiscus drink launched in July, in plain, idiomatic Spanish. It should come back clean.",
   input: {
-    imageUrl: "/cases/control-mx-agua-fresca.png",
+    imageUrl: creativeUrl("control-mx-agua-fresca"),
     imageFilePath: null,
     brandName: "Río Claro",
     headline: "Refréscate este verano.",

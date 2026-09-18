@@ -1,4 +1,5 @@
 import type { CaseFixture } from "@/lib/schema";
+import { creativeUrl } from "./creative";
 
 export const controlCnOsmanthusTea: CaseFixture = {
   slug: "control-cn-osmanthus-tea",
@@ -7,7 +8,7 @@ export const controlCnOsmanthusTea: CaseFixture = {
   kind: "control",
   dek: "A limited-edition milk tea with a Chinese headline, launched in early November. It should come back clean.",
   input: {
-    imageUrl: "/cases/control-cn-osmanthus-tea.png",
+    imageUrl: creativeUrl("control-cn-osmanthus-tea"),
     imageFilePath: null,
     brandName: "Lanting Tea",
     headline: "桂花乌龙 · 秋日限定",

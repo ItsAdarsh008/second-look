@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CASES, getCase } from "@/data/cases";
+import { creativeUrl } from "@/data/cases/creative";
 import { getCaseResult } from "@/data/cases/results";
 import { BeforeAfter } from "@/components/generate/before-after";
 import { IncidentPhotos } from "@/components/incident-photo";
@@ -58,7 +59,7 @@ function Neighbour({ c, direction }: { c: CaseFixture; direction: "Previous" | "
       className={`group flex items-center gap-4 rounded-[10px] border border-rule bg-sheet p-4 transition-colors hover:border-ink ${direction === "Next" ? "sm:flex-row-reverse sm:text-right" : ""}`}
     >
       <span className="w-14 shrink-0 overflow-hidden rounded-[3px] border border-rule">
-        <Image src={`/cases/${c.slug}-thumb.png`} alt="" width={540} height={675} sizes="56px" className="w-full transition-transform duration-500 group-hover:scale-110" />
+        <Image src={creativeUrl(c.slug, "thumb")} alt="" width={540} height={675} sizes="56px" className="w-full transition-transform duration-500 group-hover:scale-110" />
       </span>
       <span className="min-w-0">
         <span className="block text-[0.82rem] text-ink-3">{direction} case</span>

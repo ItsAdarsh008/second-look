@@ -1,4 +1,5 @@
 import type { CaseFixture } from "@/lib/schema";
+import { creativeUrl } from "./creative";
 
 export const pajero: CaseFixture = {
   slug: "pajero",
@@ -7,7 +8,7 @@ export const pajero: CaseFixture = {
   kind: "synthetic-language",
   dek: "A nameplate that is vulgar slang in Spanish, and the reason Mitsubishi sold the Pajero as the Montero in Spanish-speaking markets.",
   input: {
-    imageUrl: "/cases/pajero.png",
+    imageUrl: creativeUrl("pajero"),
     imageFilePath: null,
     brandName: "Kanto Motors",
     headline: "Sin límites.",

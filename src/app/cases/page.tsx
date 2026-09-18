@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { CASES } from "@/data/cases";
+import { creativeUrl } from "@/data/cases/creative";
 import { getCaseResult } from "@/data/cases/results";
 import { Reveal, RiseLines } from "@/components/motion/primitives";
 import { scoreCase } from "@/lib/eval";
@@ -43,7 +44,7 @@ function StackedCaseCard({ c }: { c: CaseFixture }) {
       <Link href={`/cases/${c.slug}`} className="group flex h-full flex-col rounded-[10px] border border-rule bg-sheet p-4 transition-colors duration-300 hover:border-ink">
         <div className="overflow-hidden rounded-[4px] border border-rule">
           <Image
-            src={`/cases/${c.slug}.png`}
+            src={creativeUrl(c.slug)}
             alt=""
             width={1080}
             height={1350}
@@ -71,7 +72,7 @@ function CaseCard({ c, delay }: { c: CaseFixture; delay: number }) {
       >
         <div className="self-start overflow-hidden rounded-[4px] border border-rule">
           <Image
-            src={`/cases/${c.slug}-thumb.png`}
+            src={creativeUrl(c.slug, "thumb")}
             alt=""
             width={540}
             height={675}
@@ -105,7 +106,7 @@ function FeaturedCase({ c, solo }: { c: CaseFixture; solo: boolean }) {
         <div className="light-table self-start rounded-[8px] p-3">
           <div className="overflow-hidden rounded-[2px]">
             <Image
-              src={`/cases/${c.slug}.png`}
+              src={creativeUrl(c.slug)}
               alt=""
               width={1080}
               height={1350}

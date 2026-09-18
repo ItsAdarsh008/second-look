@@ -1,4 +1,5 @@
 import type { CaseFixture } from "@/lib/schema";
+import { creativeUrl } from "./creative";
 
 export const vuelaEnCuero: CaseFixture = {
   slug: "vuela-en-cuero",
@@ -7,7 +8,7 @@ export const vuelaEnCuero: CaseFixture = {
   kind: "synthetic-language",
   dek: "A slogan for new leather seats that also reads as 'fly naked'. The old Braniff story, rebuilt with a fictional airline.",
   input: {
-    imageUrl: "/cases/vuela-en-cuero.png",
+    imageUrl: creativeUrl("vuela-en-cuero"),
     imageFilePath: null,
     brandName: "Solara Air",
     headline: "Vuela en cuero.",

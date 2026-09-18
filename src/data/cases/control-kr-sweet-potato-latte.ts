@@ -1,4 +1,5 @@
 import type { CaseFixture } from "@/lib/schema";
+import { creativeUrl } from "./creative";
 
 export const controlKrSweetPotatoLatte: CaseFixture = {
   slug: "control-kr-sweet-potato-latte",
@@ -7,7 +8,7 @@ export const controlKrSweetPotatoLatte: CaseFixture = {
   kind: "control",
   dek: "An ordinary seasonal launch from the same fictional coffee chain as Tank Day, in the same market. It should come back clean.",
   input: {
-    imageUrl: "/cases/control-kr-sweet-potato-latte.png",
+    imageUrl: creativeUrl("control-kr-sweet-potato-latte"),
     imageFilePath: null,
     brandName: "Harbor Coffee Korea",
     headline: "Sweet potato season is back.",

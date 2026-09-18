@@ -1,23 +1,5 @@
 import type { CaseFixture } from "@/lib/schema";
-
-/** A brief line the player can point at. */
-export type SpotField = "productName" | "headline" | "bodyCopy" | "launchDate";
-
-/** [x, y, width, height], normalized 0–1 to the creative, like finding boxes. */
-export type Region = readonly [number, number, number, number];
-
-/** The answer key for one round of "Spot the problem". The campaign itself comes from the case. */
-export interface SpotKey {
-  slug: string;
-  /** Where the risk sits in the picture. Empty when the picture is clean. */
-  regions: readonly Region[];
-  /** Brief lines that carry the risk, and the words to mark on reveal (the whole line when omitted). */
-  lines: readonly { field: SpotField; excerpt?: string }[];
-  /** The answer in a few words. */
-  answer: string;
-  /** Why a local audience would see it, with the precedent. */
-  why: string;
-}
+import type { SpotKey } from "@/lib/spot";
 
 /**
  * Rounds in play order. The two picture risks come first, so by the last round the
@@ -64,4 +46,8 @@ export function toSpotRounds(cases: readonly CaseFixture[]): SpotRound[] {
     const c = cases.find((x) => x.slug === key.slug);
     return c ? [{ ...key, title: c.title, kind: c.kind, input: c.input }] : [];
   });
+}
+
+export function spotKey(slug: string): SpotKey | null {
+  return SPOT_KEYS.find((k) => k.slug === slug) ?? null;
 }

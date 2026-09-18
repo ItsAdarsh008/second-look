@@ -1,4 +1,5 @@
 import type { CaseFixture } from "@/lib/schema";
+import { creativeUrl } from "./creative";
 
 export const risingSunRays: CaseFixture = {
   slug: "rising-sun-rays",
@@ -7,7 +8,7 @@ export const risingSunRays: CaseFixture = {
   kind: "synthetic-visual",
   dek: "A retro sunrise on a sunscreen poster. The copy is clean; the red rays around a red disc are the whole risk.",
   input: {
-    imageUrl: "/cases/rising-sun-rays.png",
+    imageUrl: creativeUrl("rising-sun-rays"),
     imageFilePath: null,
     brandName: "Morrow",
     headline: "Light enough for every morning.",

@@ -72,7 +72,7 @@ npm run eval -- --update-baseline
 
 npm run cases:build                         # pre-compute gallery analyses (leave-one-out)
 npm run cases:build -- --generate           # also render Magic Hour alternatives for image findings
-npm run creative:render                     # re-render fixture SVGs to public/cases/*.png
+npm run creative:render                     # re-render fixture SVGs to public/cases/*.png and re-version their URLs
 
 npx tsx scripts/smoke-magichour.ts ./fixtures/test.png "make the sky purple" --model flux-2-klein
 ```

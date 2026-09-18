@@ -4,6 +4,7 @@ import { motion, useInView, useScroll, useTransform } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
+import { creativeUrl } from "@/data/cases/creative";
 import type { HistoryPhoto } from "@/lib/schema";
 import { IncidentPhotoFrame, PhotoCredit } from "../incident-photo";
 import { EASE_OUT, MaskedLines, Reveal } from "../motion/primitives";
@@ -93,7 +94,7 @@ export function Story({ photos }: { photos: readonly HistoryPhoto[] }) {
 
         <div className="relative flex flex-col justify-center">
           <motion.div style={{ y: drift, rotate: tilt }} className="light-table mx-auto w-full max-w-[20rem] rounded-[10px] p-6 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.5)]">
-            <Image src="/cases/starbucks-korea.png" alt="Synthetic reconstruction of the Tank Day tumbler ad, with a fictional brand" width={1080} height={1350} className="w-full rounded-[2px]" sizes="320px" />
+            <Image src={creativeUrl("starbucks-korea")} alt="Synthetic reconstruction of the Tank Day tumbler ad, with a fictional brand" width={1080} height={1350} className="w-full rounded-[2px]" sizes="320px" />
             <p className="mt-3 text-[0.8rem] text-[var(--table-dim)]">Rebuilt with a fictional brand. The picture is clean.</p>
           </motion.div>
         </div>

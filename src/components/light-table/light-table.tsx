@@ -2,13 +2,24 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useId, useRef, useState } from "react";
+import type { Guess, Region } from "@/lib/spot";
 import { CreativeWithBoxes, type Box } from "../report/creative-boxes";
 import { EASE_OUT } from "../motion/primitives";
+import { marksCaption, SpotMarks, SpotTarget } from "../spot/spot-marks";
 
 const ACCEPT = ["image/png", "image/jpeg", "image/webp"];
 const MAX_BYTES = 10 * 1024 * 1024;
 
 export type UploadState = { status: "idle" } | { status: "uploading" } | { status: "error"; message: string } | { status: "done" };
+
+/** "Can you spot the issue?" for a loaded case: tap to guess, then the answer is drawn on. */
+export interface SpotMode {
+  regions: readonly Region[];
+  guess: Guess | null;
+  /** The verdict once guessed, e.g. "Caught it." */
+  verdict: string | null;
+  onGuess: (g: Guess) => void;
+}
 
 export type TableMode =
   | { kind: "idle" }
@@ -97,6 +108,7 @@ export function LightTable({
   placedKey,
   activeBoxId,
   onActivateBox,
+  spot,
 }: {
   imageUrl: string | null;
   mode: TableMode;
@@ -107,6 +119,8 @@ export function LightTable({
   placedKey: string;
   activeBoxId?: string | null;
   onActivateBox?: (id: string | null) => void;
+  /** Only while a case is on the table and hasn't been run. */
+  spot?: SpotMode | null;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -134,6 +148,7 @@ export function LightTable({
   }, [imageUrl]);
 
   const error = localError ?? (upload.status === "error" ? upload.message : null);
+  const guessing = Boolean(spot && imageUrl && !spot.guess);
 
   return (
     <section
@@ -173,7 +188,23 @@ export function LightTable({
         <span className="tabular-nums">{dims ? `${dims.w} × ${dims.h} px` : "PNG, JPEG or WebP, up to 10MB"}</span>
       </header>
 
-      <div className="relative flex flex-1 items-center justify-center px-12 py-12 sm:px-16">
+      <div className={`relative flex flex-1 items-center justify-center px-12 pb-12 sm:px-16 ${spot && imageUrl ? "pt-[4.5rem]" : "pt-12"}`}>
+        {spot && imageUrl && (
+          <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center px-6 pt-3" aria-live="polite">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.p
+                key={spot.verdict ?? "ask"}
+                className="text-center font-serif text-[1.4rem] leading-[1.1] text-[var(--table-ink)] sm:text-[1.8rem]"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.25, ease: EASE_OUT }}
+              >
+                {spot.verdict ?? "Can you spot the issue?"}
+              </motion.p>
+            </AnimatePresence>
+          </div>
+        )}
         {/* initial={false}: the first render is server-painted immediately; later placements animate. */}
         <AnimatePresence mode="wait" initial={false}>
           {imageUrl ? (
@@ -194,11 +225,17 @@ export function LightTable({
                   activeId={activeBoxId}
                   onActivate={onActivateBox}
                   sizes="(min-width: 1024px) 420px, 90vw"
-                  loupe={mode.kind !== "scanning"}
+                  loupe={mode.kind !== "scanning" && !guessing}
                   dark
                   priority
                   drawDelay={0.2}
                 />
+                {spot && (
+                  <>
+                    <SpotTarget onGuess={spot.onGuess} disabled={!guessing} />
+                    {spot.guess && <SpotMarks regions={spot.regions} guess={spot.guess} />}
+                  </>
+                )}
                 {mode.kind === "scanning" && (
                   <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
                     <div className="absolute inset-0 bg-[var(--table)]/25" />
@@ -256,6 +293,18 @@ export function LightTable({
           <span role="alert" className="text-[#f0a39d]">
             {error}
           </span>
+        ) : spot && imageUrl ? (
+          spot.guess ? (
+            <span className="text-[var(--table-dim)]">{marksCaption(spot.regions, spot.guess)}</span>
+          ) : (
+            <span className="text-[var(--table-dim)]">
+              Tap the spot you&rsquo;d flag, or{" "}
+              <button type="button" className="text-[var(--table-pencil)] underline underline-offset-2" onClick={() => spot.onGuess({ kind: "words" })}>
+                it&rsquo;s not in the picture
+              </button>
+              .
+            </span>
+          )
         ) : imageUrl ? (
           <span className="text-[var(--table-dim)]">Hover to inspect with the loupe.</span>
         ) : (

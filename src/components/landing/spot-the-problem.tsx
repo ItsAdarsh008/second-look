@@ -4,50 +4,19 @@ import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import type { Region, SpotField, SpotRound } from "@/data/spot";
+import { creativeUrl } from "@/data/cases/creative";
+import type { SpotRound } from "@/data/spot";
 import { formatDate } from "@/lib/format";
 import { CHANNEL_LABELS, marketName, type CampaignInput } from "@/lib/schema";
+import { isHit, verdictLine, type Guess, type SpotField } from "@/lib/spot";
 import { EASE_OUT, MaskedLines } from "../motion/primitives";
 import { useScrollTo } from "../motion/providers";
 import { openCaseInTool } from "../review/review-app";
-
-type Guess = { kind: "point"; x: number; y: number } | { kind: "picture" } | { kind: "line"; field: SpotField } | { kind: "fine" };
+import { marksCaption, SpotMarks, SpotTarget } from "../spot/spot-marks";
 
 const FIELDS: readonly SpotField[] = ["productName", "headline", "bodyCopy", "launchDate"];
 const FIELD_LABEL: Record<SpotField, string> = { productName: "Product name", headline: "Headline", bodyCopy: "Body copy", launchDate: "Launch date" };
 const COUNT_WORD: Record<number, string> = { 1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five" };
-
-/** The creative's pixel size; every case is 4:5 at 1080 × 1350. */
-const W = 1080;
-const H = 1350;
-/** Taps this close to a region still count, as a fraction of the image. */
-const SLACK = 0.02;
-
-function inRegion([x, y, w, h]: Region, px: number, py: number): boolean {
-  return px >= x - SLACK && px <= x + w + SLACK && py >= y - SLACK && py <= y + h + SLACK;
-}
-
-function isHit(round: SpotRound, guess: Guess): boolean {
-  switch (guess.kind) {
-    case "point":
-      return round.regions.some((r) => inRegion(r, guess.x, guess.y));
-    case "picture":
-      return round.regions.length > 0;
-    case "line":
-      return round.lines.some((l) => l.field === guess.field);
-    case "fine":
-      return false;
-  }
-}
-
-function verdictLine(round: SpotRound, guess: Guess, hit: boolean): string {
-  if (hit) return "Caught it.";
-  if (round.regions.length === 0) {
-    if (guess.kind === "fine") return "That’s what the approval chain said too.";
-    if (guess.kind === "point" || guess.kind === "picture") return "Nothing was wrong with the picture.";
-  }
-  return guess.kind === "fine" ? "There’s one here." : "Not there.";
-}
 
 function lineValue(input: CampaignInput, field: SpotField): string | null {
   if (field === "launchDate") return input.launchDate ? formatDate(input.launchDate, { long: true }) : null;
@@ -140,51 +109,13 @@ function Board({ round, guess, onGuess, index, total }: { round: SpotRound; gues
               </motion.div>
             </AnimatePresence>
 
-            <button
-              type="button"
-              disabled={revealed}
-              aria-label="Flag something in the picture"
-              className="absolute inset-0 cursor-crosshair focus-visible:outline-offset-[-4px] disabled:cursor-default"
-              onClick={(e) => {
-                // detail is 0 for Enter or Space, which carry no position.
-                if (e.detail === 0) return onGuess({ kind: "picture" });
-                const r = e.currentTarget.getBoundingClientRect();
-                onGuess({ kind: "point", x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
-              }}
-            />
-
-            {revealed && (
-              <svg viewBox={`0 0 ${W} ${H}`} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
-                {round.regions.map(([x, y, w, h], i) => {
-                  const rect = { x: x * W, y: y * H, width: w * W, height: h * H, rx: 12 };
-                  return (
-                    <g key={i}>
-                      <rect {...rect} fill="#2750b8" fillOpacity={0.1} />
-                      <motion.rect {...rect} fill="none" stroke="#fbfbf9" strokeWidth={13} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, ease: [0.65, 0, 0.35, 1], delay: 0.1 }} />
-                      <motion.rect {...rect} fill="none" stroke="#2750b8" strokeWidth={7} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, ease: [0.65, 0, 0.35, 1], delay: 0.1 }} />
-                    </g>
-                  );
-                })}
-                {guess.kind === "point" && (
-                  <motion.g initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 500, damping: 24 }}>
-                    <circle cx={guess.x * W} cy={guess.y * H} r={34} fill="none" stroke="#fbfbf9" strokeWidth={13} />
-                    <circle cx={guess.x * W} cy={guess.y * H} r={34} fill="none" stroke="#17191c" strokeWidth={6} />
-                    <circle cx={guess.x * W} cy={guess.y * H} r={6} fill="#17191c" />
-                  </motion.g>
-                )}
-              </svg>
-            )}
+            <SpotTarget onGuess={onGuess} disabled={revealed} />
+            {guess && <SpotMarks regions={round.regions} guess={guess} />}
           </div>
         </div>
       </div>
       <p className="border-t border-[var(--table-rule)] px-5 py-3 text-[0.85rem] text-[var(--table-dim)]" aria-live="polite">
-        {!revealed
-          ? "Tap the spot you’d flag, or pick a line of the brief."
-          : round.regions.length === 0
-            ? "Nothing in the picture to mark."
-            : guess.kind === "point"
-              ? "Blue box: the problem. Black ring: your tap."
-              : "Blue box: the problem."}
+        {revealed ? marksCaption(round.regions, guess) : "Tap the spot you’d flag, or pick a line of the brief."}
       </p>
     </div>
   );
@@ -215,7 +146,7 @@ function Recap({ rounds, results, markets, onReplay }: { rounds: readonly SpotRo
         {rounds.map((r, i) => (
           <li key={r.slug}>
             <div className="relative overflow-hidden rounded-[2px] shadow-[0_0_0_1px_var(--table-rule)]">
-              <Image src={`/cases/${r.slug}-thumb.png`} alt="" width={540} height={675} sizes="140px" className="w-full" />
+              <Image src={creativeUrl(r.slug, "thumb")} alt="" width={540} height={675} sizes="140px" className="w-full" />
               <span
                 className={`absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-[4px] ${results[i] ? "bg-ink text-paper" : "bg-sheet text-ink-3 shadow-[0_0_0_1px_var(--rule-strong)]"}`}
               >
@@ -251,7 +182,7 @@ function Recap({ rounds, results, markets, onReplay }: { rounds: readonly SpotRo
 }
 
 /**
- * "Can you spot the problem?": the gallery cases as rounds. Tap the picture or a line of
+ * "Can you spot the issue?": the gallery cases as rounds. Tap the picture or a line of
  * the brief; the answer is drawn on like a finding, with the reason and its precedent.
  */
 export function SpotTheProblem({ rounds, markets }: { rounds: readonly SpotRound[]; markets: number }) {
@@ -290,7 +221,7 @@ export function SpotTheProblem({ rounds, markets }: { rounds: readonly SpotRound
         <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
           <div>
             <h2 id="spot-title" className="font-serif text-[2.6rem] leading-[1] tracking-tight sm:text-[3.8rem]">
-              <MaskedLines lines={["Can you spot", "the problem?"]} inView />
+              <MaskedLines lines={["Can you spot", "the issue?"]} inView />
             </h2>
             <p className="mt-5 max-w-[58ch] text-[1.05rem] leading-relaxed text-ink-2">
               {COUNT_WORD[rounds.length] ?? rounds.length} campaigns from the test set, each with a risk a local audience would catch at once. Flag it
@@ -338,7 +269,7 @@ export function SpotTheProblem({ rounds, markets }: { rounds: readonly SpotRound
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.35, ease: EASE_OUT }}
                       >
-                        <p className="font-serif text-[1.9rem] leading-[1.1] sm:text-[2.2rem]">{verdictLine(round, guess, hit)}</p>
+                        <p className="font-serif text-[1.9rem] leading-[1.1] sm:text-[2.2rem]">{verdictLine(round, guess)}</p>
                         <p className="mt-3 font-medium text-ink">{round.answer}</p>
                         <p className="mt-1.5 max-w-[62ch] leading-relaxed text-ink-2">{round.why}</p>
                         <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">

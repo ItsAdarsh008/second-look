@@ -4,11 +4,13 @@ import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { creativeUrl } from "@/data/cases/creative";
 import { ApiRequestError, analyzeWithProgress, uploadLocal, uploadToBlob } from "@/lib/clients/secondlook";
 import { formatDate } from "@/lib/format";
 import { KIND_LABEL, severityCounts, verdictLine } from "@/lib/report";
 import type { ExampleCase } from "@/lib/examples";
 import { CHANNEL_LABELS, CampaignInputSchema, marketName, type AnalysisResult, type CampaignInput } from "@/lib/schema";
+import { verdictLine as spotVerdict, type Guess, type SpotKey } from "@/lib/spot";
 import { BriefForm, EMPTY_BRIEF, type BriefValues, type FieldErrors } from "../brief/brief-form";
 import { GeneratePanel } from "../generate/generate-panel";
 import { LightTable, type TableMode, type UploadState } from "../light-table/light-table";
@@ -74,7 +76,7 @@ function CasePicker({ examples, onLoad, activeSlug, disabled }: { examples: read
     <div>
       <div className="flex items-baseline justify-between gap-4">
         <p id="case-picker-label" className="text-[0.82rem] text-ink-3">
-          Try it on a case
+          Pick a case. Can you spot the issue?
         </p>
         <Link href="/cases" className="text-[0.82rem] text-ink-3 underline decoration-rule-strong underline-offset-4 hover:text-ink">
           About these cases
@@ -100,7 +102,7 @@ function CasePicker({ examples, onLoad, activeSlug, disabled }: { examples: read
                 {active && <motion.span layoutId="case-picker-active" className="absolute inset-0 rounded-[7px] bg-ink" transition={{ type: "spring", stiffness: 380, damping: 32 }} aria-hidden />}
                 <span className={`relative h-[3.25rem] w-[2.6rem] shrink-0 overflow-hidden rounded-[4px] border ${active ? "border-paper/30" : "border-rule"}`}>
                   <Image
-                    src={`/cases/${c.slug}-thumb.png`}
+                    src={creativeUrl(c.slug, "thumb")}
                     alt=""
                     fill
                     sizes="42px"
@@ -151,6 +153,17 @@ function SubmittedBrief({ input, onEdit, result }: { input: CampaignInput; onEdi
   );
 }
 
+/** The answer to "Can you spot the issue?" for the case on the table, before it's run. */
+function SpotAnswer({ spot }: { spot: SpotKey }) {
+  return (
+    <motion.div role="status" className="border-l-2 border-ink pl-4" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
+      <p className="font-medium text-ink">{spot.answer}</p>
+      <p className="mt-1 max-w-[62ch] text-[0.95rem] leading-relaxed text-ink-2">{spot.why}</p>
+      <p className="mt-2 text-[0.9rem] text-ink-3">Run a second look for the full report and its sources.</p>
+    </motion.div>
+  );
+}
+
 export function ReviewApp({
   examples,
   incidents,
@@ -175,6 +188,7 @@ export function ReviewApp({
   const [fillKey, setFillKey] = useState(0);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [activeBox, setActiveBox] = useState<string | null>(null);
+  const [guess, setGuess] = useState<Guess | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
   const workspaceRef = useRef<HTMLElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -192,6 +206,7 @@ export function ReviewApp({
     if (!activeSlug) return;
     setValues((v) => ({ ...v, productName: "", headline: "", bodyCopy: "", brandName: "", brandNotes: "" }));
     setActiveSlug(null);
+    setGuess(null);
   };
 
   const onFile = async (file: File) => {
@@ -228,6 +243,7 @@ export function ReviewApp({
     setPreviewUrl(input.imageUrl);
     setPlacedKey(slug);
     setActiveSlug(slug);
+    setGuess(null);
     setUpload({ status: "done" });
     setErrors({});
     setFillKey((k) => k + 1);
@@ -317,6 +333,8 @@ export function ReviewApp({
         : { kind: "idle" };
 
   const editing = phase.kind === "brief" || phase.kind === "failed";
+  // "Can you spot the issue?" runs on a case until it's sent for review.
+  const spotKey = editing && tableMode.kind === "idle" ? (examples.find((c) => c.slug === activeSlug)?.spot ?? null) : null;
 
   return (
     <>
@@ -339,6 +357,7 @@ export function ReviewApp({
               {editing ? (
                 <motion.div key="brief" className="flex flex-col gap-5" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: EASE_OUT }}>
                   <CasePicker examples={examples} onLoad={loadExample} activeSlug={activeSlug} disabled={false} />
+                  {spotKey && guess && <SpotAnswer key={activeSlug} spot={spotKey} />}
                   <div className="fade-up" style={{ animationDelay: "480ms" }}>
                     <BriefForm
                       values={values}
@@ -397,6 +416,7 @@ export function ReviewApp({
                 placedKey={placedKey}
                 activeBoxId={activeBox}
                 onActivateBox={setActiveBox}
+                spot={spotKey && { regions: spotKey.regions, guess, verdict: guess && spotVerdict(spotKey, guess), onGuess: setGuess }}
               />
             </div>
           </div>

@@ -1,4 +1,5 @@
 import type { CaseFixture } from "@/lib/schema";
+import { creativeUrl } from "./creative";
 
 export const whiteIsPurity: CaseFixture = {
   slug: "white-is-purity",
@@ -7,7 +8,7 @@ export const whiteIsPurity: CaseFixture = {
   kind: "incident-reconstruction",
   dek: "A deodorant slogan that doubled as a white-supremacist line. The picture was harmless; the headline was not.",
   input: {
-    imageUrl: "/cases/white-is-purity.png",
+    imageUrl: creativeUrl("white-is-purity"),
     imageFilePath: null,
     brandName: "Clearday",
     headline: "White is purity.",

@@ -1,4 +1,5 @@
 import type { CaseFixture } from "@/lib/schema";
+import { creativeUrl } from "./creative";
 
 export const greenHat: CaseFixture = {
   slug: "green-hat",
@@ -7,7 +8,7 @@ export const greenHat: CaseFixture = {
   kind: "synthetic-visual",
   dek: "A bright green hat is the focal point. In Chinese idiom, a man wearing one is a cuckold.",
   input: {
-    imageUrl: "/cases/green-hat.png",
+    imageUrl: creativeUrl("green-hat"),
     imageFilePath: null,
     brandName: "Northline",
     headline: "Dressed for the season.",

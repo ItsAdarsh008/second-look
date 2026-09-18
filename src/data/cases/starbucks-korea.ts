@@ -1,4 +1,5 @@
 import type { CaseFixture } from "@/lib/schema";
+import { creativeUrl } from "./creative";
 
 export const starbucksKorea: CaseFixture = {
   slug: "starbucks-korea",
@@ -7,7 +8,7 @@ export const starbucksKorea: CaseFixture = {
   kind: "incident-reconstruction",
   dek: "A tumbler promotion with nothing wrong in the picture. The product name, the launch date and the slogan together evoked the Gwangju massacre.",
   input: {
-    imageUrl: "/cases/starbucks-korea.png",
+    imageUrl: creativeUrl("starbucks-korea"),
     imageFilePath: null,
     brandName: "Harbor Coffee Korea",
     headline: "Thwack it on the table!",
