@@ -252,50 +252,56 @@ export function BriefForm({
             style={{ overflow: clip ? "hidden" : "visible" }}
             className="space-y-4"
           >
-            <div className="grid gap-5 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
-              <MarketPicker value={values.markets} onChange={(markets) => onChange({ markets })} error={errors.markets} disabled={submitting} />
-              <div>
-                <label htmlFor={`${ids}-date`} className="block text-[0.82rem] text-ink-3">
-                  Launch date
-                </label>
-                <input
-                  id={`${ids}-date`}
-                  type="date"
-                  value={values.launchDate}
-                  onChange={(e) => onChange({ launchDate: e.target.value })}
-                  className={`${lineInput} min-h-11 border-rule-strong`}
+            {/* A sheet of fields, like a case's brief. Not overflow-hidden: the market list hangs below it. */}
+            <div className="rounded-[10px] border border-rule bg-sheet">
+              <div className="border-b border-rule px-4 py-4 sm:px-5">
+                <MarketPicker value={values.markets} onChange={(markets) => onChange({ markets })} error={errors.markets} disabled={submitting} />
+              </div>
+              <div className="grid border-b border-rule sm:grid-cols-2">
+                <div className="border-b border-rule px-4 py-4 sm:border-b-0 sm:border-r sm:px-5">
+                  <label htmlFor={`${ids}-date`} className="block text-[0.82rem] text-ink-3">
+                    Launch date
+                  </label>
+                  <input
+                    id={`${ids}-date`}
+                    type="date"
+                    value={values.launchDate}
+                    onChange={(e) => onChange({ launchDate: e.target.value })}
+                    className={`${lineInput} min-h-11 border-rule-strong`}
+                  />
+                </div>
+                <div className="px-4 py-4 sm:px-5">
+                  <label htmlFor={`${ids}-channel`} className="block text-[0.82rem] text-ink-3">
+                    Channel
+                  </label>
+                  <select
+                    id={`${ids}-channel`}
+                    value={values.channel}
+                    onChange={(e) => onChange({ channel: e.target.value as Channel })}
+                    className={`${lineInput} min-h-11 cursor-pointer border-rule-strong`}
+                  >
+                    {CHANNELS.map((c) => (
+                      <option key={c} value={c}>
+                        {CHANNEL_LABELS[c]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="px-4 py-4 sm:px-5">
+                <TextField
+                  label="Brand notes (optional)"
+                  value={values.brandNotes}
+                  onChange={(v) => onChange({ brandNotes: v })}
+                  fillKey={fillKey}
+                  delay={240}
+                  maxLength={1000}
+                  multiline
+                  error={errors.brandNotes}
+                  placeholder="Anything the image doesn't show"
                 />
               </div>
-              <div>
-                <label htmlFor={`${ids}-channel`} className="block text-[0.82rem] text-ink-3">
-                  Channel
-                </label>
-                <select
-                  id={`${ids}-channel`}
-                  value={values.channel}
-                  onChange={(e) => onChange({ channel: e.target.value as Channel })}
-                  className={`${lineInput} min-h-11 cursor-pointer border-rule-strong`}
-                >
-                  {CHANNELS.map((c) => (
-                    <option key={c} value={c}>
-                      {CHANNEL_LABELS[c]}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
-
-            <TextField
-              label="Brand notes (optional)"
-              value={values.brandNotes}
-              onChange={(v) => onChange({ brandNotes: v })}
-              fillKey={fillKey}
-              delay={240}
-              maxLength={1000}
-              multiline
-              error={errors.brandNotes}
-              placeholder="Anything the image doesn't show"
-            />
           </motion.div>
         )}
       </AnimatePresence>

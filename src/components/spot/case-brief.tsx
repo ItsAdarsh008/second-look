@@ -12,18 +12,6 @@ export interface BriefSpot {
   onGuess: (g: Guess) => void;
 }
 
-const ROWS: readonly { field: SpotField; label: string; className: string }[] = [
-  { field: "launchDate", label: "Launch", className: "text-ink" },
-  { field: "productName", label: "Product", className: "text-ink" },
-  { field: "headline", label: "Headline", className: "font-serif text-[1.3rem] leading-snug text-ink" },
-  { field: "bodyCopy", label: "Body copy", className: "text-[0.95rem] leading-relaxed text-ink-2" },
-];
-
-function valueOf(values: BriefValues, field: SpotField): string {
-  if (field === "launchDate") return values.launchDate ? formatDate(values.launchDate, { long: true }) : "";
-  return values[field].trim();
-}
-
 function Marked({ text, excerpt }: { text: string; excerpt: string | undefined }) {
   const i = excerpt ? text.toLowerCase().indexOf(excerpt.toLowerCase()) : -1;
   if (!excerpt || i < 0) return <mark className="excerpt">{text}</mark>;
@@ -36,9 +24,41 @@ function Marked({ text, excerpt }: { text: string; excerpt: string | undefined }
   );
 }
 
-const rowGrid = "grid w-full grid-cols-[5.5rem_minmax(0,1fr)_auto] items-baseline gap-x-3 rounded-[5px] px-2.5 py-2 text-left";
+const cell = "flex min-w-0 flex-col gap-1.5 px-4 py-3.5 text-left sm:px-5 sm:py-4";
 
-function Row({ label, text, className, delay, fillKey, spot, field }: { label: string; text: string; className: string; delay: number; fillKey: number; spot: BriefSpot | null; field: SpotField }) {
+/** A plain field: where it runs, the channel. Context for the reviewer, not something to flag. */
+function Fact({ label, children, className = "" }: { label: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`${cell} ${className}`}>
+      <span className="flex min-h-6 items-center text-[0.8rem] text-ink-3">{label}</span>
+      <span className="text-[1.05rem] leading-snug text-ink">{children}</span>
+    </div>
+  );
+}
+
+/**
+ * A line of the campaign that can be flagged while the case is in play: the whole field
+ * is the target, with a Flag chip. Once settled, the words that carried the risk are marked.
+ */
+function Line({
+  field,
+  label,
+  text,
+  valueClass,
+  delay,
+  fillKey,
+  spot,
+  className = "",
+}: {
+  field: SpotField;
+  label: string;
+  text: string;
+  valueClass: string;
+  delay: number;
+  fillKey: number;
+  spot: BriefSpot | null;
+  className?: string;
+}) {
   const typed = useTypewriter(text, fillKey, delay);
   const outcome = spot?.progress.outcome ?? null;
   const answer = outcome ? spot?.key.lines.find((l) => l.field === field) : undefined;
@@ -46,60 +66,96 @@ function Row({ label, text, className, delay, fillKey, spot, field }: { label: s
   const caughtHere = outcome?.kind === "caught" && outcome.guess.kind === "line" && outcome.guess.field === field;
   const flaggable = spot !== null && outcome === null && !missed;
 
-  const value = answer ? <Marked text={text} excerpt={answer.excerpt} /> : typed.text;
-  const cells = (status: React.ReactNode) => (
+  const status = flaggable ? (
+    <span className="rounded-[4px] border border-pencil/35 px-1.5 py-0.5 text-[0.74rem] font-medium text-pencil transition-colors group-hover:border-pencil group-hover:bg-pencil group-hover:text-paper group-focus-visible:border-pencil group-focus-visible:bg-pencil group-focus-visible:text-paper">
+      Flag
+    </span>
+  ) : caughtHere ? (
+    <span className="text-[0.78rem] font-medium text-pencil">Caught</span>
+  ) : missed ? (
+    <span className="text-[0.78rem] text-ink-3">Not this one</span>
+  ) : null;
+
+  const body = (
     <>
-      <span className="text-[0.8rem] text-ink-3">{label}</span>
-      <span className={`${className} ${missed && !answer ? "line-through decoration-ink-3/60" : ""}`}>
-        <span aria-hidden>{value}</span>
+      <span className="flex min-h-6 items-center justify-between gap-3">
+        <span className="text-[0.8rem] text-ink-3">{label}</span>
+        {status}
+      </span>
+      <span className={`${valueClass} ${missed && !answer ? "line-through decoration-ink-3/60" : ""}`}>
+        <span aria-hidden>{answer ? <Marked text={text} excerpt={answer.excerpt} /> : typed.text}</span>
         <span className="sr-only">{text}</span>
       </span>
-      {status}
     </>
   );
 
   if (flaggable) {
     return (
-      <li>
-        <button type="button" onClick={() => spot.onGuess({ kind: "line", field })} aria-label={`Flag the ${label.toLowerCase()}: ${text}`} className={`group ${rowGrid} transition-colors hover:bg-pencil-wash focus-visible:bg-pencil-wash`}>
-          {cells(
-            <span className="rounded-[4px] border border-pencil/35 px-1.5 py-0.5 text-[0.74rem] font-medium text-pencil transition-colors group-hover:border-pencil group-hover:bg-pencil group-hover:text-paper group-focus-visible:border-pencil group-focus-visible:bg-pencil group-focus-visible:text-paper">
-              Flag
-            </span>,
-          )}
-        </button>
-      </li>
+      <button
+        type="button"
+        onClick={() => spot.onGuess({ kind: "line", field })}
+        aria-label={`Flag the ${label.toLowerCase()}: ${text}`}
+        className={`group ${cell} ${className} transition-colors hover:bg-pencil-wash focus-visible:bg-pencil-wash`}
+      >
+        {body}
+      </button>
     );
   }
-  return (
-    <li className={rowGrid}>
-      {cells(
-        caughtHere ? (
-          <span className="text-[0.78rem] font-medium text-pencil">Caught</span>
-        ) : missed ? (
-          <span className="text-[0.78rem] text-ink-3">Not this one</span>
-        ) : null,
-      )}
-    </li>
-  );
+  return <div className={`${cell} ${className}`}>{body}</div>;
 }
 
 /**
- * A case's brief, read-only: where it runs, then the lines a reviewer reads. While the
- * case is in play, each line can be flagged, and the answer is marked once it's settled.
+ * A case's brief as a sheet of fields: where and when it runs, then the words, each with
+ * room to read. While the case is in play every line can be flagged.
  */
 export function CaseBrief({ values, fillKey, spot }: { values: BriefValues; fillKey: number; spot: BriefSpot | null }) {
-  const runsIn = `${values.markets.map(marketName).join(" and ") || "No markets yet"}, ${CHANNEL_LABELS[values.channel].toLowerCase()}`;
-  const rows = ROWS.map((r) => ({ ...r, text: valueOf(values, r.field) })).filter((r) => r.text);
+  const launch = values.launchDate ? formatDate(values.launchDate, { long: true }) : "";
   return (
-    <ul className="-mx-2.5">
-      <li className={rowGrid}>
-        <span className="text-[0.8rem] text-ink-3">Runs in</span>
-        <span className="text-ink">{runsIn}</span>
-      </li>
-      {rows.map((r, i) => (
-        <Row key={r.field} {...r} delay={i * 110} fillKey={fillKey} spot={spot} />
-      ))}
-    </ul>
+    <div className="overflow-hidden rounded-[10px] border border-rule bg-sheet">
+      <div className="grid grid-cols-2 border-b border-rule sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
+        <Fact label="Market" className="col-span-2 border-b border-rule sm:col-span-1 sm:border-b-0 sm:border-r">
+          {values.markets.map(marketName).join(" and ") || "None yet"}
+        </Fact>
+        <Fact label="Channel" className="border-r border-rule">
+          {CHANNEL_LABELS[values.channel]}
+        </Fact>
+        {launch ? (
+          <Line field="launchDate" label="Launch" text={launch} valueClass="text-[1.05rem] leading-snug text-ink" delay={0} fillKey={fillKey} spot={spot} />
+        ) : (
+          <Fact label="Launch">
+            <span className="text-ink-3">Not set</span>
+          </Fact>
+        )}
+      </div>
+      <div className="divide-y divide-rule">
+        {values.productName.trim() && (
+          <Line field="productName" label="Product" text={values.productName} valueClass="text-[1.1rem] text-ink" delay={0} fillKey={fillKey} spot={spot} className="w-full" />
+        )}
+        {values.headline.trim() && (
+          <Line
+            field="headline"
+            label="Headline"
+            text={values.headline}
+            valueClass="font-serif text-[1.75rem] leading-[1.15] text-ink sm:text-[2rem]"
+            delay={110}
+            fillKey={fillKey}
+            spot={spot}
+            className="w-full"
+          />
+        )}
+        {values.bodyCopy.trim() && (
+          <Line
+            field="bodyCopy"
+            label="Body text"
+            text={values.bodyCopy}
+            valueClass="max-w-[60ch] text-[1.02rem] leading-relaxed text-ink-2"
+            delay={220}
+            fillKey={fillKey}
+            spot={spot}
+            className="w-full"
+          />
+        )}
+      </div>
+    </div>
   );
 }

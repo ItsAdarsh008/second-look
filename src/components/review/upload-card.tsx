@@ -81,10 +81,7 @@ export function UploadCard({ onFile, own }: { onFile: (file: File) => void; own:
             </span>
             <div className="min-w-0">
               <p className="font-serif text-[1.6rem] leading-tight text-ink">{dragging ? "Let go to put it on the table" : "Review your own ad"}</p>
-              <p className="mt-1 max-w-[46ch] text-[0.95rem] leading-relaxed text-ink-2">
-                Put the creative on the table, say where and when it runs, and Second Look flags what a local audience would object to.
-              </p>
-              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
                 <button
                   type="button"
                   onClick={choose}

@@ -166,9 +166,15 @@ export function LightTable({
   const error = localError ?? (upload.status === "error" ? upload.message : null);
   const playing = spot && imageUrl ? spot : null;
   const guessing = Boolean(playing && !playing.progress.outcome);
-  // The demo cursor plays until the player first reaches for the picture, then stays away.
-  const [engaged, setEngaged] = useState(false);
-  const coaching = guessing && !engaged && (playing?.progress.misses.length ?? 0) === 0;
+  // The demo cursor loops until the player flags something (a spot or a line), then stays away
+  // for good. It steps aside while their own loupe is over the picture.
+  const [hovering, setHovering] = useState(false);
+  const [learned, setLearned] = useState(false);
+  const flagged = Boolean(playing && (playing.progress.misses.length > 0 || playing.progress.outcome));
+  useEffect(() => {
+    if (flagged) setLearned(true);
+  }, [flagged]);
+  const coaching = guessing && !learned && !flagged && !hovering;
 
   // A wrong tap on the picture gives the sheet a small shake.
   const [sheet, shake] = useAnimate<HTMLDivElement>();
@@ -263,7 +269,7 @@ export function LightTable({
                 {playing && (
                   <>
                     <SpotMarks spot={playing.spot} progress={playing.progress} />
-                    <SpotTarget src={imageUrl} onGuess={playing.onGuess} disabled={!guessing} onEngage={() => setEngaged(true)} />
+                    <SpotTarget src={imageUrl} onGuess={playing.onGuess} disabled={!guessing} onHover={setHovering} />
                     <AnimatePresence>{coaching && <SpotCoach key="coach" />}</AnimatePresence>
                   </>
                 )}
