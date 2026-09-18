@@ -58,5 +58,53 @@ export const starbucksKorea: CaseFixture = {
         url: "https://foreignpolicy.com/2026/06/09/starbucks-gwangju-far-right-south-korea/",
       },
     ],
+    photos: [
+      {
+        src: "/story/gwangju-provincial-office.jpg",
+        width: 1000,
+        height: 1778,
+        alt: "The white facade of the former South Jeolla Provincial Office in Gwangju, with a ginkgo tree in front and the gate plaque on the right.",
+        caption: "The former South Jeolla Provincial Office in Gwangju, where the last protesters held out. Troops retook it in the early hours of May 27, 1980.",
+        refersTo: "Tank",
+        focus: "50% 70%",
+        credit: {
+          author: "LERK",
+          license: "CC BY-SA 4.0",
+          licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
+          sourceUrl: "https://commons.wikimedia.org/wiki/File:Former_Provincial_government_main_building_of_Jeollanam-do_20190521_083430.jpg",
+        },
+      },
+      {
+        src: "/story/may-18-cemetery-portraits.jpg",
+        width: 1400,
+        height: 932,
+        alt: "A long wall of framed portraits above an altar flanked by white wreaths.",
+        caption: "Portraits of the dead in the memorial hall at the May 18th National Cemetery, Gwangju.",
+        refersTo: "May 18",
+        focus: "50% 45%",
+        credit: {
+          author: "Schlarpi",
+          license: "CC BY-SA 3.0",
+          licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/",
+          sourceUrl: "https://commons.wikimedia.org/wiki/File:Gwangju5.18FriedhofFotos.JPG",
+        },
+      },
+      {
+        src: "/story/namyeong-dong-room-509.jpg",
+        width: 1400,
+        height: 1050,
+        alt: "A small tiled room with a bathtub, a washbasin, a narrow bed and a framed portrait of Park Jong-chul on the wall.",
+        caption:
+          "Room 509 of the former police interrogation center at Namyeong-dong, Seoul, where Park Jong-chul died in January 1987. Police first claimed he collapsed when an investigator slammed the desk.",
+        refersTo: "Thwack",
+        focus: "50% 50%",
+        credit: {
+          author: "Jjw",
+          license: "CC BY-SA 4.0",
+          licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
+          sourceUrl: "https://commons.wikimedia.org/wiki/File:Park_Jong_Cheol_Memorial_Room_in_Namyeongdong_Daegong_Bunsil.jpg",
+        },
+      },
+    ],
   },
 };

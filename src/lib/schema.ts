@@ -353,6 +353,31 @@ export const ExpectedFindingSchema = z.object({
 });
 export type ExpectedFinding = z.infer<typeof ExpectedFindingSchema>;
 
+/**
+ * A documentary photograph for a case's history. Freely licensed only (e.g. Wikimedia
+ * Commons), credited the way the license asks. Never a news agency photo or a brand asset.
+ */
+export const HistoryPhotoSchema = z.object({
+  /** App-relative path under /story/. */
+  src: z.string().regex(/^\/story\/[a-z0-9-]+\.jpg$/),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  alt: z.string().min(1),
+  /** What the photo shows, and why it belongs to the case. */
+  caption: z.string().min(1),
+  /** The word or date in the campaign this photo explains, e.g. "Tank". */
+  refersTo: z.string().min(1),
+  /** CSS object-position for the crop when the photo is shown in a fixed frame. */
+  focus: z.string().optional(),
+  credit: z.object({
+    author: z.string().min(1),
+    license: z.string().min(1),
+    licenseUrl: z.string().url(),
+    sourceUrl: z.string().url(),
+  }),
+});
+export type HistoryPhoto = z.infer<typeof HistoryPhotoSchema>;
+
 export const CaseFixtureSchema = z.object({
   slug: z.string().regex(/^[a-z0-9-]+$/),
   /** Short case name, e.g. "Tank Day". */
@@ -373,6 +398,7 @@ export const CaseFixtureSchema = z.object({
     .object({
       whatHappened: z.string().min(1),
       sources: z.array(z.object({ label: z.string().min(1), url: z.string().url() })).min(1),
+      photos: z.array(HistoryPhotoSchema).optional(),
     })
     .nullable(),
 });

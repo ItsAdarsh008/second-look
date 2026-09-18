@@ -32,6 +32,13 @@ const FAILURE_HELP: Record<string, string> = {
   not_configured: "Analysis isn't configured",
 };
 
+const LOAD_CASE_EVENT = "secondlook:load-case";
+
+/** Load a case into the tool from elsewhere on the page, and scroll the tool into view. */
+export function openCaseInTool(slug: string) {
+  window.dispatchEvent(new CustomEvent(LOAD_CASE_EVENT, { detail: slug }));
+}
+
 function toInput(values: BriefValues, imageUrl: string | null): { input: CampaignInput | null; errors: FieldErrors } {
   const errors: FieldErrors = {};
   if (!imageUrl) errors.image = "Put the ad on the light table first. Second Look reads its copy from the creative.";
@@ -238,6 +245,24 @@ export function ReviewApp({
     return () => clearTimeout(t);
     // Load once on arrival; loadExample is recreated every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Requests from elsewhere on the page (the spot-the-problem rounds). Kept in a ref so one listener sees current state.
+  const openCase = useRef<(slug: string) => void>(() => {});
+  useEffect(() => {
+    openCase.current = (slug) => {
+      if (!examples.some((c) => c.slug === slug)) return;
+      abortRef.current?.abort();
+      loadExample(slug);
+      scrollTo(workspaceRef.current, 0);
+    };
+  });
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      if (e instanceof CustomEvent && typeof e.detail === "string") openCase.current(e.detail);
+    };
+    window.addEventListener(LOAD_CASE_EVENT, onOpen);
+    return () => window.removeEventListener(LOAD_CASE_EVENT, onOpen);
   }, []);
 
   const submit = async () => {

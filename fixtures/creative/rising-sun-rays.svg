@@ -1,51 +1,124 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1350" viewBox="0 0 1080 1350">
-  <!-- Synthetic creative for Second Look. Fictional brand "Volt". -->
+  <!-- Synthetic creative for Second Look. Fictional brand "Morrow".
+       A retro sunrise of the kind a designer reaches for on a sunscreen ad. Its 16
+       red rays around a red disc are what read as the Rising Sun flag in Korea and China. -->
   <defs>
-    <polygon id="ray" points="0,0 2189.4,-215.6 2189.4,215.6" fill="#C8102E"/>
+    <clipPath id="arch">
+      <path d="M150 1030 V530 A390 390 0 0 1 930 530 V1030 Z"/>
+    </clipPath>
+    <polygon id="ray" points="0,0 1300,-128 1300,128" fill="#D13A2F"/>
+    <linearGradient id="sea" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#A9C8CB"/>
+      <stop offset="1" stop-color="#7FA7B0"/>
+    </linearGradient>
+    <linearGradient id="tube" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#E4DDD1"/>
+      <stop offset="0.22" stop-color="#FFFDF9"/>
+      <stop offset="0.7" stop-color="#F8F4EC"/>
+      <stop offset="1" stop-color="#DDD5C7"/>
+    </linearGradient>
+    <linearGradient id="cap" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#C9B596"/>
+      <stop offset="0.3" stop-color="#EBDDC6"/>
+      <stop offset="1" stop-color="#BFAA89"/>
+    </linearGradient>
+    <linearGradient id="ledge" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#EBDDC8"/>
+      <stop offset="1" stop-color="#DCC9AE"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-200%" width="160%" height="500%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
   </defs>
-  <rect width="1080" height="1350" fill="#FFFFFF"/>
 
-  <!-- 16 red rays alternating with white, radiating from an off-center red disc -->
-  <g transform="translate(460 520)">
-    <use xlink:href="#ray" transform="rotate(0)"/>
-    <use xlink:href="#ray" transform="rotate(22.5)"/>
-    <use xlink:href="#ray" transform="rotate(45)"/>
-    <use xlink:href="#ray" transform="rotate(67.5)"/>
-    <use xlink:href="#ray" transform="rotate(90)"/>
-    <use xlink:href="#ray" transform="rotate(112.5)"/>
-    <use xlink:href="#ray" transform="rotate(135)"/>
-    <use xlink:href="#ray" transform="rotate(157.5)"/>
-    <use xlink:href="#ray" transform="rotate(180)"/>
-    <use xlink:href="#ray" transform="rotate(202.5)"/>
-    <use xlink:href="#ray" transform="rotate(225)"/>
-    <use xlink:href="#ray" transform="rotate(247.5)"/>
-    <use xlink:href="#ray" transform="rotate(270)"/>
-    <use xlink:href="#ray" transform="rotate(292.5)"/>
-    <use xlink:href="#ray" transform="rotate(315)"/>
-    <use xlink:href="#ray" transform="rotate(337.5)"/>
-    <circle cx="0" cy="0" r="215" fill="#C8102E"/>
+  <rect width="1080" height="1350" fill="#F6ECDD"/>
+
+  <!-- Wordmark -->
+  <text x="540" y="96" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="40" letter-spacing="16" fill="#1F2A44">MORROW</text>
+
+  <!-- Arched window: sunrise over the sea -->
+  <g clip-path="url(#arch)">
+    <rect x="150" y="140" width="780" height="890" fill="#FBEBD8"/>
+    <g transform="translate(452 812)">
+      <use xlink:href="#ray" transform="rotate(0)"/>
+      <use xlink:href="#ray" transform="rotate(22.5)"/>
+      <use xlink:href="#ray" transform="rotate(45)"/>
+      <use xlink:href="#ray" transform="rotate(67.5)"/>
+      <use xlink:href="#ray" transform="rotate(90)"/>
+      <use xlink:href="#ray" transform="rotate(112.5)"/>
+      <use xlink:href="#ray" transform="rotate(135)"/>
+      <use xlink:href="#ray" transform="rotate(157.5)"/>
+      <use xlink:href="#ray" transform="rotate(180)"/>
+      <use xlink:href="#ray" transform="rotate(202.5)"/>
+      <use xlink:href="#ray" transform="rotate(225)"/>
+      <use xlink:href="#ray" transform="rotate(247.5)"/>
+      <use xlink:href="#ray" transform="rotate(270)"/>
+      <use xlink:href="#ray" transform="rotate(292.5)"/>
+      <use xlink:href="#ray" transform="rotate(315)"/>
+      <use xlink:href="#ray" transform="rotate(337.5)"/>
+      <circle cx="0" cy="0" r="150" fill="#D13A2F"/>
+    </g>
+    <!-- Sea -->
+    <rect x="150" y="812" width="780" height="218" fill="url(#sea)"/>
+    <g fill="#D13A2F" opacity="0.75">
+      <rect x="352" y="828" width="200" height="7" rx="3.5"/>
+      <rect x="378" y="850" width="148" height="6" rx="3"/>
+      <rect x="404" y="872" width="96" height="5" rx="2.5"/>
+      <rect x="424" y="894" width="56" height="4" rx="2"/>
+    </g>
+    <g fill="none" stroke="#D4E6E7" stroke-width="3" stroke-linecap="round" opacity="0.8">
+      <path d="M190 930 q20 -8 40 0 t40 0"/>
+      <path d="M760 902 q20 -8 40 0 t40 0"/>
+      <path d="M250 990 q20 -8 40 0 t40 0 t40 0"/>
+    </g>
+    <!-- Gulls -->
+    <g fill="none" stroke="#1F2A44" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M716 360 q14 -14 28 0 q14 -14 28 0"/>
+      <path d="M786 420 q10 -10 20 0 q10 -10 20 0"/>
+    </g>
+  </g>
+  <path d="M150 1030 V530 A390 390 0 0 1 930 530 V1030" fill="none" stroke="#E2D0B7" stroke-width="4"/>
+
+  <!-- Ledge -->
+  <rect x="0" y="1170" width="1080" height="180" fill="url(#ledge)"/>
+  <rect x="0" y="1170" width="1080" height="3" fill="#F7EEDF"/>
+  <ellipse cx="672" cy="1174" rx="110" ry="12" fill="#8C7556" opacity="0.45" filter="url(#soft)"/>
+  <ellipse cx="300" cy="1176" rx="120" ry="10" fill="#8C7556" opacity="0.35" filter="url(#soft)"/>
+
+  <!-- Sunglasses on the ledge -->
+  <g transform="translate(300 1142)">
+    <path d="M-104 -10 Q-104 -34 -76 -34 L-26 -34 Q-12 -34 -12 -18 Q-12 18 -58 22 Q-104 22 -104 -10 Z" fill="#2A2522"/>
+    <path d="M104 -10 Q104 -34 76 -34 L26 -34 Q12 -34 12 -18 Q12 18 58 22 Q104 22 104 -10 Z" fill="#2A2522"/>
+    <path d="M-14 -24 Q0 -34 14 -24" fill="none" stroke="#2A2522" stroke-width="7"/>
+    <path d="M-88 -22 L-62 -22" stroke="#5A504A" stroke-width="4" stroke-linecap="round"/>
+    <path d="M28 -22 L54 -22" stroke="#5A504A" stroke-width="4" stroke-linecap="round"/>
   </g>
 
-  <!-- Can -->
-  <rect x="436" y="628" width="208" height="34" rx="12" fill="#C9CED5"/>
-  <rect x="424" y="652" width="232" height="520" rx="26" fill="#17171C"/>
-  <rect x="446" y="680" width="20" height="464" rx="10" fill="#FFFFFF" opacity="0.10"/>
-  <rect x="436" y="1160" width="208" height="30" rx="12" fill="#AEB4BC"/>
-
-  <text x="540" y="770" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="700" fill="#FFD21F">VOLT</text>
-  <circle cx="540" cy="880" r="62" fill="#FFD21F"/>
-  <circle cx="540" cy="880" r="50" fill="#FFF0A6"/>
-  <g stroke="#FFD21F" stroke-width="6" stroke-linecap="round">
-    <line x1="540" y1="834" x2="540" y2="926"/>
-    <line x1="494" y1="880" x2="586" y2="880"/>
-    <line x1="507" y1="847" x2="573" y2="913"/>
-    <line x1="573" y1="847" x2="507" y2="913"/>
+  <!-- Sunscreen tube, standing on its cap -->
+  <rect x="558" y="560" width="228" height="44" rx="5" fill="#EFE9DF"/>
+  <g stroke="#D6CEC0" stroke-width="3">
+    <line x1="576" y1="566" x2="576" y2="598"/>
+    <line x1="596" y1="566" x2="596" y2="598"/>
+    <line x1="616" y1="566" x2="616" y2="598"/>
+    <line x1="636" y1="566" x2="636" y2="598"/>
+    <line x1="656" y1="566" x2="656" y2="598"/>
+    <line x1="676" y1="566" x2="676" y2="598"/>
+    <line x1="696" y1="566" x2="696" y2="598"/>
+    <line x1="716" y1="566" x2="716" y2="598"/>
+    <line x1="736" y1="566" x2="736" y2="598"/>
+    <line x1="756" y1="566" x2="756" y2="598"/>
   </g>
-  <circle cx="540" cy="880" r="7" fill="#FFD21F"/>
-  <text x="540" y="1010" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" letter-spacing="4" fill="#FFFFFF">CITRUS</text>
-  <text x="540" y="1052" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="3" fill="#B9BEC6">ZERO SUGAR</text>
+  <path d="M562 600 L782 600 C 782 800, 764 996, 752 1050 L 592 1050 C 580 996, 562 800, 562 600 Z" fill="url(#tube)"/>
+  <rect x="600" y="1046" width="144" height="126" rx="16" fill="url(#cap)"/>
+  <rect x="600" y="1046" width="144" height="8" fill="#B39E7E" opacity="0.6"/>
 
-  <!-- Bottom band -->
-  <rect x="0" y="1240" width="1080" height="110" fill="#17171C"/>
-  <text x="540" y="1308" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" letter-spacing="6" fill="#FFFFFF">VOLT CITRUS</text>
+  <text x="672" y="690" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="34" letter-spacing="7" fill="#1F2A44">MORROW</text>
+  <rect x="632" y="708" width="80" height="2" fill="#1F2A44"/>
+  <text x="672" y="748" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="4" fill="#1F2A44">DAILY SUN FLUID</text>
+  <text x="672" y="846" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700" fill="#1F2A44">SPF 50+</text>
+  <text x="672" y="884" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="3" fill="#1F2A44">PA++++</text>
+  <text x="672" y="1012" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" letter-spacing="2" fill="#7A7F8A">50 ml</text>
+
+  <!-- Line -->
+  <text x="540" y="1284" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" letter-spacing="8" fill="#1F2A44">DAILY SUN FLUID  SPF 50+</text>
 </svg>

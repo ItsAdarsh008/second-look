@@ -16,7 +16,7 @@ Scroll past the creative to "What a competent reviewer must catch".
 
 **0:25–0:35 — Submit a live campaign.** Switch to `/`. Click the **Rising Sun rays** case chip (it types itself into the brief and drops onto the light table), then click **Run a second look**.
 
-> "Here's an energy drink ad for Korea and China."
+> "Here's a sunscreen poster for Korea and China."
 
 As the stages resolve, point at them:
 
@@ -24,7 +24,7 @@ As the stages resolve, point at them:
 
 **0:35–0:55 — The report.** The verdict and the finding card appear. Hover the card so the region lights up on the creative.
 
-> "One high-severity finding. The rays behind the can read as the Rising Sun flag, a symbol of Japanese imperial rule in both markets. It cites a real precedent, it says exactly where the problem is, and it proposes a change. There's a dispute button, because a reviewer in the market is the real control."
+> "One high-severity finding. The sunrise behind the tube reads as the Rising Sun flag, a symbol of Japanese imperial rule in both markets. It cites a real precedent, it says exactly where the problem is, and it proposes a change. There's a dispute button, because a reviewer in the market is the real control."
 
 *(If recording the Tank Day beat live instead, this is where the 15-day calendar strip with May 18 in solid red carries the moment. Say: "the date is the finding.")*
 

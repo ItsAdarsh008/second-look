@@ -5,12 +5,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" }],
     formats: ["image/avif", "image/webp"],
   },
-  // Route handlers read case creative from disk to send it to Claude and Magic Hour.
+  // Route handlers read case creative from disk to send it to Claude and Magic Hour; share cards also read the fonts.
   outputFileTracingIncludes: {
     "/api/analyze": ["./public/cases/*.png"],
     "/api/generate": ["./public/cases/*.png"],
-    "/a/[id]/opengraph-image": ["./public/cases/*.png"],
-    "/cases/[slug]/opengraph-image": ["./public/cases/*.png"],
+    "/opengraph-image": ["./public/cases/*.png", "./src/lib/fonts/*"],
+    "/a/[id]/opengraph-image": ["./public/cases/*.png", "./src/lib/fonts/*"],
+    "/cases/[slug]/opengraph-image": ["./public/cases/*.png", "./src/lib/fonts/*"],
   },
   serverExternalPackages: ["sharp"],
   poweredByHeader: false,

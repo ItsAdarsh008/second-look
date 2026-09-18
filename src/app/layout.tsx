@@ -27,7 +27,15 @@ const plexMono = IBM_Plex_Mono({
   preload: false,
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+// Link previews are fetched by crawlers, so production share images must point at the public domain.
+// VERCEL_URL is the per-deployment URL, which Vercel's deployment protection hides from them.
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_ENV === "production" && process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -38,6 +46,8 @@ export const metadata: Metadata = {
   description:
     "Cultural risk review for ad campaigns. Checks the creative, product name, copy and launch date against each market's history, language and calendar, cites the precedent behind every flag, and drafts alternative creative with the Magic Hour API.",
   openGraph: { siteName: "Second Look", type: "website" },
+  // X shows the large image card only when asked; it falls back to og:image for the picture.
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

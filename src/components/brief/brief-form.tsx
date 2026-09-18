@@ -83,7 +83,7 @@ function TextField({
         {label}
       </label>
       {multiline ? (
-        <textarea {...common} rows={1} className={`${className} max-h-40 resize-none field-sizing-content`} onChange={(e) => onChange(e.target.value)} data-lenis-prevent />
+        <textarea {...common} rows={1} className={`${className} max-h-40 resize-none field-sizing-content`} onChange={(e) => onChange(e.target.value)} />
       ) : (
         <input {...common} className={className} autoComplete="off" onChange={(e) => onChange(e.target.value)} />
       )}

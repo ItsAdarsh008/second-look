@@ -115,7 +115,7 @@ export function TimingLocus({
         <p className="max-w-[40ch] text-[0.98rem] text-ink">{locus.reason}</p>
       </div>
 
-      <div className="mt-5 overflow-x-auto" data-lenis-prevent-horizontal>
+      <div className="mt-5 overflow-x-auto">
         <ol className="grid min-w-[36rem] grid-cols-[repeat(15,minmax(0,1fr))] gap-px bg-rule" aria-label={`Fifteen days around ${formatDate(launch)}`}>
           {days.map((day, i) => {
             const isLaunch = day === launch;

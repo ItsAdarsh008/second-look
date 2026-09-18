@@ -1,43 +1,129 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
-  <!-- Synthetic creative for Second Look. Fictional brand "Harbor Coffee Korea". -->
-  <rect width="1080" height="1350" fill="#F3EAD7"/>
+  <!-- Synthetic creative for Second Look. Fictional brand "Harbor Coffee Korea".
+       Deliberately clean: no date, no "tank", no military imagery. -->
+  <defs>
+    <radialGradient id="wall" cx="0.5" cy="0.46" r="0.72">
+      <stop offset="0" stop-color="#FBF5E9"/>
+      <stop offset="0.6" stop-color="#F1E6D1"/>
+      <stop offset="1" stop-color="#E4D5BA"/>
+    </radialGradient>
+    <!-- Powder-coated steel: dark edges, a soft highlight a quarter of the way in. -->
+    <linearGradient id="steel" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#121B33"/>
+      <stop offset="0.12" stop-color="#1E2D52"/>
+      <stop offset="0.27" stop-color="#3B5185"/>
+      <stop offset="0.4" stop-color="#26396A"/>
+      <stop offset="0.78" stop-color="#1D2B4F"/>
+      <stop offset="1" stop-color="#0F1730"/>
+    </linearGradient>
+    <linearGradient id="lid" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#0E1529"/>
+      <stop offset="0.3" stop-color="#2A3B66"/>
+      <stop offset="0.55" stop-color="#1A2645"/>
+      <stop offset="1" stop-color="#0C1224"/>
+    </linearGradient>
+    <linearGradient id="handle" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#101832"/>
+      <stop offset="0.55" stop-color="#2B3E6C"/>
+      <stop offset="1" stop-color="#121B36"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#E6DFD2"/>
+      <stop offset="0.3" stop-color="#FFFDF8"/>
+      <stop offset="1" stop-color="#DCD3C3"/>
+    </linearGradient>
+    <linearGradient id="tabletop" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#D9B084"/>
+      <stop offset="1" stop-color="#C39263"/>
+    </linearGradient>
+    <linearGradient id="tableedge" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#9A6B43"/>
+      <stop offset="1" stop-color="#7E5534"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-200%" width="160%" height="500%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+    <filter id="softer" x="-30%" y="-200%" width="160%" height="500%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+    <clipPath id="body-clip">
+      <path d="M384 486 L696 486 L684 912 Q682 944 660 956 L644 964 L636 1118 Q634 1146 606 1146 L474 1146 Q446 1146 444 1118 L436 964 L420 956 Q398 944 396 912 Z"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1080" height="1350" fill="url(#wall)"/>
 
   <!-- Wordmark -->
-  <circle cx="540" cy="92" r="42" fill="#22335A"/>
-  <path d="M511 86 q14.5 -12 29 0 t29 0 M511 103 q14.5 -12 29 0 t29 0" fill="none" stroke="#F3EAD7" stroke-width="6" stroke-linecap="round"/>
-  <text x="540" y="196" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700" letter-spacing="8" fill="#22335A">HARBOR COFFEE</text>
-  <text x="540" y="238" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="12" fill="#4A5A7C">KOREA</text>
+  <circle cx="540" cy="96" r="40" fill="#22335A"/>
+  <path d="M513 89 q13.5 -11 27 0 t27 0 M513 105 q13.5 -11 27 0 t27 0" fill="none" stroke="#F4EBDA" stroke-width="5.5" stroke-linecap="round"/>
+  <text x="540" y="196" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700" letter-spacing="9" fill="#22335A">HARBOR COFFEE</text>
+  <text x="540" y="234" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" letter-spacing="13" fill="#5A6A8C">KOREA</text>
 
   <!-- Table -->
-  <rect x="0" y="1010" width="1080" height="240" fill="#C99A6B"/>
-  <rect x="0" y="1010" width="1080" height="8" fill="#DDB287"/>
-  <rect x="0" y="1240" width="1080" height="110" fill="#8F6440"/>
+  <rect x="0" y="1012" width="1080" height="228" fill="url(#tabletop)"/>
+  <rect x="0" y="1012" width="1080" height="3" fill="#E7C49C"/>
+  <g fill="none" stroke="#B98552" stroke-width="2" opacity="0.45">
+    <path d="M0 1062 C 220 1056, 420 1070, 640 1060 S 960 1054, 1080 1064"/>
+    <path d="M0 1128 C 180 1122, 380 1136, 600 1126 S 900 1118, 1080 1130"/>
+    <path d="M0 1196 C 260 1190, 500 1204, 720 1194 S 980 1188, 1080 1198"/>
+  </g>
+  <rect x="0" y="1240" width="1080" height="110" fill="url(#tableedge)"/>
 
-  <!-- Shadows -->
-  <ellipse cx="560" cy="1154" rx="190" ry="20" fill="#8F6440" opacity="0.45"/>
-  <ellipse cx="250" cy="1154" rx="68" ry="12" fill="#8F6440" opacity="0.45"/>
+  <!-- Contact shadows -->
+  <ellipse cx="548" cy="1150" rx="176" ry="16" fill="#6E4A2C" opacity="0.4" filter="url(#soft)"/>
+  <ellipse cx="540" cy="1147" rx="92" ry="6" fill="#4F341F" opacity="0.5" filter="url(#softer)"/>
+  <ellipse cx="236" cy="1150" rx="70" ry="10" fill="#6E4A2C" opacity="0.42" filter="url(#soft)"/>
 
-  <!-- Tumbler: straw -->
-  <rect x="566" y="300" width="30" height="150" rx="8" fill="#1A2747" transform="rotate(10 581 450)"/>
-  <!-- Side handle -->
-  <path d="M700 560 L770 560 Q812 560 812 602 L812 830 Q812 872 770 872 L690 872" fill="none" stroke="#1A2747" stroke-width="34" stroke-linejoin="round"/>
-  <!-- Lid -->
-  <rect x="384" y="418" width="312" height="66" rx="18" fill="#1A2747"/>
-  <rect x="396" y="448" width="288" height="6" fill="#33477A"/>
-  <!-- Body: wide cup that steps in to a narrow base -->
-  <path d="M392 480 L688 480 L678 920 Q676 960 650 972 L640 978 L632 1122 Q630 1152 602 1152 L478 1152 Q450 1152 448 1122 L440 978 L430 972 Q404 960 402 920 Z" fill="#22335A"/>
-  <path d="M420 500 L448 500 L440 930 L428 930 Z" fill="#3A4F82" opacity="0.85"/>
-  <path d="M462 990 L474 990 L478 1120 L468 1120 Z" fill="#3A4F82" opacity="0.85"/>
-  <rect x="404" y="930" width="272" height="10" fill="#1A2747"/>
-  <!-- Emblem on body -->
-  <circle cx="540" cy="700" r="62" fill="#F3EAD7"/>
-  <path d="M500 692 q20 -17 40 0 t40 0 M500 716 q20 -17 40 0 t40 0" fill="none" stroke="#22335A" stroke-width="8" stroke-linecap="round"/>
+  <!-- Coffee beans -->
+  <g fill="#5A3A22">
+    <ellipse cx="846" cy="1112" rx="17" ry="11" transform="rotate(-18 846 1112)"/>
+    <ellipse cx="884" cy="1128" rx="16" ry="10.5" transform="rotate(24 884 1128)"/>
+    <ellipse cx="820" cy="1142" rx="16" ry="10.5" transform="rotate(8 820 1142)"/>
+  </g>
+  <g fill="none" stroke="#2F1D10" stroke-width="2.5" stroke-linecap="round">
+    <path d="M832 1116 q14 -1 28 -8" />
+    <path d="M871 1123 q13 4 26 11" />
+    <path d="M805 1141 q15 3 30 1" />
+  </g>
 
-  <!-- Regular cup for scale -->
-  <rect x="172" y="968" width="156" height="28" rx="10" fill="#22335A"/>
-  <path d="M182 996 L318 996 L298 1136 Q296 1150 282 1150 L218 1150 Q204 1150 202 1136 Z" fill="#FFFDF6"/>
-  <path d="M190 1040 L310 1040 L304 1090 L196 1090 Z" fill="#22335A"/>
+  <!-- Regular cup, for scale -->
+  <path d="M184 994 L288 994 L272 1140 Q270 1150 260 1150 L212 1150 Q202 1150 200 1140 Z" fill="url(#paper)"/>
+  <path d="M188 1030 L284 1030 L278 1090 L194 1090 Z" fill="#22335A"/>
+  <circle cx="236" cy="1060" r="17" fill="#F4EBDA"/>
+  <path d="M225 1057 q5.5 -4.5 11 0 t11 0 M225 1065 q5.5 -4.5 11 0 t11 0" fill="none" stroke="#22335A" stroke-width="2.5" stroke-linecap="round"/>
+  <rect x="176" y="978" width="120" height="20" rx="7" fill="#F7F3EA"/>
+  <rect x="190" y="970" width="92" height="12" rx="5" fill="#EEE8DC"/>
+  <rect x="176" y="992" width="120" height="4" fill="#D8D0C1"/>
+
+  <!-- Tumbler: handle sits behind the body -->
+  <path d="M676 540 H772 Q830 540 830 598 V822 Q830 880 772 880 H666 V834 H762 Q784 834 784 812 V608 Q784 586 762 586 H676 Z" fill="url(#handle)"/>
+  <rect x="664" y="528" width="42" height="70" rx="12" fill="#18234A"/>
+  <rect x="656" y="822" width="42" height="70" rx="12" fill="#18234A"/>
+
+  <!-- Body, with a narrower base that fits a car cup holder -->
+  <path d="M384 486 L696 486 L684 912 Q682 944 660 956 L644 964 L636 1118 Q634 1146 606 1146 L474 1146 Q446 1146 444 1118 L436 964 L420 956 Q398 944 396 912 Z" fill="url(#steel)"/>
+  <g clip-path="url(#body-clip)">
+    <rect x="452" y="486" width="16" height="660" fill="#FFFFFF" opacity="0.14"/>
+    <rect x="476" y="486" width="5" height="660" fill="#FFFFFF" opacity="0.1"/>
+    <rect x="380" y="918" width="320" height="6" fill="#0C1328" opacity="0.55"/>
+    <rect x="380" y="924" width="320" height="2" fill="#4D64A0" opacity="0.5"/>
+    <rect x="380" y="486" width="320" height="10" fill="#0C1328" opacity="0.35"/>
+  </g>
+
+  <!-- Emblem -->
+  <circle cx="540" cy="712" r="58" fill="#F4EBDA"/>
+  <circle cx="540" cy="712" r="50" fill="none" stroke="#22335A" stroke-width="2"/>
+  <path d="M503 704 q18.5 -15 37 0 t37 0 M503 726 q18.5 -15 37 0 t37 0" fill="none" stroke="#22335A" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Lid and straw -->
+  <path d="M578 440 L604 300 Q606 290 616 292 L624 294 Q633 296 631 306 L606 444 Z" fill="#141D38"/>
+  <path d="M606 304 L612 306" stroke="#3D5287" stroke-width="3" stroke-linecap="round"/>
+  <rect x="592" y="346" width="34" height="11" rx="4" fill="#0E1529" transform="rotate(10 609 351)"/>
+  <rect x="372" y="424" width="336" height="68" rx="20" fill="url(#lid)"/>
+  <rect x="384" y="452" width="312" height="5" rx="2.5" fill="#3D5287" opacity="0.7"/>
+  <rect x="378" y="484" width="324" height="8" rx="4" fill="#0A1022"/>
+  <ellipse cx="596" cy="428" rx="30" ry="7" fill="#0A1022"/>
 
   <!-- Line -->
-  <text x="540" y="1312" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="700" letter-spacing="8" fill="#F3EAD7">NEW 2L TUMBLER</text>
+  <text x="540" y="1311" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" letter-spacing="10" fill="#F4EBDA">NEW 2L TUMBLER</text>
 </svg>

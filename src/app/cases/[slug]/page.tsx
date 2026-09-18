@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { CASES, getCase } from "@/data/cases";
 import { getCaseResult } from "@/data/cases/results";
 import { BeforeAfter } from "@/components/generate/before-after";
+import { IncidentPhotos } from "@/components/incident-photo";
 import { Reveal, RiseLines } from "@/components/motion/primitives";
 import { SeverityTag } from "@/components/report/finding-card";
 import { Report } from "@/components/report/report";
@@ -204,7 +205,12 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
           {c.history && (
             <Section title="What actually happened" delay={0.05}>
               <p className="max-w-[64ch] text-[1.05rem] leading-relaxed text-ink-2">{c.history.whatHappened}</p>
-              <ul className="mt-5 divide-y divide-rule border-y border-rule">
+              {c.history.photos && c.history.photos.length > 0 && (
+                <div className="mt-7">
+                  <IncidentPhotos photos={c.history.photos} />
+                </div>
+              )}
+              <ul className="mt-7 divide-y divide-rule border-y border-rule">
                 {c.history.sources.map((s) => (
                   <li key={s.url}>
                     <a href={s.url} target="_blank" rel="noreferrer" className="group flex items-baseline justify-between gap-4 py-2.5 text-[0.93rem]">

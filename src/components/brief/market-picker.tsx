@@ -123,7 +123,7 @@ export function MarketPicker({
                 className="w-full rounded-[4px] bg-paper px-2.5 py-1.5 text-[0.92rem] outline-none focus-visible:outline-2 focus-visible:outline-pencil"
               />
             </div>
-            <ul className="max-h-64 overflow-auto p-1" data-lenis-prevent>
+            <ul className="max-h-64 overflow-auto p-1">
               {filtered.map((m) => {
                 const selected = value.includes(m.code);
                 const full = !selected && value.length >= max;

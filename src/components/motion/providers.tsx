@@ -1,52 +1,57 @@
 "use client";
 
-import { ReactLenis, useLenis } from "lenis/react";
-import { MotionConfig } from "motion/react";
-import { useCallback, useEffect, useState } from "react";
-import "lenis/dist/lenis.css";
-
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
-  return reduced;
-}
+import { animate, MotionConfig, useReducedMotion } from "motion/react";
+import { useCallback } from "react";
+import { EASE_OUT } from "./primitives";
 
 /**
- * Lenis smooth scrolling plus a Motion config that honours reduced motion.
- * With `prefers-reduced-motion: reduce`, Lenis isn't mounted at all and Motion
- * drops transform animations, keeping only opacity changes.
+ * Motion config that honours reduced motion: with `prefers-reduced-motion: reduce`,
+ * Motion drops transform animations and keeps only opacity changes.
+ *
+ * Wheel and touch scrolling are native. A JS smooth-scroll layer puts all scrolling on
+ * the main thread, where it lags behind the wheel and stutters whenever React is busy.
  */
 export function MotionProviders({ children }: { children: React.ReactNode }) {
-  const reduced = usePrefersReducedMotion();
   return (
     <MotionConfig reducedMotion="user" transition={{ type: "spring", stiffness: 260, damping: 32 }}>
-      {reduced ? (
-        children
-      ) : (
-        // Nested scroll areas opt out with data-lenis-prevent, which Lenis honours natively.
-        <ReactLenis root options={{ autoRaf: true, lerp: 0.1, anchors: true }}>
-          {children}
-        </ReactLenis>
-      )}
+      {children}
     </MotionConfig>
   );
 }
 
-/** Scroll to an element through Lenis when it's running, natively otherwise. */
+const USER_INPUT = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
+
+/**
+ * Scroll an element to the top of the viewport, `offset` pixels from it.
+ *
+ * Animated frame by frame rather than with `behavior: "smooth"`: when Motion measures an
+ * animation (a height of "auto", say) it restores the scroll position, which cancels a
+ * native smooth scroll partway. Any wheel, touch or key input hands control back at once.
+ */
 export function useScrollTo() {
-  const lenis = useLenis();
+  const reduced = useReducedMotion();
   return useCallback(
     (target: HTMLElement | null, offset = -16) => {
       if (!target) return;
-      if (lenis) lenis.scrollTo(target, { offset, duration: 1.1 });
-      else target.scrollIntoView({ block: "start" });
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const to = Math.max(0, Math.min(max, target.getBoundingClientRect().top + window.scrollY + offset));
+      if (reduced) {
+        window.scrollTo(0, to);
+        return;
+      }
+      const controls = animate(window.scrollY, to, {
+        duration: 0.9,
+        ease: EASE_OUT,
+        onUpdate: (y) => window.scrollTo(0, y),
+        onComplete: () => release(),
+      });
+      const stop = () => {
+        controls.stop();
+        release();
+      };
+      const release = () => USER_INPUT.forEach((e) => window.removeEventListener(e, stop));
+      USER_INPUT.forEach((e) => window.addEventListener(e, stop, { passive: true }));
     },
-    [lenis],
+    [reduced],
   );
 }
