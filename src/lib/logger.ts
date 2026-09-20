@@ -15,7 +15,13 @@ type Event =
   | "ratelimit.blocked"
   | "credits.ceiling"
   | "upload.completed"
-  | "request.rejected";
+  | "request.rejected"
+  | "billing.charged"
+  | "billing.refunded"
+  | "billing.payment_required"
+  | "billing.fulfilled"
+  | "billing.checkout"
+  | "billing.webhook";
 
 function emit(level: "info" | "warn" | "error", event: Event, fields: Fields): void {
   const line = JSON.stringify({ level, event, at: new Date().toISOString(), ...fields });

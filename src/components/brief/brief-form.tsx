@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { CHANNELS, CHANNEL_LABELS, type Channel, type Market } from "@/lib/schema";
+import { RunNote } from "../billing/billing";
 import { useTypewriter } from "../motion/primitives";
 import { useScrollTo } from "../motion/providers";
 import { MarketPicker } from "./market-picker";
@@ -289,7 +290,9 @@ export function BriefForm({
           </p>
         )}
         <SubmitButton form={formId} disabled={disabled} submitting={submitting} />
-        <p className="text-[0.85rem] text-ink-3">{analysisAvailable ? "Takes about a minute." : "Live analysis is off on this deployment."}</p>
+        <p className="text-[0.85rem] text-ink-3">
+          {analysisAvailable ? <RunNote allowanceClassName="text-ink-2" /> : "Live analysis is off on this deployment."}
+        </p>
       </div>
 
       {pinned !== null &&

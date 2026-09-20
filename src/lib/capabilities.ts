@@ -8,6 +8,8 @@ export function capabilities() {
     uploadMode: process.env.BLOB_READ_WRITE_TOKEN ? ("blob" as const) : ("local" as const),
     analysisAvailable: Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN),
     generationAvailable: Boolean(process.env.MAGIC_HOUR_API_KEY),
+    /** Reviews past the free one are paid for. */
+    paywall: Boolean(process.env.STRIPE_SECRET_KEY),
   };
 }
 

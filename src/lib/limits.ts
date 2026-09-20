@@ -6,7 +6,17 @@ export const LIMITS = {
   analyze: { limit: 5, windowMs: 60 * 60 * 1000 },
   generate: { limit: 10, windowMs: 60 * 60 * 1000 },
   upload: { limit: 30, windowMs: 60 * 60 * 1000 },
+  checkout: { limit: 20, windowMs: 60 * 60 * 1000 },
+  restore: { limit: 10, windowMs: 60 * 60 * 1000 },
 } as const;
+
+const NOUNS: Record<LimitKind, string> = {
+  analyze: "analyses",
+  generate: "generations",
+  upload: "uploads",
+  checkout: "checkouts",
+  restore: "restore attempts",
+};
 
 export type LimitKind = keyof typeof LIMITS;
 
@@ -20,8 +30,7 @@ export class RateLimitError extends Error {
   readonly kind: LimitKind;
   constructor(kind: LimitKind, retryAfterMs: number) {
     const { limit } = LIMITS[kind];
-    const noun = kind === "analyze" ? "analyses" : kind === "generate" ? "generations" : "uploads";
-    super(`You've reached ${limit} ${noun} this hour. Try again in ${Math.max(1, Math.ceil(retryAfterMs / 60_000))} min.`);
+    super(`You've reached ${limit} ${NOUNS[kind]} this hour. Try again in ${Math.max(1, Math.ceil(retryAfterMs / 60_000))} min.`);
     this.name = "RateLimitError";
     this.kind = kind;
     this.retryAfterSeconds = Math.ceil(retryAfterMs / 1000);

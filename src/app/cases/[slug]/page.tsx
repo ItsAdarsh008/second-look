@@ -6,6 +6,7 @@ import { CASES, getCase } from "@/data/cases";
 import { creativeUrl } from "@/data/cases/creative";
 import { getCaseResult } from "@/data/cases/results";
 import { BeforeAfter } from "@/components/generate/before-after";
+import { PoweredByMagicHour } from "@/components/generate/powered-by-magic-hour";
 import { IncidentPhotos } from "@/components/incident-photo";
 import { Reveal, RiseLines } from "@/components/motion/primitives";
 import { SeverityTag } from "@/components/report/finding-card";
@@ -246,9 +247,12 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
 
       {result?.generation && (
         <section aria-labelledby="alternative" className="mt-16 border-t-2 border-ink pt-8">
-          <h2 id="alternative" className="font-serif text-[2.2rem] leading-none">
-            An alternative to consider
-          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
+            <h2 id="alternative" className="font-serif text-[2.2rem] leading-none">
+              An alternative to consider
+            </h2>
+            <PoweredByMagicHour />
+          </div>
           <p className="mt-3 max-w-[64ch] text-ink-2">
             Generated with the{" "}
             <a href="https://docs.magichour.ai" className="text-pencil underline underline-offset-2">

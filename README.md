@@ -33,9 +33,10 @@ Input: image + copy + product name + market(s) + launch date + channel
 |---|---|
 | Domain contracts (Zod) | `src/lib/schema.ts` |
 | Analyst prompt | `src/lib/prompts/analyst.ts` |
-| External clients (typed errors) | `src/lib/clients/` — `anthropic.ts`, `magicHour.ts`, `creative.ts`, `upstash.ts`, `blob.ts`, `secondlook.ts` (browser) |
+| External clients (typed errors) | `src/lib/clients/` — `anthropic.ts`, `magicHour.ts`, `stripe.ts`, `creative.ts`, `upstash.ts`, `blob.ts`, `secondlook.ts` (browser) |
 | Storage, rate limits, credit ceiling | `src/lib/store.ts`, `src/lib/limits.ts` |
-| API routes | `src/app/api/{analyze,analysis/[id],generate,generate/[jobId],upload,uploads/[name]}` |
+| Payments: packs, wallets, charges and refunds | `src/lib/pricing.ts`, `src/lib/billing.ts`, `src/lib/wallet-cookie.ts`, `src/components/billing/billing.tsx` |
+| API routes | `src/app/api/{analyze,analysis/[id],generate,generate/[jobId],upload,uploads/[name],wallet,wallet/restore,checkout,checkout/confirm,stripe/webhook}` |
 | UI | `src/app/page.tsx`, `src/app/a/[id]` (shareable report), `src/app/cases` (gallery) |
 | Fixtures and evals | `src/data/cases/`, `scripts/eval.ts`, `evals/` |
 
@@ -56,6 +57,7 @@ npm run dev
 | `BLOB_READ_WRITE_TOKEN` | Uploads in production | Leave empty locally: uploads are stored under `.data/uploads`. |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Production storage | Analyses, jobs, rate limits and the credit ceiling. Without it, local dev uses `.data/store`. On Vercel, generation stays disabled until Redis is configured, because a per-instance credit ceiling isn't a ceiling. `KV_REST_API_URL`/`KV_REST_API_TOKEN` also work. |
 | `MAX_DAILY_CREDITS` | Generation | Global Magic Hour credit budget per UTC day. Defaults to 200. `0` disables generation. |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Charging for reviews | Optional. With them set, each visitor gets one free review (with one alternative), then buys packs of reviews through Stripe Checkout. Without them, reviews are unlimited. See [DEPLOY.md §3](DEPLOY.md#3-payments). |
 
 The app runs without any keys: the brief form, case gallery and API panel all render, and routes return typed `not_configured` errors.
 
@@ -91,7 +93,7 @@ Step-by-step instructions, and how much to put into the Anthropic API for your e
 
 1. Import the repo. Framework preset: Next.js.
 2. Add a Blob store and an Upstash Redis database from the Vercel Marketplace; their env vars are injected automatically.
-3. Set `ANTHROPIC_API_KEY`, `MAGIC_HOUR_API_KEY` and `MAX_DAILY_CREDITS`.
+3. Set `ANTHROPIC_API_KEY`, `MAGIC_HOUR_API_KEY` and `MAX_DAILY_CREDITS`, and, to charge for reviews, `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`.
 4. `/api/analyze` declares `maxDuration = 300` (Fluid compute). A single Opus vision call with adaptive thinking may exceed the 60 seconds the original plan suggested.
 5. Run `npm run cases:build -- --generate` locally with real keys, commit `src/data/cases/results/` and `public/cases/generated/`, and redeploy so the gallery shows real results without spending API calls on page views.
 
@@ -114,7 +116,8 @@ The control that matters is a person who lives in the market reading the campaig
 
 - The landing page is the tool: a brief on the left and a "light table" on the right, where the creative is scanned and finding regions are drawn on. `/?case=<slug>` opens any case study in the tool.
 - Motion (`motion/react`) drives the scroll reveals, report and generation animations, and is reduced under `prefers-reduced-motion`. Scrolling is native; programmatic scrolls (to the report, to a new case) are animated frame by frame so Motion's layout measurements can't cancel them. Above-the-fold entrances are plain CSS so they start at first paint.
-- The home page is statically rendered, so whether analysis and generation are enabled is decided from env vars at build time. After adding keys, rebuild (on Vercel, redeploy).
+- The home page is statically rendered, so whether analysis, generation and the paywall are enabled is decided from env vars at build time. After adding keys, rebuild (on Vercel, redeploy).
+- Payments have no accounts: a wallet id in an httpOnly cookie holds the balance, and doubles as a recovery code for another browser. Every review and render is charged before it starts and refunded if it fails, so a crash can neither hand out free reviews nor cost the buyer one.
 - Creative in the gallery is synthetic, drawn for this project with fictional brands. No brand assets are used.
 - Markets appear as ISO code tags rather than flags. The design spec excludes emoji, and a cultural-review tool shouldn't hand-draw national flags.
 - UI copy never says "fixed", "safe", "cleared" or "approved".

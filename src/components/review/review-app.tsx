@@ -9,6 +9,7 @@ import { severityCounts, verdictLine } from "@/lib/report";
 import type { ExampleCase } from "@/lib/examples";
 import { CHANNEL_LABELS, CampaignInputSchema, marketName, type AnalysisResult, type CampaignInput } from "@/lib/schema";
 import { NEW_PROGRESS, stepSpot, type Guess, type SpotProgress } from "@/lib/spot";
+import { useBilling } from "../billing/billing";
 import { BriefForm, EMPTY_BRIEF, type BriefValues, type FieldErrors } from "../brief/brief-form";
 import { GeneratePanel } from "../generate/generate-panel";
 import { LightTable, type TableMode, type UploadState } from "../light-table/light-table";
@@ -32,6 +33,7 @@ const FAILURE_HELP: Record<string, string> = {
   image_unavailable: "The creative couldn't be read",
   refused: "The model declined this one",
   not_configured: "Analysis isn't configured",
+  payment_required: "No reviews left",
 };
 
 function toInput(values: BriefValues, imageUrl: string | null): { input: CampaignInput | null; errors: FieldErrors } {
@@ -127,6 +129,7 @@ export function ReviewApp({
   const tableRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const scrollTo = useScrollTo();
+  const billing = useBilling();
 
   useEffect(() => () => abortRef.current?.abort(), []);
   useEffect(() => {
@@ -190,6 +193,11 @@ export function ReviewApp({
     const { input, errors: nextErrors } = toInput(values, imageUrl);
     setErrors(nextErrors);
     if (!input) return;
+    // Out of reviews: offer more rather than send a request the server would refuse.
+    if (billing?.allowance === 0) {
+      billing.openPricing("review");
+      return;
+    }
 
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -211,12 +219,16 @@ export function ReviewApp({
         controller.signal,
       );
       setPhase({ kind: "report", result });
+      void billing?.refresh();
       // Let the boxes draw on the light table, then glide down to the report.
       setTimeout(() => scrollTo(reportRef.current, -24), result.findings.some((f) => f.locus.kind === "image") ? 1400 : 700);
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return;
       const e = err instanceof ApiRequestError ? err : new ApiRequestError("unknown", "The analysis failed. Try again.", 0);
       setPhase({ kind: "failed", code: e.code, message: e.message });
+      // A failed review was refunded; a refused one means the allowance we showed was stale.
+      void billing?.refresh();
+      if (e.code === "payment_required") billing?.openPricing("review");
     }
   };
 

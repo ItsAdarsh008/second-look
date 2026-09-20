@@ -1,170 +1,191 @@
 # Deploying Second Look
 
-Two parts: **how much money to put into the Anthropic API** (the main running cost), then **the deploy itself** on Vercel.
-
-Prices and limits below were checked against Anthropic's docs in September 2026. Check [the pricing page](https://platform.claude.com/docs/en/about-claude/pricing) before you buy credits; if a price has changed, the table in §1.3 scales with it.
+Live: **https://second-look-neon.vercel.app** (Vercel project `adarsh-eeb5/second-look`)
 
 ---
 
-## 1. Anthropic budget
+## Already done
 
-### 1.1 What costs money
-
-Only one thing in the app calls Claude: **running a review** ("Run a second look"). Everything else is free to serve:
-
-- The **spot-the-issue game** on the landing page checks answers against a built-in key. No API calls.
-- **Case study pages and the gallery** show results computed once and committed to the repo (`npm run cases:build`). No API calls on page views.
-- **Link previews** (Open Graph images) are rendered by the server. No API calls.
-
-So the Claude budget depends on **how many reviews people run**, not on how many people visit.
-
-### 1.2 Cost of one review
-
-Each review is one call to **Claude Opus 5** (`src/lib/analyze.ts`) with the ad image, the brief, up to 12 matched precedent incidents and any calendar hits. It uses adaptive thinking at `high` effort and allows up to 16,000 output tokens. The fixed instructions (system prompt and tool schema) are prompt-cached.
-
-Opus 5 pricing: **$5 per million input tokens, $25 per million output tokens**. Cache writes cost $6.25 per million and cache reads $0.50 per million. Thinking is billed as output.
-
-| Part of the request | Tokens (estimated) | Cost |
-|---|---|---|
-| Cached instructions (system prompt, tool schema, tool-use overhead) | ~4,000 | $0.002 if the cache is warm (another review in the last 5 min), $0.025 if cold |
-| Campaign brief (precedents, calendar hits, copy) | 1,100–4,400 | $0.006–$0.022 |
-| The image (`⌈w/28⌉ × ⌈h/28⌉` tokens; the app caps it at 1568px) | 1,500–3,100 | $0.008–$0.016 |
-| **Output: thinking plus the findings JSON** | 4,000–11,000 typical, 16,000 max | **$0.10–$0.28** typical, $0.40 max |
-| **One review** | | **about $0.20–$0.25 typical** |
-
-Output is almost all of the cost, and thinking is the part that varies.
-
-- **Retry:** if the model's answer fails validation, the app retries once (`MAX_ATTEMPTS = 2`), which roughly doubles that review's cost. Worst case is about $1 per review, and it should be rare.
-- **Refusal:** if Opus 5 declines a request, a server-side fallback reruns it on another model. A decline before any output isn't billed.
-- **Wrong upload:** a review that comes back "this doesn't look like an ad" still costs a call, because the model makes that judgement.
-
-**Plan with $0.50 per review.** That's double the typical cost and leaves room for heavy-thinking reviews, cold caches and retries.
-
-The token counts above are estimates: the app's prompt sizes were measured, but thinking length wasn't. Calibrate after deploying (§2.6); it costs about $3.
-
-### 1.3 How much to load, by expected users
-
-Assume each person who runs reviews does about **3 a month**: they run one, adjust the brief or the ad, and run it again. Visitors who only play the game or read the cases cost nothing. If your users behave differently, the formula is:
-
-> **monthly budget = people running reviews × reviews each × $0.50**
-
-| People running reviews per month | Reviews per month | Expected spend (~$0.25 each) | Load this (at $0.50 each) | Anthropic tier you need |
-|---|---|---|---|---|
-| Just you and testers (≤10), plus evals | ~40 | ~$10 | **$25** | Start |
-| 50 | 150 | ~$38 | **$75** | Start |
-| 200 | 600 | ~$150 | **$300** | Start |
-| 500 | 1,500 | ~$375 | **$750** | Build (Start caps spend at $500 a month) |
-| 1,000 | 3,000 | ~$750 | **$1,500** | Scale (Build caps spend at $1,000 a month) |
-| 5,000 | 15,000 | ~$3,750 | **$7,500** | Scale |
-
-**Launch spike:** a public launch (Hacker News, Product Hunt, a viral post) can put a month of traffic into one day. The app limits each visitor to **5 reviews an hour** (`src/lib/limits.ts`). That caps one visitor at about $2.50 an hour at the planning rate. It does **not** cap total spend, so the Console spend limit in §1.4 is your real ceiling.
-
-**How to load it:** buy credits for one or two months at a time rather than a year up front. Topping up takes a minute, and after the first month you'll have real numbers. If you turn on auto-reload in the Console, set the spend limit in §1.4 at the same time, so an automatic top-up can't fund a runaway month.
-
-### 1.4 Spend limits and tiers
-
-Anthropic places your organization on a **usage tier** automatically, based on account history. Each tier has a **monthly spend cap**; when you hit it, API calls stop until the 1st of the next month:
-
-| Tier | Monthly spend cap | Opus 5 rate limits |
-|---|---|---|
-| Start | $500 | 1,000 requests, 2M input and 400k output tokens per minute |
-| Build | $1,000 | 5,000 requests, 5M input and 1M output tokens per minute |
-| Scale | $200,000 | 10,000 requests, 10M input and 2M output tokens per minute |
-
-- **Throughput isn't the bottleneck.** Even Start's 400,000 output tokens a minute covers roughly 50 reviews finishing every minute. What you'll hit first is the **spend cap**.
-- **New accounts may start lower.** A brand-new organization can begin in an *Evaluation* tier with lower limits until it has some history. Don't launch publicly from a day-old account; use it for a week first, or request higher limits.
-- **Asking for more:** if your row in §1.3 needs a higher tier, use **Request rate limit increase** on the [Rate limits page](https://platform.claude.com/settings/limits) before launch, not after the 429s start.
-
-**Always set your own spend limit** under **Settings → Billing → Spend limits**, a little above your monthly budget from §1.3. When it's reached, reviews stop instead of draining your balance. Users see "The analysis request was rejected upstream." (at the tier's cap it's "The analysis model is busy."), so if those messages start appearing, check the Console before anything else. Better still, give Second Look its own **workspace** in the Console, with its own API key and a **workspace spend limit**, so this app can't use up credits meant for anything else.
-
-### 1.5 Where the money goes, and how to spend less
-
-- **Watch it:** [Console → Usage](https://platform.claude.com/usage) shows spend by model and day. Vercel's logs have one `analysis.completed` line per review and a `ratelimit.blocked` line whenever the per-visitor limit trips.
-- **The biggest lever is effort.** The analyzer runs Opus 5 at `effort: "high"` (`src/lib/analyze.ts`). Dropping to `"medium"` usually cuts thinking tokens substantially, and thinking is most of the bill. Only do it after running `npm run eval` at both settings and confirming the catch rate and false positives hold.
-- **Caching is already on.** The ~4,000-token instructions are cached for 5 minutes. With steady traffic nearly every review reads the cache; with sparse traffic, most reviews pay the ~$0.02 write.
-
-### 1.6 Magic Hour (image alternatives)
-
-Generating alternative creative is billed by **Magic Hour**, separately from Anthropic. The app caps it with `MAX_DAILY_CREDITS`, a global Magic Hour credit budget per UTC day, and refuses generations past it. It only works with Upstash Redis configured (§2.2). Size it the same way: generations per day × credits per image for your model.
-
----
-
-## 2. Deploy
-
-### 2.1 Accounts
-
-- GitHub, with this repo pushed
-- [Vercel](https://vercel.com). The Hobby plan runs the app (the review route needs 300 seconds, which Hobby allows), but Hobby is for non-commercial use; use Pro if this is a business.
-- [Claude Console](https://platform.claude.com) for the Anthropic API key and credits
-- [Magic Hour](https://magichour.ai/developer), optional, for generated alternatives
-
-### 2.2 Anthropic setup
-
-1. In the Claude Console, create a workspace (for example "Second Look").
-2. Create an **API key in that workspace**. You'll paste it into Vercel.
-3. **Settings → Billing:** buy the amount from §1.3.
-4. Set an organization spend limit, plus a workspace spend limit for "Second Look" (§1.4).
-5. Check your tier on the [Rate limits page](https://platform.claude.com/settings/limits). If §1.3 says you need more, request it now.
-
-### 2.3 Vercel project
-
-1. **Add New → Project**, import the repo. Framework preset: **Next.js**. Build and output settings stay at their defaults.
-2. Under **Storage** (the Marketplace), add:
-   - **Upstash Redis.** Required in production: it stores reviews (so shared report links work), the per-visitor rate limits and the Magic Hour credit ceiling. Serverless instances don't share memory or disk, so without it none of these hold.
-   - **Vercel Blob.** Required for uploads: people's own ads are stored there.
-
-   Both inject their environment variables automatically.
-
-### 2.4 Environment variables
-
-In **Settings → Environment Variables** (Production, and Preview if you want previews to work):
-
-| Variable | Value |
+| | |
 |---|---|
-| `ANTHROPIC_API_KEY` | The workspace key from §2.2 |
-| `MAGIC_HOUR_API_KEY` | Optional; leave unset to hide generation |
-| `MAX_DAILY_CREDITS` | Magic Hour credits per UTC day. `0` disables generation. |
-| `NEXT_PUBLIC_SITE_URL` | Your custom domain, e.g. `https://secondlook.example`. Optional: without it, link previews use Vercel's production domain. |
-| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Set by the Upstash integration (`KV_REST_API_*` also work) |
-| `BLOB_READ_WRITE_TOKEN` | Set by the Blob integration |
+| Vercel project, connected to the repo | ✅ `second-look`, production alias `second-look-neon.vercel.app` |
+| `ANTHROPIC_API_KEY`, `MAGIC_HOUR_API_KEY` | ✅ set on Production + Preview |
+| Upstash Redis + Vercel Blob | ✅ connected, variables injected |
+| `MAX_DAILY_CREDITS` | ✅ set |
+| 300-second analyze route | ✅ deployed and running on the current plan |
+| `typecheck` / `lint` / `test` / `build` | ✅ all green (100 tests, 21 routes) |
+| Payments work committed | ✅ wallets, packs, Stripe checkout + webhook |
 
-Keys are server-only; none of them use the `NEXT_PUBLIC_` prefix except the site URL.
+**The live site still predates the payments work** — `/api/wallet` 404s on it. The code is committed but not yet pushed, so step 1 is what makes production match the repo.
 
-**Redeploy after changing any key.** The home page is built statically, so whether reviews and generation are switched on is decided at build time.
+---
 
-### 2.5 Deploy and check
+## Remaining steps
 
-1. Deploy (push to `main`, or **Redeploy** in Vercel).
-2. Open the site. The first example case should be on the table with "Can you spot the issue?".
-3. **Run a real review:** upload an ad, or open a case, and click **Run a second look**. It takes about a minute. If the button says "Live analysis is off on this deployment", the key isn't set or you haven't redeployed since setting it.
-4. **Check the link preview:** paste your URL into a chat app, or open `/opengraph-image`. You should see the light-table card.
-5. In the Console **Usage** page, confirm the review shows up and note its cost.
-
-### 2.6 Calibrate the budget (about $3)
-
-The per-review cost in §1.2 is an estimate. Measure it once with real traffic:
+### 1. Push — *do this first*
 
 ```bash
-# with ANTHROPIC_API_KEY in .env.local
-npm run eval                 # 9 test cases → 9 reviews, about $2–5
+git push
 ```
 
-Then divide that day's Opus 5 spend on the Console Usage page by 9. That's your real cost per review. Put it in place of $0.25 in §1.3, keep the 2× safety margin, and adjust your credits and spend limit.
+Pushing to `main` auto-deploys. Wait for the deployment to go green, then check `https://second-look-neon.vercel.app/api/wallet` returns JSON instead of a 404. Until this lands, nothing else on this list has any effect.
 
-### 2.7 Pre-computed gallery (optional, recommended)
+### 2. Anthropic — credits and a spend limit
 
-So case pages show real findings without spending anything on page views:
+In the [Claude Console](https://platform.claude.com):
+
+1. **Settings → Billing** — load credits. One review costs **~$0.25** (Opus 5, high effort, ~16k max output). Plan at **$0.50** to absorb retries and cold caches.
+   - Just you + testers: **$25** · 50 users: **$75** · 200 users: **$300** (assume ~3 reviews per person per month)
+2. **Set a spend limit** just above that. Without one, a launch spike drains the balance. Users see *"The analysis request was rejected upstream."* when it trips.
+3. Check your tier on the [Rate limits page](https://platform.claude.com/settings/limits). Start caps at **$500/month**; ask for more *before* launch, not after the 429s.
+
+The app caps each visitor at **5 reviews an hour**, so one stranger costs at most ~$2.50/hour. The Console spend limit is your only real ceiling.
+
+### 3. Stripe — optional, turns the paywall on
+
+Skip this entirely and every review stays free and unlimited. If you do it, do it in a **sandbox** first.
+
+1. **Sandbox:** account menu → create a [sandbox](https://docs.stripe.com/sandboxes).
+2. **Restricted key:** Developers → API keys → Create restricted key, permission **Checkout Sessions: Write** only.
+3. **Webhook:** Developers → Webhooks → Add destination
+   - URL `https://second-look-neon.vercel.app/api/stripe/webhook`
+   - Events `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`
+   - Copy the signing secret. **Not optional** — it's what credits buyers who close the tab.
+4. **Branding:** Settings → Branding (name, icon, colours — what buyers see on Checkout).
+5. **Vercel Pro** is required once you take real money; Hobby is non-commercial.
+
+The Stripe CLI is installed. Run `! stripe login` in this session if you want to drive it from the terminal.
+
+### 4. Two more environment variables
+
+Vercel → Settings → Environment Variables. Mark both **Sensitive**.
+
+| Variable | Value | Environment |
+|---|---|---|
+| `STRIPE_SECRET_KEY` | restricted key from step 3 | sandbox key → Preview, live key → Production |
+| `STRIPE_WEBHOOK_SECRET` | that webhook's signing secret | each environment's own |
+
+Optionally `NEXT_PUBLIC_SITE_URL` if you add a custom domain (Settings → Domains), so link previews point at it.
+
+**Redeploy after any key change.** Whether reviews, generation and the paywall are on is baked in at build time.
+
+### 5. Verify on the live URL
+
+1. Landing page shows the first case on the light table with *"Can you spot the issue?"*. With Stripe on, the header shows **1 free** and *"Your first review is free."* sits by **Run a second look**.
+2. **Run a real review** — upload an ad or open a case, click **Run a second look**. ~1 minute. *"Live analysis is off on this deployment"* means the key isn't set or you haven't redeployed.
+3. **Generate an alternative** from *Alternatives to consider*; the request payload shows beside it.
+4. **Share the report** — the `/a/<id>` link opens in a private window.
+5. **Paywall** (sandbox): run a second review → pricing sheet opens. Buy Starter with `4242 4242 4242 4242`, any future expiry/CVC. You should see *"10 reviews added"* plus a recovery code, and the header reads **10 reviews left**. Stripe's webhook log shows a **200**. In a private window, restore the recovery code and confirm the balance follows.
+6. **Link preview** — open `/opengraph-image`.
+
+### 6. Pre-build the gallery — *do before recording the demo*
+
+`src/data/cases/results/` is empty, so case pages have no pre-computed findings. This makes them render real results with zero API cost per view:
 
 ```bash
-npm run cases:build -- --generate   # 3 reviews (~$1) plus Magic Hour credits for alternatives
+# needs ANTHROPIC_API_KEY + MAGIC_HOUR_API_KEY in .env.local
+npm run cases:build -- --generate     # 3 reviews (~$1) + Magic Hour credits
 git add src/data/cases/results public/cases/generated
 git commit -m "Publish case study results" && git push
 ```
 
-### 2.8 Before a public launch
+### 7. Calibrate the real cost (optional, ~$3)
 
-- [ ] Spend limits set, organization and workspace (§1.4)
-- [ ] Credits loaded for your expected month (§1.3), and the tier covers it
-- [ ] Upstash and Blob connected, and a review works end to end on the live URL
-- [ ] `MAX_DAILY_CREDITS` set to what you're willing to spend on Magic Hour per day
-- [ ] You know where to look: Console **Usage** for spend, Vercel **Logs** for `analysis.failed` and `ratelimit.blocked`
+```bash
+npm run eval          # 9 reviews
+```
+
+Divide that day's Opus 5 spend by 9. If it's far off $0.25, revisit step 2's numbers.
+
+### 8. Launch checklist
+
+- [ ] Payments work pushed and deployed (step 1)
+- [ ] Anthropic credits loaded, org + workspace spend limits set
+- [ ] Gallery pre-built (step 6)
+- [ ] `MAX_DAILY_CREDITS` set to what you'll spend on Magic Hour per UTC day, and the Magic Hour account holds at least that
+- [ ] If charging: Vercel Pro, live keys in Production only, one real purchase made and refunded, live webhook delivering 200s
+- [ ] Demo clips recorded (below) **before** you post
+
+---
+
+## Reference
+
+### Money
+
+- **Claude:** only "Run a second look" costs anything. The game, case pages and link previews are free to serve. ~$0.25/review; retry doubles it; worst case ~$1.
+- **Magic Hour:** its own credits. `flux-2-klein` (default) 5/image, `gpt-image-2` 50, `nano-banana-2` 100. `MAX_DAILY_CREDITS` (default 200) caps all visitors per UTC day; `0` turns generation off. Needs Redis.
+- **Packs:** Free 1 · Starter 10/$15 · Team 50/$59 · Agency 200/$199. Every review includes one alternative; extra alternatives cost one review. Free review is 1 per browser, 2 per network per 30 days. Edit `PACKS` in `src/lib/pricing.ts`.
+- **Failures auto-refund** the visitor — but you still paid Anthropic if the model ran. Watch `analysis.failed`.
+
+### When something breaks
+
+Vercel Logs carry one JSON line per event: `analysis.*`, `generation.*`, `billing.*`, `ratelimit.blocked`, `credits.ceiling`.
+
+| What people see | Fix |
+|---|---|
+| "Live analysis is off on this deployment" | Set `ANTHROPIC_API_KEY`, **redeploy** |
+| "The analysis model is unavailable right now." | Key wrong/revoked, or Anthropic is down |
+| "The analysis request was rejected upstream." | Spend limit or credits — Console → Billing |
+| "The analysis model is busy." | Rate limit or tier cap — Console → Rate limits |
+| "…until shared storage (Upstash Redis) is configured." | Connect Upstash |
+| "Today's generation budget … is used up." | Raise `MAX_DAILY_CREDITS` or wait for midnight UTC |
+| "…out of credits." | Top up Magic Hour |
+| No header button after adding Stripe keys | Built before the keys existed — redeploy |
+| "Payments are unavailable right now." | Stripe key/permission — check the `billing.checkout` log line |
+| Paid but no reviews appeared | Webhook failing — fix it, then **Resend** the event (credited once however many times it arrives) |
+
+**Support:** a buyer's recovery code is the checkout session's **client reference ID**. Refunds don't take reviews back — lower `wallet:<id>:reviews` in Upstash by hand. Granting reviews needs `wallet:<id>:purchased` > 0 too.
+
+### Local development
+
+```bash
+npm install
+cp .env.example .env.local     # fill in what you have
+npm run dev                    # localhost:3000
+npm run typecheck && npm run lint && npm test    # before pushing
+```
+
+Nothing is required to start. Without Upstash, state goes to `.data/` — delete it to reset (balances live in `.data/store/__counters.json`). For payments locally, use a **development sandbox** key and `stripe listen --forward-to localhost:3000/api/stripe/webhook`, which prints the `whsec_…` to use.
+
+---
+
+## Demo — what to screen-record
+
+Record **one master session**, then cut four clips from it. The narration script is in `DEMO.md`; this is the shot list.
+
+### Before you hit record
+
+- Steps 1 and 6 done — the gallery must be pre-built or case pages look thin.
+- The master take runs **2 live reviews and 1 render** (~$0.50 of Claude + 5 Magic Hour credits), and a dry run doubles that. With the paywall on you only get **one** free review, so either record **before** setting `STRIPE_SECRET_KEY`, or buy a Starter pack in the sandbox first — otherwise the pricing sheet interrupts your second take.
+- `MAX_DAILY_CREDITS` ≥ 50 so renders don't get refused mid-take.
+- Browser at **1440×900**, bookmarks bar hidden, one window, no extensions visible, no notifications. Clean profile.
+- Tabs pre-warmed: `/cases/starbucks-korea` and `/` (with the Morrow case tile ready).
+- Do a full dry run first. The live review takes ~60s and a render ~20s — you'll cut both down in the edit, but you need clean footage on both sides of the wait.
+
+### The master take (~5 min raw)
+
+1. **Landing page, the game.** "Can you spot the issue?" — hover the creative, make a guess, reveal. *(This is the hook: it's interactive and free.)*
+2. **The Tank Day case.** `/cases/starbucks-korea`, scroll past the creative to "What a competent reviewer must catch". Hold on the line that nothing is wrong with the picture.
+3. **A live run.** Back on `/`, click the Morrow tile → **Run a second look**. Let the stages resolve on camera: precedent retrieval → calendar check → analysis.
+4. **The report.** Hover the finding card so the region lights up on the creative. Show the precedent citation, the exact element named, and the **Dispute** button.
+5. **Zero findings, submitted by hand.** The `control-*` cases are eval-only — they have no case page, so you build this one in the brief form. Upload `public/cases/control-kr-sweet-potato-latte.png` and fill in: Harbor Coffee Korea · *"Sweet potato season is back."* · Roasted Sweet Potato Latte · Korea · 2026-10-20 · social. Same fictional brand and same market as Tank Day, and it should come back clean. Show that "no findings" renders as a real answer, not an error, and is still not an approval. *(Skeptics look for exactly this.)*
+   **Shoot this take first** — it's a live model call, so the clean result isn't guaranteed. If something does get flagged, read the finding and decide whether it's fair before re-shooting.
+6. **Magic Hour.** Scroll to *Alternatives to consider*. Point out that renaming a product and moving a date can't be fixed by image editing, so those findings stay. Pick `flux-2-klein`, show the credit cost, click **Generate an alternative**.
+7. **The request panel.** Camera stays on the dark request plate as it ticks `queued` → `rendering` → `complete`. Click the **curl** tab. Drag the before/after slider once. End on the **Alternative to consider** label and the **Powered by Magic Hour** badge.
+
+### The four cuts
+
+| | Length | Shots | Notes |
+|---|---|---|---|
+| **X** | 30–45s, 16:9 | 2 → 3 (sped 6×) → 4 | Hook in the first 2 seconds: the Tank Day line as a text overlay. Must read with sound off — burn in captions. Post the video natively, link in the first reply. |
+| **LinkedIn** | 60–90s, 1:1 or 16:9 | 2 → 3 (sped) → 4 → 6 → 7 | Captions mandatory. Lead with the approval-chain framing from `LAUNCH_POST.md`, not the tech. End on the "it flags, people decide" beat. |
+| **Reddit** | 15–25s **silent GIF/clip**, plus one still | 1, then 4 | No voiceover, no music, no logo card — it reads as an ad and gets downvoted. Lead with the game (shot 1) so people click to try it themselves. r/SideProject and r/marketing want different cuts: SideProject gets shot 7 (the API panel), marketing gets shot 4 (the finding). |
+| **Hacker News** | no video | — | HN doesn't watch demos. Post the text, link the Tank Day case page directly. If you attach anything, make it a **still** of shot 5 (zero findings) and shot 7 (the curl payload) — the two things a skeptical reader wants to check. Be in the thread to answer "how is this not just an LLM prompt?" |
+
+### The three frames that carry it
+
+If an edit is running long, these are the ones to keep:
+
+1. The creative that is visually fine, next to the name/date/slogan finding — **the whole thesis**.
+2. The finding card with its precedent citation and Dispute button — **falsifiable, not vibes**.
+3. The Magic Hour request payload with the curl tab open — **the part nobody else shows**.

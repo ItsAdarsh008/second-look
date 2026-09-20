@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { AnalyzeStreamEventSchema, type AnalyzeStreamEvent } from "../analyze-stream";
+import type { PackId } from "../pricing";
 import {
   AnalysisResultSchema,
   ApiErrorBodySchema,
@@ -142,4 +143,51 @@ export function pollGeneration(jobId: string): Promise<EditJob> {
 
 export function fetchAnalysis(id: string): Promise<AnalysisResult> {
   return send(`/api/analysis/${encodeURIComponent(id)}`, AnalysisResultSchema);
+}
+
+/* --------------------------------- billing --------------------------------- */
+
+export const WalletSchema = z.object({
+  free: z.number().int().min(0),
+  reviews: z.number().int().min(0),
+  code: z.string().nullable(),
+  renders: z.number().int().min(0).nullable(),
+});
+export type Wallet = z.infer<typeof WalletSchema>;
+
+/** The visitor's allowance. With `analysisId`, also the included renders left on that review. */
+export function fetchWallet(analysisId?: string): Promise<Wallet> {
+  const query = analysisId ? `?analysis=${encodeURIComponent(analysisId)}` : "";
+  return send(`/api/wallet${query}`, WalletSchema, { cache: "no-store" });
+}
+
+export function restoreWallet(code: string): Promise<Wallet> {
+  return send("/api/wallet/restore", WalletSchema, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ code }),
+  });
+}
+
+/** Resolves with the Stripe Checkout URL to send the buyer to. */
+export function startCheckout(pack: PackId): Promise<{ url: string }> {
+  return send("/api/checkout", z.object({ url: z.url() }), {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ pack }),
+  });
+}
+
+export const CheckoutConfirmationSchema = z.object({
+  status: z.enum(["fulfilled", "pending", "not_paid"]),
+  reviews: z.number().int().min(0),
+});
+export type CheckoutConfirmation = z.infer<typeof CheckoutConfirmationSchema>;
+
+export function confirmCheckout(sessionId: string): Promise<CheckoutConfirmation> {
+  return send("/api/checkout/confirm", CheckoutConfirmationSchema, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ sessionId }),
+  });
 }

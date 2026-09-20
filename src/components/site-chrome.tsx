@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { capabilities } from "@/lib/capabilities";
+import { WalletButton } from "./billing/billing";
 
 export function SiteHeader() {
+  const { paywall } = capabilities();
   return (
     <header className="border-b border-rule">
       <div className="mx-auto flex max-w-[88rem] items-baseline justify-between gap-4 px-5 py-4 sm:px-8">
@@ -8,12 +11,14 @@ export function SiteHeader() {
           Second Look
         </Link>
         <nav aria-label="Primary" className="flex items-baseline gap-4 whitespace-nowrap text-[0.88rem] sm:gap-5 sm:text-[0.95rem]">
-          <Link href="/" className="text-ink-2 underline-offset-4 hover:text-ink hover:underline">
+          {/* On a phone the wordmark already goes home, which leaves room for the reviews button. */}
+          <Link href="/" className={`text-ink-2 underline-offset-4 hover:text-ink hover:underline ${paywall ? "max-sm:hidden" : ""}`}>
             Review a campaign
           </Link>
           <Link href="/cases" className="text-ink-2 underline-offset-4 hover:text-ink hover:underline">
             Case studies
           </Link>
+          <WalletButton />
         </nav>
       </div>
     </header>

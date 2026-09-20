@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import { ApiRequestError, pollGeneration, startGeneration } from "@/lib/clients/secondlook";
+import { ApiRequestError, fetchWallet, pollGeneration, startGeneration } from "@/lib/clients/secondlook";
 import { compileEditPrompt } from "@/lib/compile-edit-prompt";
 import {
   MODEL_CREDITS_PER_IMAGE,
@@ -18,9 +18,11 @@ import {
   type MagicHourModel,
   type MagicHourResolution,
 } from "@/lib/schema";
+import { reviewsLabel, useBilling } from "../billing/billing";
 import { SeverityTag } from "../report/finding-card";
 import { ApiPanel, type ApiActivity } from "./api-panel";
 import { BeforeAfter } from "./before-after";
+import { PoweredByMagicHour } from "./powered-by-magic-hour";
 
 const POLL_MS = 2500;
 const CLIENT_TIMEOUT_MS = 180_000;
@@ -33,6 +35,7 @@ function failureFrom(err: unknown): Failure {
     case "magic_hour_out_of_credits":
       return { code: err.code, message: "The Magic Hour account behind this demo is out of credits. Generation is paused until it's topped up.", retry: false };
     case "daily_credit_ceiling":
+    case "render_payment_required":
       return { code: err.code, message: err.message, retry: false };
     case "rate_limited":
     case "magic_hour_rate_limited":
@@ -52,6 +55,7 @@ function failureFrom(err: unknown): Failure {
 const FAILURE_TITLE: Record<string, string> = {
   magic_hour_out_of_credits: "Out of credits",
   daily_credit_ceiling: "Daily budget reached",
+  render_payment_required: "No alternatives left on this review",
   rate_limited: "Rate limited",
   magic_hour_rate_limited: "Rate limited",
   timeout: "Still rendering",
@@ -89,6 +93,26 @@ export function GeneratePanel({ analysis, enabled }: { analysis: AnalysisResult;
     pollTimer.current = null;
   };
   useEffect(() => stopPolling, []);
+
+  // With a paywall, each review includes an alternative; more cost a review each.
+  const billing = useBilling();
+  const paywall = billing !== null;
+  const refreshWallet = billing?.refresh;
+  const [included, setIncluded] = useState<number | null>(null);
+  const loadIncluded = useCallback(() => {
+    if (!paywall) return;
+    fetchWallet(analysis.id)
+      .then((w) => setIncluded(w.renders ?? 0))
+      .catch(() => {});
+  }, [paywall, analysis.id]);
+  useEffect(() => loadIncluded(), [loadIncluded]);
+  // A render Magic Hour couldn't finish is refunded on the server when the poll sees it fail.
+  const jobStatus = job?.status;
+  useEffect(() => {
+    if (jobStatus !== "error" && jobStatus !== "canceled") return;
+    loadIncluded();
+    void refreshWallet?.();
+  }, [jobStatus, loadIncluded, refreshWallet]);
   useEffect(() => {
     if (editing) document.getElementById(`${ids}-amend`)?.focus();
   }, [editing, ids]);
@@ -112,6 +136,10 @@ export function GeneratePanel({ analysis, enabled }: { analysis: AnalysisResult;
   }, []);
 
   const submit = async (promptOverride?: string) => {
+    if (billing && included === 0 && billing.wallet?.reviews === 0) {
+      billing.openPricing("render");
+      return;
+    }
     setSubmitting(true);
     setFailure(null);
     setTimedOut(false);
@@ -132,9 +160,14 @@ export function GeneratePanel({ analysis, enabled }: { analysis: AnalysisResult;
       setJob(res.job);
       setEditing(false);
       poll(res.jobId, Date.now());
+      loadIncluded();
+      void refreshWallet?.();
     } catch (err) {
       setActivity(null);
       setFailure(failureFrom(err));
+      loadIncluded();
+      void refreshWallet?.();
+      if (err instanceof ApiRequestError && err.code === "render_payment_required") billing?.openPricing("render");
     } finally {
       setSubmitting(false);
     }
@@ -167,11 +200,11 @@ export function GeneratePanel({ analysis, enabled }: { analysis: AnalysisResult;
 
   return (
     <section aria-labelledby={`${ids}-title`} className="mt-16 border-t-2 border-ink pt-8">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
+      <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
         <h2 id={`${ids}-title`} className="font-serif text-[2.2rem] leading-none sm:text-[2.6rem]">
           Alternatives to consider
         </h2>
-        <p className="text-sm text-ink-3">Image edits by the Magic Hour API, from the findings above</p>
+        <PoweredByMagicHour />
       </div>
       <p className="mt-3 max-w-[66ch] text-ink-2">
         Magic Hour turns a review note into a picture the team can react to in the meeting. It changes only what an image edit can change,
@@ -292,6 +325,22 @@ export function GeneratePanel({ analysis, enabled }: { analysis: AnalysisResult;
 
             <div className="border-t border-rule pt-5">
               <p className="text-sm text-ink-2">{costLine}</p>
+              {billing && included !== null && (
+                <p className="mt-1 text-sm text-ink-2">
+                  {included > 0 ? (
+                    "Included with this review."
+                  ) : billing.wallet && billing.wallet.reviews > 0 ? (
+                    `Another alternative uses 1 of your ${reviewsLabel(billing.wallet.reviews)}.`
+                  ) : (
+                    <>
+                      This review’s included alternative is used. Another costs one review.{" "}
+                      <button type="button" onClick={() => billing.openPricing("render")} className="text-pencil underline underline-offset-2">
+                        Buy reviews
+                      </button>
+                    </>
+                  )}
+                </p>
+              )}
               <button
                 type="button"
                 onClick={() => submit()}

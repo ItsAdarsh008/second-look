@@ -7,7 +7,7 @@ import { createUpstashClient, upstashConfigFromEnv, type UpstashClient } from ".
 /**
  * Storage behind one small interface so swapping backends is one file.
  * - Upstash Redis when UPSTASH_REDIS_REST_URL/TOKEN (or KV_REST_API_*) are set — use this in production.
- * - Otherwise documents on disk under .data/store (dev) and counters in memory.
+ * - Otherwise documents and counters on disk under .data/store (dev), rate-limit windows in memory.
  */
 export interface Store {
   readonly kind: "redis" | "file";
@@ -78,8 +78,36 @@ class FileStore implements Store {
   readonly kind = "file" as const;
   private readonly counters = new Map<string, { value: number; expiresAt: number }>();
   private readonly windows = new Map<string, number[]>();
+  private loaded: Promise<void> | null = null;
+  private saving: Promise<void> = Promise.resolve();
 
   constructor(private readonly dir: string) {}
+
+  /** Counters are kept on disk too, so reviews bought in local development survive a restart. */
+  private get countersFile(): string {
+    return path.join(this.dir, "__counters.json");
+  }
+
+  private loadCounters(): Promise<void> {
+    this.loaded ??= readFile(this.countersFile, "utf8").then(
+      (raw) => {
+        const entries = JSON.parse(raw) as [string, { value: number; expiresAt: number }][];
+        for (const [key, entry] of entries) if (!this.counters.has(key)) this.counters.set(key, entry);
+      },
+      () => {},
+    );
+    return this.loaded;
+  }
+
+  private saveCounters(): Promise<void> {
+    const now = Date.now();
+    const snapshot = JSON.stringify([...this.counters].filter(([, entry]) => entry.expiresAt > now));
+    this.saving = this.saving.then(async () => {
+      await mkdir(this.dir, { recursive: true });
+      await writeFile(this.countersFile, snapshot);
+    });
+    return this.saving;
+  }
 
   private file(key: string): string {
     if (!SAFE_KEY.test(key)) throw new Error(`Unsafe store key: ${key}`);
@@ -101,15 +129,19 @@ class FileStore implements Store {
   }
 
   async incrBy(key: string, amount: number, ttlSeconds: number): Promise<number> {
+    await this.loadCounters();
     const now = Date.now();
     const current = this.counters.get(key);
     const base = current && current.expiresAt > now ? current : { value: 0, expiresAt: now + ttlSeconds * 1000 };
     base.value += Math.round(amount);
     this.counters.set(key, base);
-    return base.value;
+    const value = base.value;
+    await this.saveCounters();
+    return value;
   }
 
   async getNumber(key: string): Promise<number> {
+    await this.loadCounters();
     const current = this.counters.get(key);
     return current && current.expiresAt > Date.now() ? current.value : 0;
   }

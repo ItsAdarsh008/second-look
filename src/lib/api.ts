@@ -2,11 +2,13 @@ import "server-only";
 import { NextResponse } from "next/server";
 import type { z } from "zod";
 import { AnalysisError } from "./analyze";
+import { BillingError, PaymentRequiredError } from "./billing";
 import { AnthropicClientError } from "./clients/anthropic";
 import { BlobUploadError } from "./clients/blob";
 import { GenerationError } from "./generate";
 import { CreativeError } from "./clients/creative";
 import { MagicHourError } from "./clients/magicHour";
+import { StripeClientError } from "./clients/stripe";
 import { CreditCeilingError, RateLimitError } from "./limits";
 import { log } from "./logger";
 import type { ApiErrorBody } from "./schema";
@@ -37,6 +39,17 @@ export function errorResponse(err: unknown, context: string): NextResponse<ApiEr
     return apiError("rate_limited", err.message, 429, { "retry-after": String(err.retryAfterSeconds) });
   }
   if (err instanceof CreditCeilingError) return apiError("daily_credit_ceiling", err.message, 429);
+  if (err instanceof PaymentRequiredError) return apiError(err.reason === "review" ? "payment_required" : "render_payment_required", err.message, 402);
+  if (err instanceof BillingError) {
+    if (err.status >= 500) log.error("request.rejected", { context, reason: err.code });
+    return apiError(err.code, err.message, err.status);
+  }
+  if (err instanceof StripeClientError) {
+    log.error("billing.checkout", { context, code: err.code, requestId: err.requestId });
+    if (err.code === "not_configured") return apiError("not_configured", "Payments aren't set up on this deployment.", 503);
+    if (err.code === "invalid_signature") return apiError("invalid_signature", err.message, 400);
+    return apiError("payment_unavailable", "Payments are unavailable right now. Nothing was charged. Try again in a minute.", 502);
+  }
   if (err instanceof AnalysisError) return apiError(err.code, err.message, err.status);
   if (err instanceof GenerationError) return apiError(err.code, err.message, err.status);
   if (err instanceof BlobUploadError) return apiError("upload_failed", err.message, 400);

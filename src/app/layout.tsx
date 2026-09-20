@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Instrument_Serif, Schibsted_Grotesk } from "next/font/google";
+import { BillingProvider } from "@/components/billing/billing";
 import { MotionProviders } from "@/components/motion/providers";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { capabilities } from "@/lib/capabilities";
 import "./globals.css";
 
 const instrument = Instrument_Serif({
@@ -70,13 +72,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Skip to content
         </a>
         <MotionProviders>
-          <div className="flex min-h-dvh flex-col">
-            <SiteHeader />
-            <main id="main" className="flex-1">
-              {children}
-            </main>
-            <SiteFooter />
-          </div>
+          <BillingProvider enabled={capabilities().paywall}>
+            <div className="flex min-h-dvh flex-col">
+              <SiteHeader />
+              <main id="main" className="flex-1">
+                {children}
+              </main>
+              <SiteFooter />
+            </div>
+          </BillingProvider>
         </MotionProviders>
       </body>
     </html>
