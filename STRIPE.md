@@ -10,14 +10,26 @@ Everything payments. `DEPLOY.md` covers the rest of shipping the app and links h
 
 ## Status
 
+Account: **`acct_1UHukUIXXgSDMNPU`** (`second-look`), country CA, live mode.
+
+> ## ⚠ Identity verification is past due — payments pause on Sep 21, 2026
+>
+> Account status shows **"Verify Adarshkrishna Thoduvakkal's identity — Past due"**, and the Status panel reads **Payments: paused soon**. Cartes Bancaires is already paused. This blocks both payments *and* payouts, so nothing else in this file matters until it's cleared.
+>
+> **Settings → Business → Account status → the past-due task.** It needs government ID, so it's yours to do — I can't submit identity documents.
+
 | | |
 |---|---|
 | Integration code | ✅ written, tested, deployed to production |
-| Second Look Stripe account | ✅ created |
-| Account settings — descriptor, business URL, bank account | ⬜ §1 |
-| Sandbox key + webhook, tested end to end | ⬜ §2 |
-| Live key + webhook | ⬜ §3 |
+| Second Look Stripe account | ✅ `acct_1UHukUIXXgSDMNPU` |
+| Statement descriptor | ✅ `2ND LOOK` |
+| Business URL | ✅ `https://2nd-look.vercel.app` |
+| Live webhook | ✅ `we_1UHvLFIXXgSDMNPU22fOazuu`, 3 events, API `2026-08-26.dahlia` |
+| Restricted key | 🟡 staged in the dashboard — one click left (§1) |
+| **Identity verification** | 🔴 **past due, pauses payments** |
+| Bank account for payouts | ⬜ §1 |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` in Vercel | ⬜ §4 |
+| Sandbox test | ⬜ §2 — skipped so far; live was set up first |
 
 **The paywall is off until `STRIPE_SECRET_KEY` exists.** Without it there's no header button, no pricing sheet, and every review is free and unlimited. `/api/wallet` and `/api/checkout` answer `{"error":{"code":"not_configured"}}` with a 404 — that's the healthy off state, not a broken route.
 
@@ -25,14 +37,24 @@ Everything payments. `DEPLOY.md` covers the rest of shipping the app and links h
 
 ## 1. Account settings
 
-Do these on the **Second Look** account, not the tutoring one. `acct_1TsUlHEmnBQh1rd9` is Origin Tutoring — descriptor `ORIGIN TUTORING`, business URL `origintutoring.vercel.app`, no bank account attached. Charging through it would put an unrecognised name on buyers' statements, which is a leading cause of chargebacks, and would mix two businesses' balances and disputes.
+Everything here is on `acct_1UHukUIXXgSDMNPU` (`second-look`). Not the tutoring account — `acct_1TsUlHEmnBQh1rd9` is Origin Tutoring, and charging through it would put `ORIGIN TUTORING` on buyers' statements and mix two businesses' balances and disputes.
 
-1. **Statement descriptor** → `SECOND LOOK`. Settings → Business. This is the single highest-value setting here: it's what a buyer sees on their card statement three weeks later when they've forgotten the purchase.
-2. **Business URL** → `https://2nd-look.vercel.app`.
-3. **Attach a bank account.** Without one `payouts_enabled` stays false, and you can take live charges while none of the money can ever reach you.
-4. **Branding** → Settings → Branding: name, icon, colours. This is the Checkout page and the receipt.
+- ✅ **Statement descriptor** — `2ND LOOK`. What a buyer sees on their card statement weeks later, when they've forgotten the purchase.
+- ✅ **Business URL** — `https://2nd-look.vercel.app`.
+- 🔴 **Identity verification** — past due, pausing payments. See the banner above.
+- ⬜ **Attach a bank account.** Without one `payouts_enabled` stays false and money arrives but can never reach you.
+- ⬜ **Branding** → Settings → Branding: name, icon, colours. This is the Checkout page and the receipt.
 
-Confirm with the CLI, once it's logged into the new account:
+### The restricted key — one click left
+
+Staged in the dashboard at **API keys → Create a secret key**, on the "Name and review your key" step:
+
+- Name: `Second Look — Vercel production`
+- Permissions: **1 permission — Checkout Sessions: Write**, and nothing else
+
+Click **Create key**, copy the `rk_…` value, and put it straight into Vercel (§4). Stripe shows it once. I deliberately stopped before that click so the secret never lands in a transcript.
+
+Verify the account once the CLI is logged into it:
 
 ```bash
 stripe login
@@ -77,8 +99,8 @@ Only after §2 passes end to end.
 
 1. **Vercel Pro.** Hobby is non-commercial; taking real money on it breaks Vercel's terms.
 2. Confirm `charges_enabled` **and** `payouts_enabled` (§1).
-3. **Create the restricted key again in live mode** — same single permission.
-4. **Create the webhook again in live mode** — same URL, same events, and copy its *new* signing secret.
+3. ✅ **Restricted key staged** — finish it per §1.
+4. ✅ **Live webhook already created** — `we_1UHvLFIXXgSDMNPU22fOazuu`, listening to the three checkout events on API `2026-08-26.dahlia`. Its signing secret is on the destination page behind the reveal icon; copy it into `STRIPE_WEBHOOK_SECRET`.
 5. Put the live pair in **Production only**, redeploy.
 6. **Make one real purchase and refund it** from the Dashboard. Note that refunding returns the money but does not take the reviews back (§7).
 
