@@ -14,21 +14,27 @@ Live: **https://2nd-look.vercel.app** (Vercel project `adarsh-eeb5/second-look`)
 | `MAX_DAILY_CREDITS` | ✅ set |
 | 300-second analyze route | ✅ deployed and running on the current plan |
 | `typecheck` / `lint` / `test` / `build` | ✅ all green (100 tests, 21 routes) |
-| Payments work committed | ✅ wallets, packs, Stripe checkout + webhook |
+| Payments work committed and pushed | ✅ wallets, packs, Stripe checkout + webhook, on `origin/main` |
 
-**The live site still predates the payments work** — `/api/wallet` 404s on it. The code is committed but not yet pushed, so step 1 is what makes production match the repo.
+**The live site still predates the payments work** — `2nd-look.vercel.app/api/wallet` 404s and the landing page has no billing UI. The push did not produce a deployment, so step 1 is what makes production match the repo.
 
 ---
 
 ## Remaining steps
 
-### 1. Push — *do this first*
+### 1. Deploy the payments build — *do this first*
+
+Pushing to `main` did **not** trigger a build: the newest production deployment predates the payments commit, and every deployment on this project was made from the CLI rather than by a Git author. Treat Git auto-deploy as not wired up until you've seen it work.
 
 ```bash
-git push
+vercel deploy --prod
 ```
 
-Pushing to `main` auto-deploys. Wait for the deployment to go green, then check `https://2nd-look.vercel.app/api/wallet` returns JSON instead of a 404. Until this lands, nothing else on this list has any effect.
+Then either leave it as a manual step, or reconnect Git: **Vercel → Settings → Git**, confirm the repo is attached and the production branch is `main`.
+
+Afterwards, check `https://2nd-look.vercel.app/api/wallet` returns JSON instead of a 404. Use that domain, not `second-look-adarsh-eeb5.vercel.app` or a raw deployment URL — those sit behind Vercel's deployment protection and answer every request with a 302 to an SSO page, which looks like a broken API but isn't.
+
+Until a deployment carrying this commit is live, nothing else on this list has any effect.
 
 ### 2. Anthropic — credits and a spend limit
 
@@ -113,7 +119,7 @@ Divide that day's Opus 5 spend by 9. If it's far off $0.25, revisit step 2's num
 
 ### 8. Launch checklist
 
-- [ ] Payments work pushed and deployed (step 1)
+- [ ] A deployment carrying the payments commit is live on 2nd-look.vercel.app (step 1)
 - [ ] Anthropic credits loaded, org + workspace spend limits set
 - [ ] Gallery pre-built (step 6)
 - [ ] `MAX_DAILY_CREDITS` set to what you'll spend on Magic Hour per UTC day, and the Magic Hour account holds at least that
