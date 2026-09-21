@@ -15,28 +15,31 @@ Live: **https://2nd-look.vercel.app** (Vercel project `adarsh-eeb5/second-look`)
 | 300-second analyze route | ✅ deployed and running on the current plan |
 | `typecheck` / `lint` / `test` / `build` | ✅ all green (100 tests, 21 routes) |
 | Payments work committed and pushed | ✅ wallets, packs, Stripe checkout + webhook, on `origin/main` |
+| Payments build deployed to production | ✅ `second-look-5kya1t6w8`, serving `2nd-look.vercel.app` |
 
-**The live site still predates the payments work** — `2nd-look.vercel.app/api/wallet` 404s and the landing page has no billing UI. The push did not produce a deployment, so step 1 is what makes production match the repo.
+### Deploying, and how to tell it worked
 
----
-
-## Remaining steps
-
-### 1. Deploy the payments build — *do this first*
-
-Pushing to `main` did **not** trigger a build: the newest production deployment predates the payments commit, and every deployment on this project was made from the CLI rather than by a Git author. Treat Git auto-deploy as not wired up until you've seen it work.
+**`git push` does not deploy this project.** Every deployment here was made from the CLI, and a push to `main` produced no build. Deploy with:
 
 ```bash
 vercel deploy --prod
 ```
 
-Then either leave it as a manual step, or reconnect Git: **Vercel → Settings → Git**, confirm the repo is attached and the production branch is `main`.
+To make pushes deploy instead, attach the repo under **Vercel → Settings → Git** and set the production branch to `main`.
 
-Afterwards, check `https://2nd-look.vercel.app/api/wallet` returns JSON instead of a 404. Use that domain, not `second-look-adarsh-eeb5.vercel.app` or a raw deployment URL — those sit behind Vercel's deployment protection and answer every request with a 302 to an SSO page, which looks like a broken API but isn't.
+**Check the response body, not the status code.** With no Stripe key set, `/api/wallet` and `/api/checkout` return **404 on purpose** — that's `billingEnabled()` returning false, not a missing route. The bodies tell them apart:
 
-Until a deployment carrying this commit is live, nothing else on this list has any effect.
+| Response to `curl https://2nd-look.vercel.app/api/wallet` | Means |
+|---|---|
+| `{"error":{"code":"not_configured",…}}` | Payments code is deployed, paywall is off — **current state** |
+| Next.js's HTML 404 page | The payments build isn't live |
+| A 302 to `vercel.com/sso-api` | You used the wrong domain — `second-look-adarsh-eeb5.vercel.app` and raw deployment URLs sit behind deployment protection. Use `2nd-look.vercel.app`. |
 
-### 2. Anthropic — credits and a spend limit
+---
+
+## Remaining steps
+
+### 1. Anthropic — credits and a spend limit
 
 In the [Claude Console](https://platform.claude.com):
 
@@ -47,7 +50,7 @@ In the [Claude Console](https://platform.claude.com):
 
 The app caps each visitor at **5 reviews an hour**, so one stranger costs at most ~$2.50/hour. The Console spend limit is your only real ceiling.
 
-### 3. Stripe — optional, turns the paywall on
+### 2. Stripe — optional, turns the paywall on
 
 Scope is **Payments only**: one-time credit packs, `mode: "payment"`. No subscriptions, no Invoicing. Skip this section entirely and every review stays free and unlimited.
 
@@ -67,9 +70,9 @@ The integration is already written and matches Stripe's current guidance (see *S
 
 **Currency:** the app charges **USD** (`currency: "usd"` in `createCheckoutSession`), which is right for an international buyer base. If the account settles in CAD, Stripe applies a currency-conversion fee on top of its processing fee, so your real take per review is below the sticker price minus 2.9% + $0.30. Check your account's own rates before trusting any margin figure.
 
-**Do 3a in a sandbox before 3b.** Sandbox and live are separate worlds: keys, webhooks and signing secrets from one never work in the other, so going live is a repeat of the same four steps, not a switch you flip.
+**Do 2a in a sandbox before 2b.** Sandbox and live are separate worlds: keys, webhooks and signing secrets from one never work in the other, so going live is a repeat of the same four steps, not a switch you flip.
 
-#### 3a. Sandbox — prove the flow end to end
+#### 2a. Sandbox — prove the flow end to end
 
 1. **Sandbox:** in the new account, create a [sandbox](https://docs.stripe.com/sandboxes).
 2. **Restricted key:** Developers → API keys → Create restricted key, permission **Checkout Sessions: Write** only. Use the restricted key (`rk_…`), never the secret key (`sk_…`) — a leaked restricted key can't refund payments or read your customers.
@@ -77,9 +80,9 @@ The integration is already written and matches Stripe's current guidance (see *S
    - URL `https://2nd-look.vercel.app/api/stripe/webhook`
    - Events `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`
    - Copy the signing secret. **Not optional** — it's what credits buyers who close the tab.
-4. Put both in **Preview**, redeploy, and run step 5 below against a preview URL with card `4242 4242 4242 4242`.
+4. Put both in **Preview**, redeploy, and run step 4 below against a preview URL with card `4242 4242 4242 4242`.
 
-#### 3b. Live — only after 3a passes
+#### 2b. Live — only after 2a passes
 
 1. **Activate the account** and confirm both `charges_enabled` *and* `payouts_enabled` are true. `charges_enabled` alone means money comes in and stays in Stripe.
 2. **Vercel Pro.** Hobby is non-commercial; taking real money on it breaks Vercel's terms.
@@ -90,7 +93,7 @@ The integration is already written and matches Stripe's current guidance (see *S
 
 The **publishable key has no home here.** Checkout is hosted and redirect-based, so there is no Stripe.js on the client; the app reads exactly two Stripe variables and neither is publishable.
 
-### 4. Two more environment variables
+### 3. Two more environment variables
 
 Vercel → Settings → Environment Variables. Mark both **Sensitive**.
 
@@ -103,7 +106,7 @@ Set `NEXT_PUBLIC_SITE_URL` to `https://2nd-look.vercel.app` so link previews and
 
 **Redeploy after any key change.** Whether reviews, generation and the paywall are on is baked in at build time.
 
-### 5. Verify on the live URL
+### 4. Verify on the live URL
 
 1. Landing page shows the first case on the light table with *"Can you spot the issue?"*. With Stripe on, the header shows **1 free** and *"Your first review is free."* sits by **Run a second look**.
 2. **Run a real review** — upload an ad or open a case, click **Run a second look**. ~1 minute. *"Live analysis is off on this deployment"* means the key isn't set or you haven't redeployed.
@@ -112,7 +115,7 @@ Set `NEXT_PUBLIC_SITE_URL` to `https://2nd-look.vercel.app` so link previews and
 5. **Paywall** (sandbox): run a second review → pricing sheet opens. Buy Starter with `4242 4242 4242 4242`, any future expiry/CVC. You should see *"10 reviews added"* plus a recovery code, and the header reads **10 reviews left**. Stripe's webhook log shows a **200**. In a private window, restore the recovery code and confirm the balance follows.
 6. **Link preview** — open `/opengraph-image`.
 
-### 6. Pre-build the gallery — *do before recording the demo*
+### 5. Pre-build the gallery — *do before recording the demo*
 
 `src/data/cases/results/` is empty, so case pages have no pre-computed findings. This makes them render real results with zero API cost per view:
 
@@ -123,21 +126,21 @@ git add src/data/cases/results public/cases/generated
 git commit -m "Publish case study results" && git push
 ```
 
-### 7. Calibrate the real cost (optional, ~$3)
+### 6. Calibrate the real cost (optional, ~$3)
 
 ```bash
 npm run eval          # 9 reviews
 ```
 
-Divide that day's Opus 5 spend by 9. If it's far off $0.25, revisit step 2's numbers.
+Divide that day's Opus 5 spend by 9. If it's far off $0.25, revisit step 1's numbers.
 
-### 8. Launch checklist
+### 7. Launch checklist
 
-- [ ] A deployment carrying the payments commit is live on 2nd-look.vercel.app (step 1)
+- [ ] Redeployed since the last env-var change (the paywall and live-analysis flags are baked in at build time)
 - [ ] Anthropic credits loaded, org + workspace spend limits set
-- [ ] Gallery pre-built (step 6)
+- [ ] Gallery pre-built (step 5)
 - [ ] `MAX_DAILY_CREDITS` set to what you'll spend on Magic Hour per UTC day, and the Magic Hour account holds at least that
-- [ ] If charging: sandbox run passed **first** (3a), then Vercel Pro, account activated, live restricted key + live webhook secret in Production only, one real purchase made and refunded, live webhook delivering 200s
+- [ ] If charging: sandbox run passed **first** (2a), then Vercel Pro, account activated, live restricted key + live webhook secret in Production only, one real purchase made and refunded, live webhook delivering 200s
 - [ ] Demo clips recorded (below) **before** you post
 
 ---
@@ -210,7 +213,7 @@ Record **one master session**, then cut four clips from it. The narration script
 
 ### Before you hit record
 
-- Steps 1 and 6 done — the gallery must be pre-built or case pages look thin.
+- Step 5 done — the gallery must be pre-built or case pages look thin.
 - The master take runs **2 live reviews and 1 render** (~$0.50 of Claude + 5 Magic Hour credits), and a dry run doubles that. With the paywall on you only get **one** free review, so either record **before** setting `STRIPE_SECRET_KEY`, or buy a Starter pack in the sandbox first — otherwise the pricing sheet interrupts your second take.
 - `MAX_DAILY_CREDITS` ≥ 50 so renders don't get refused mid-take.
 - Browser at **1440×900**, bookmarks bar hidden, one window, no extensions visible, no notifications. Clean profile.
