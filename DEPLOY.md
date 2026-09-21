@@ -1,6 +1,6 @@
 # Deploying Second Look
 
-Live: **https://second-look-neon.vercel.app** (Vercel project `adarsh-eeb5/second-look`)
+Live: **https://2nd-look.vercel.app** (Vercel project `adarsh-eeb5/second-look`)
 
 ---
 
@@ -8,7 +8,7 @@ Live: **https://second-look-neon.vercel.app** (Vercel project `adarsh-eeb5/secon
 
 | | |
 |---|---|
-| Vercel project, connected to the repo | ✅ `second-look`, production alias `second-look-neon.vercel.app` |
+| Vercel project, connected to the repo | ✅ `second-look`, production alias `2nd-look.vercel.app` |
 | `ANTHROPIC_API_KEY`, `MAGIC_HOUR_API_KEY` | ✅ set on Production + Preview |
 | Upstash Redis + Vercel Blob | ✅ connected, variables injected |
 | `MAX_DAILY_CREDITS` | ✅ set |
@@ -28,7 +28,7 @@ Live: **https://second-look-neon.vercel.app** (Vercel project `adarsh-eeb5/secon
 git push
 ```
 
-Pushing to `main` auto-deploys. Wait for the deployment to go green, then check `https://second-look-neon.vercel.app/api/wallet` returns JSON instead of a 404. Until this lands, nothing else on this list has any effect.
+Pushing to `main` auto-deploys. Wait for the deployment to go green, then check `https://2nd-look.vercel.app/api/wallet` returns JSON instead of a 404. Until this lands, nothing else on this list has any effect.
 
 ### 2. Anthropic — credits and a spend limit
 
@@ -43,18 +43,32 @@ The app caps each visitor at **5 reviews an hour**, so one stranger costs at mos
 
 ### 3. Stripe — optional, turns the paywall on
 
-Skip this entirely and every review stays free and unlimited. If you do it, do it in a **sandbox** first.
+Scope is **Payments only**: one-time credit packs, `mode: "payment"`. No subscriptions, no Invoicing. Skip this section entirely and every review stays free and unlimited.
+
+The integration is already written and matches Stripe's current guidance (see *Stripe integration* under Reference). There is **no code to write** — only keys, a webhook, and a test.
+
+**Do 3a in a sandbox before 3b.** Sandbox and live are separate worlds: keys, webhooks and signing secrets from one never work in the other, so going live is a repeat of the same four steps, not a switch you flip.
+
+#### 3a. Sandbox — prove the flow end to end
 
 1. **Sandbox:** account menu → create a [sandbox](https://docs.stripe.com/sandboxes).
-2. **Restricted key:** Developers → API keys → Create restricted key, permission **Checkout Sessions: Write** only.
+2. **Restricted key:** Developers → API keys → Create restricted key, permission **Checkout Sessions: Write** only. Use the restricted key (`rk_…`), never the secret key (`sk_…`) — a leaked restricted key can't refund payments or read your customers.
 3. **Webhook:** Developers → Webhooks → Add destination
-   - URL `https://second-look-neon.vercel.app/api/stripe/webhook`
+   - URL `https://2nd-look.vercel.app/api/stripe/webhook`
    - Events `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`
    - Copy the signing secret. **Not optional** — it's what credits buyers who close the tab.
-4. **Branding:** Settings → Branding (name, icon, colours — what buyers see on Checkout).
-5. **Vercel Pro** is required once you take real money; Hobby is non-commercial.
+4. Put both in **Preview**, redeploy, and run step 5 below against a preview URL with card `4242 4242 4242 4242`.
 
-The Stripe CLI is installed. Run `! stripe login` in this session if you want to drive it from the terminal.
+#### 3b. Live — only after 3a passes
+
+1. **Activate the account** (Stripe requires business details and a bank account before it will accept real charges).
+2. **Vercel Pro.** Hobby is non-commercial; taking real money on it breaks Vercel's terms.
+3. **Create the restricted key again in live mode** — same single permission.
+4. **Create the webhook again in live mode**, same URL and events, and copy its *new* signing secret.
+5. **Branding:** Settings → Branding (name, icon, colours — what buyers see on Checkout and on the receipt).
+6. Put the live pair in **Production only**, redeploy, then **make one real purchase and refund it** from the Dashboard. Refunding returns the money but does not take the reviews back — see Support below.
+
+The **publishable key has no home here.** Checkout is hosted and redirect-based, so there is no Stripe.js on the client; the app reads exactly two Stripe variables and neither is publishable.
 
 ### 4. Two more environment variables
 
@@ -62,10 +76,10 @@ Vercel → Settings → Environment Variables. Mark both **Sensitive**.
 
 | Variable | Value | Environment |
 |---|---|---|
-| `STRIPE_SECRET_KEY` | restricted key from step 3 | sandbox key → Preview, live key → Production |
-| `STRIPE_WEBHOOK_SECRET` | that webhook's signing secret | each environment's own |
+| `STRIPE_SECRET_KEY` | the **restricted** key (`rk_…`) | sandbox key → Preview, live key → Production |
+| `STRIPE_WEBHOOK_SECRET` | that environment's own webhook signing secret | never share one across environments |
 
-Optionally `NEXT_PUBLIC_SITE_URL` if you add a custom domain (Settings → Domains), so link previews point at it.
+Set `NEXT_PUBLIC_SITE_URL` to `https://2nd-look.vercel.app` so link previews and Checkout return URLs use the canonical domain rather than whichever deployment URL served the request.
 
 **Redeploy after any key change.** Whether reviews, generation and the paywall are on is baked in at build time.
 
@@ -103,7 +117,7 @@ Divide that day's Opus 5 spend by 9. If it's far off $0.25, revisit step 2's num
 - [ ] Anthropic credits loaded, org + workspace spend limits set
 - [ ] Gallery pre-built (step 6)
 - [ ] `MAX_DAILY_CREDITS` set to what you'll spend on Magic Hour per UTC day, and the Magic Hour account holds at least that
-- [ ] If charging: Vercel Pro, live keys in Production only, one real purchase made and refunded, live webhook delivering 200s
+- [ ] If charging: sandbox run passed **first** (3a), then Vercel Pro, account activated, live restricted key + live webhook secret in Production only, one real purchase made and refunded, live webhook delivering 200s
 - [ ] Demo clips recorded (below) **before** you post
 
 ---
@@ -116,6 +130,27 @@ Divide that day's Opus 5 spend by 9. If it's far off $0.25, revisit step 2's num
 - **Magic Hour:** its own credits. `flux-2-klein` (default) 5/image, `gpt-image-2` 50, `nano-banana-2` 100. `MAX_DAILY_CREDITS` (default 200) caps all visitors per UTC day; `0` turns generation off. Needs Redis.
 - **Packs:** Free 1 · Starter 10/$15 · Team 50/$59 · Agency 200/$199. Every review includes one alternative; extra alternatives cost one review. Free review is 1 per browser, 2 per network per 30 days. Edit `PACKS` in `src/lib/pricing.ts`.
 - **Failures auto-refund** the visitor — but you still paid Anthropic if the model ran. Watch `analysis.failed`.
+
+### Stripe integration
+
+Checked against Stripe's current best-practice guidance (API `2026-08-26.dahlia`, Node SDK 22.6.2). It already conforms — recorded here so nobody "fixes" it later:
+
+| Rule | Where |
+|---|---|
+| Hosted Checkout Sessions for one-time payments | `createCheckoutSession`, `mode: "payment"` |
+| Latest API version pinned explicitly | `API_VERSION` in `src/lib/clients/stripe.ts` |
+| `integration_identifier` tag with an 8-letter suffix | `second-look-credit-packs-qhzmvtra` |
+| No `payment_method_types` — dynamic payment methods from the Dashboard | omitted deliberately |
+| Client instance, not the deprecated global-key pattern | `new Stripe(key, …)`, cached |
+| Fulfillment in the webhook, gated on `payment_status` | `fulfillCheckout`, not the success page |
+| `async_payment_succeeded` handled for delayed methods | `CHECKOUT_EVENTS` |
+| Raw body for signature verification | `request.text()`, never parsed JSON |
+| Exactly-once fulfillment | `fulfilled:<session id>` claim key, rolled back on failure |
+| Retry only what's worth retrying | 500 for store failures, 200 for foreign sessions |
+| Zod at the boundary, no Stripe types leaking outward | `CheckoutSessionSchema`, `narrow()` |
+| `automatic_tax` left off without a registration | documented in `createCheckoutSession` |
+
+Covered by `src/lib/billing.test.ts` and `src/lib/clients/stripe.test.ts` — charging, refunds, free-review caps, exactly-once fulfillment and signature rejection, with no network or keys.
 
 ### When something breaks
 
