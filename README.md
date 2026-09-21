@@ -57,7 +57,7 @@ npm run dev
 | `BLOB_READ_WRITE_TOKEN` | Uploads in production | Leave empty locally: uploads are stored under `.data/uploads`. |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Production storage | Analyses, jobs, rate limits and the credit ceiling. Without it, local dev uses `.data/store`. On Vercel, generation stays disabled until Redis is configured, because a per-instance credit ceiling isn't a ceiling. `KV_REST_API_URL`/`KV_REST_API_TOKEN` also work. |
 | `MAX_DAILY_CREDITS` | Generation | Global Magic Hour credit budget per UTC day. Defaults to 200. `0` disables generation. |
-| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Charging for reviews | Optional. With them set, each visitor gets one free review (with one alternative), then buys packs of reviews through Stripe Checkout. Without them, reviews are unlimited. See [DEPLOY.md §3](DEPLOY.md#3-payments). |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Charging for reviews | Optional. With them set, each visitor gets one free review (with one alternative), then buys packs of reviews through Stripe Checkout. Without them, reviews are unlimited. See [STRIPE.md](STRIPE.md). |
 
 The app runs without any keys: the brief form, case gallery and API panel all render, and routes return typed `not_configured` errors.
 
@@ -89,7 +89,7 @@ The app shows three cases (Tank Day, Rising Sun rays, The green hat). The eval s
 
 ## Deploying to Vercel
 
-Step-by-step instructions, and how much to put into the Anthropic API for your expected traffic, are in [DEPLOY.md](DEPLOY.md). In short:
+Step-by-step instructions, and how much to put into the Anthropic API for your expected traffic, are in [DEPLOY.md](DEPLOY.md); payments have their own runbook in [STRIPE.md](STRIPE.md). In short:
 
 1. Import the repo. Framework preset: Next.js.
 2. Add a Blob store and an Upstash Redis database from the Vercel Marketplace; their env vars are injected automatically.

@@ -39,59 +39,22 @@ To make pushes deploy instead, attach the repo under **Vercel → Settings → G
 
 ## Remaining steps
 
-### 1. Anthropic — credits and a spend limit
+### 1. Anthropic — credits ✅
 
-In the [Claude Console](https://platform.claude.com):
+Credits are loaded. One review costs **~$0.25** (Opus 5, high effort, ~16k max output); plan at **$0.50** to absorb retries and cold caches. Roughly: you + testers **$25** · 50 users **$75** · 200 users **$300**, assuming ~3 reviews per person per month.
 
-1. **Settings → Billing** — load credits. One review costs **~$0.25** (Opus 5, high effort, ~16k max output). Plan at **$0.50** to absorb retries and cold caches.
-   - Just you + testers: **$25** · 50 users: **$75** · 200 users: **$300** (assume ~3 reviews per person per month)
-2. **Set a spend limit** just above that. Without one, a launch spike drains the balance. Users see *"The analysis request was rejected upstream."* when it trips.
-3. Check your tier on the [Rate limits page](https://platform.claude.com/settings/limits). Start caps at **$500/month**; ask for more *before* launch, not after the 429s.
+**No spend limit is set, deliberately.** The intended backstop is routing Stripe payouts into Anthropic credits once volume justifies it, rather than a Console cap. Two things to know while that's the plan:
 
-The app caps each visitor at **5 reviews an hour**, so one stranger costs at most ~$2.50/hour. The Console spend limit is your only real ceiling.
+- Payouts land on a weekly schedule with a 3-day delay, so revenue arrives days after the spend it covers. Keep a buffer rather than running the balance to zero.
+- The app caps each visitor at **5 reviews an hour** (`src/lib/limits.ts`), which holds one stranger to ~$2.50/hour, but nothing caps the total. A launch spike is bounded only by the credit balance.
+
+Check your tier on the [Rate limits page](https://platform.claude.com/settings/limits) before a public launch — Start caps at $500/month, and that ceiling applies whether or not you set one of your own.
 
 ### 2. Stripe — optional, turns the paywall on
 
-Scope is **Payments only**: one-time credit packs, `mode: "payment"`. No subscriptions, no Invoicing. Skip this section entirely and every review stays free and unlimited.
+**See `STRIPE.md`.** Account settings, keys, webhook, the sandbox-then-live order, testing and the support runbook all live there.
 
-The integration is already written and matches Stripe's current guidance (see *Stripe integration* under Reference). There is **no code to write** — only keys, a webhook, and a test.
-
-> **Use a Stripe account of its own — not the tutoring one.**
-> `acct_1TsUlHEmnBQh1rd9` belongs to Origin Tutoring: its statement descriptor is `ORIGIN TUTORING`, its business URL is `origintutoring.vercel.app`, and it has **no bank account attached**, so `payouts_enabled` is false. Charging Second Look through it would put "ORIGIN TUTORING" on buyers' card statements — an unrecognised descriptor is a leading cause of chargebacks — and would mix two businesses' revenue, disputes and tax reporting in one balance.
->
-> The Stripe CLI and the MCP connection are both pointed at that account right now. Authorize them against the new account before running anything that writes.
-
-**Account setup, once:**
-
-1. Create a new Stripe account for Second Look.
-2. **Statement descriptor:** set it to something a buyer will recognise (`SECOND LOOK`). Settings → Business.
-3. **Business URL:** `https://2nd-look.vercel.app`.
-4. **Attach a bank account.** Without one `payouts_enabled` stays false: you can take live charges and still never be paid out.
-
-**Currency:** the app charges **USD** (`currency: "usd"` in `createCheckoutSession`), which is right for an international buyer base. If the account settles in CAD, Stripe applies a currency-conversion fee on top of its processing fee, so your real take per review is below the sticker price minus 2.9% + $0.30. Check your account's own rates before trusting any margin figure.
-
-**Do 2a in a sandbox before 2b.** Sandbox and live are separate worlds: keys, webhooks and signing secrets from one never work in the other, so going live is a repeat of the same four steps, not a switch you flip.
-
-#### 2a. Sandbox — prove the flow end to end
-
-1. **Sandbox:** in the new account, create a [sandbox](https://docs.stripe.com/sandboxes).
-2. **Restricted key:** Developers → API keys → Create restricted key, permission **Checkout Sessions: Write** only. Use the restricted key (`rk_…`), never the secret key (`sk_…`) — a leaked restricted key can't refund payments or read your customers.
-3. **Webhook:** Developers → Webhooks → Add destination
-   - URL `https://2nd-look.vercel.app/api/stripe/webhook`
-   - Events `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`
-   - Copy the signing secret. **Not optional** — it's what credits buyers who close the tab.
-4. Put both in **Preview**, redeploy, and run step 4 below against a preview URL with card `4242 4242 4242 4242`.
-
-#### 2b. Live — only after 2a passes
-
-1. **Activate the account** and confirm both `charges_enabled` *and* `payouts_enabled` are true. `charges_enabled` alone means money comes in and stays in Stripe.
-2. **Vercel Pro.** Hobby is non-commercial; taking real money on it breaks Vercel's terms.
-3. **Create the restricted key again in live mode** — same single permission.
-4. **Create the webhook again in live mode**, same URL and events, and copy its *new* signing secret.
-5. **Branding:** Settings → Branding (name, icon, colours — what buyers see on Checkout and on the receipt).
-6. Put the live pair in **Production only**, redeploy, then **make one real purchase and refund it** from the Dashboard. Refunding returns the money but does not take the reviews back — see Support below.
-
-The **publishable key has no home here.** Checkout is hosted and redirect-based, so there is no Stripe.js on the client; the app reads exactly two Stripe variables and neither is publishable.
+Scope is Payments only: one-time credit packs. The integration is already written and conforms to Stripe's current guidance — there's no code to write. Skip it entirely and every review stays free and unlimited.
 
 ### 3. Two more environment variables
 
@@ -123,7 +86,8 @@ Set `NEXT_PUBLIC_SITE_URL` to `https://2nd-look.vercel.app` so link previews and
 # needs ANTHROPIC_API_KEY + MAGIC_HOUR_API_KEY in .env.local
 npm run cases:build -- --generate     # 3 reviews (~$1) + Magic Hour credits
 git add src/data/cases/results public/cases/generated
-git commit -m "Publish case study results" && git push
+git commit -m "Publish case study results"
+vercel deploy --prod                  # a push alone will not deploy
 ```
 
 ### 6. Calibrate the real cost (optional, ~$3)
@@ -137,10 +101,10 @@ Divide that day's Opus 5 spend by 9. If it's far off $0.25, revisit step 1's num
 ### 7. Launch checklist
 
 - [ ] Redeployed since the last env-var change (the paywall and live-analysis flags are baked in at build time)
-- [ ] Anthropic credits loaded, org + workspace spend limits set
+- [x] Anthropic credits loaded (no spend limit, by choice — step 1)
 - [ ] Gallery pre-built (step 5)
 - [ ] `MAX_DAILY_CREDITS` set to what you'll spend on Magic Hour per UTC day, and the Magic Hour account holds at least that
-- [ ] If charging: sandbox run passed **first** (2a), then Vercel Pro, account activated, live restricted key + live webhook secret in Production only, one real purchase made and refunded, live webhook delivering 200s
+- [ ] If charging: the whole of `STRIPE.md` §1–§5, then live keys in Production only, one real purchase made and refunded, live webhook delivering 200s
 - [ ] Demo clips recorded (below) **before** you post
 
 ---
@@ -151,29 +115,8 @@ Divide that day's Opus 5 spend by 9. If it's far off $0.25, revisit step 1's num
 
 - **Claude:** only "Run a second look" costs anything. The game, case pages and link previews are free to serve. ~$0.25/review; retry doubles it; worst case ~$1.
 - **Magic Hour:** its own credits. `flux-2-klein` (default) 5/image, `gpt-image-2` 50, `nano-banana-2` 100. `MAX_DAILY_CREDITS` (default 200) caps all visitors per UTC day; `0` turns generation off. Needs Redis.
-- **Packs:** Free 1 · Starter 10/$15 · Team 50/$59 · Agency 200/$199. Every review includes one alternative; extra alternatives cost one review. Free review is 1 per browser, 2 per network per 30 days. Edit `PACKS` in `src/lib/pricing.ts`.
+- **Packs and margins:** `STRIPE.md` §6. Free 1 · Starter 10/$15 · Team 50/$59 · Agency 200/$199.
 - **Failures auto-refund** the visitor — but you still paid Anthropic if the model ran. Watch `analysis.failed`.
-
-### Stripe integration
-
-Checked against Stripe's current best-practice guidance (API `2026-08-26.dahlia`, Node SDK 22.6.2). It already conforms — recorded here so nobody "fixes" it later:
-
-| Rule | Where |
-|---|---|
-| Hosted Checkout Sessions for one-time payments | `createCheckoutSession`, `mode: "payment"` |
-| Latest API version pinned explicitly | `API_VERSION` in `src/lib/clients/stripe.ts` |
-| `integration_identifier` tag with an 8-letter suffix | `second-look-credit-packs-qhzmvtra` |
-| No `payment_method_types` — dynamic payment methods from the Dashboard | omitted deliberately |
-| Client instance, not the deprecated global-key pattern | `new Stripe(key, …)`, cached |
-| Fulfillment in the webhook, gated on `payment_status` | `fulfillCheckout`, not the success page |
-| `async_payment_succeeded` handled for delayed methods | `CHECKOUT_EVENTS` |
-| Raw body for signature verification | `request.text()`, never parsed JSON |
-| Exactly-once fulfillment | `fulfilled:<session id>` claim key, rolled back on failure |
-| Retry only what's worth retrying | 500 for store failures, 200 for foreign sessions |
-| Zod at the boundary, no Stripe types leaking outward | `CheckoutSessionSchema`, `narrow()` |
-| `automatic_tax` left off without a registration | documented in `createCheckoutSession` |
-
-Covered by `src/lib/billing.test.ts` and `src/lib/clients/stripe.test.ts` — charging, refunds, free-review caps, exactly-once fulfillment and signature rejection, with no network or keys.
 
 ### When something breaks
 
@@ -188,11 +131,9 @@ Vercel Logs carry one JSON line per event: `analysis.*`, `generation.*`, `billin
 | "…until shared storage (Upstash Redis) is configured." | Connect Upstash |
 | "Today's generation budget … is used up." | Raise `MAX_DAILY_CREDITS` or wait for midnight UTC |
 | "…out of credits." | Top up Magic Hour |
-| No header button after adding Stripe keys | Built before the keys existed — redeploy |
-| "Payments are unavailable right now." | Stripe key/permission — check the `billing.checkout` log line |
-| Paid but no reviews appeared | Webhook failing — fix it, then **Resend** the event (credited once however many times it arrives) |
+| Anything about payments, checkout or the paywall | `STRIPE.md` §7 |
 
-**Support:** a buyer's recovery code is the checkout session's **client reference ID**. Refunds don't take reviews back — lower `wallet:<id>:reviews` in Upstash by hand. Granting reviews needs `wallet:<id>:purchased` > 0 too.
+**Buyer support** — recovery codes, refunds, granting reviews by hand: `STRIPE.md` §7.
 
 ### Local development
 
@@ -203,7 +144,7 @@ npm run dev                    # localhost:3000
 npm run typecheck && npm run lint && npm test    # before pushing
 ```
 
-Nothing is required to start. Without Upstash, state goes to `.data/` — delete it to reset (balances live in `.data/store/__counters.json`). For payments locally, use a **development sandbox** key and `stripe listen --forward-to localhost:3000/api/stripe/webhook`, which prints the `whsec_…` to use.
+Nothing is required to start. Without Upstash, state goes to `.data/` — delete it to reset (balances live in `.data/store/__counters.json`). Testing payments locally: `STRIPE.md` §8.
 
 ---
 
