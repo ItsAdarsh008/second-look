@@ -4,8 +4,10 @@ import { z } from "zod";
  * What a review costs the person running it. Shared by the server (checkout, billing) and the
  * pricing dialog, so it holds no secrets.
  *
- * A review costs about $0.25 in Claude usage (DEPLOY.md §1.2) plus a Magic Hour render, and Stripe
- * takes 2.9% + $0.30 a payment. The smallest pack keeps that fee under 7% of the price.
+ * A review costs about $0.25 in Claude usage (see Reference → Money in DEPLOY.md) plus a Magic Hour
+ * render. Stripe takes roughly 2.9% + $0.30 a payment, and the smallest pack keeps that under 7% of
+ * the price. Prices are USD; an account that settles in another currency pays a conversion fee on
+ * top, so check the account's own rates before trusting a margin figure.
  */
 
 /** Reviews a new visitor may run before paying. Each includes one render, like a paid one. */

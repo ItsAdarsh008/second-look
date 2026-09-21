@@ -53,11 +53,25 @@ Scope is **Payments only**: one-time credit packs, `mode: "payment"`. No subscri
 
 The integration is already written and matches Stripe's current guidance (see *Stripe integration* under Reference). There is **no code to write** — only keys, a webhook, and a test.
 
+> **Use a Stripe account of its own — not the tutoring one.**
+> `acct_1TsUlHEmnBQh1rd9` belongs to Origin Tutoring: its statement descriptor is `ORIGIN TUTORING`, its business URL is `origintutoring.vercel.app`, and it has **no bank account attached**, so `payouts_enabled` is false. Charging Second Look through it would put "ORIGIN TUTORING" on buyers' card statements — an unrecognised descriptor is a leading cause of chargebacks — and would mix two businesses' revenue, disputes and tax reporting in one balance.
+>
+> The Stripe CLI and the MCP connection are both pointed at that account right now. Authorize them against the new account before running anything that writes.
+
+**Account setup, once:**
+
+1. Create a new Stripe account for Second Look.
+2. **Statement descriptor:** set it to something a buyer will recognise (`SECOND LOOK`). Settings → Business.
+3. **Business URL:** `https://2nd-look.vercel.app`.
+4. **Attach a bank account.** Without one `payouts_enabled` stays false: you can take live charges and still never be paid out.
+
+**Currency:** the app charges **USD** (`currency: "usd"` in `createCheckoutSession`), which is right for an international buyer base. If the account settles in CAD, Stripe applies a currency-conversion fee on top of its processing fee, so your real take per review is below the sticker price minus 2.9% + $0.30. Check your account's own rates before trusting any margin figure.
+
 **Do 3a in a sandbox before 3b.** Sandbox and live are separate worlds: keys, webhooks and signing secrets from one never work in the other, so going live is a repeat of the same four steps, not a switch you flip.
 
 #### 3a. Sandbox — prove the flow end to end
 
-1. **Sandbox:** account menu → create a [sandbox](https://docs.stripe.com/sandboxes).
+1. **Sandbox:** in the new account, create a [sandbox](https://docs.stripe.com/sandboxes).
 2. **Restricted key:** Developers → API keys → Create restricted key, permission **Checkout Sessions: Write** only. Use the restricted key (`rk_…`), never the secret key (`sk_…`) — a leaked restricted key can't refund payments or read your customers.
 3. **Webhook:** Developers → Webhooks → Add destination
    - URL `https://2nd-look.vercel.app/api/stripe/webhook`
@@ -67,7 +81,7 @@ The integration is already written and matches Stripe's current guidance (see *S
 
 #### 3b. Live — only after 3a passes
 
-1. **Activate the account** (Stripe requires business details and a bank account before it will accept real charges).
+1. **Activate the account** and confirm both `charges_enabled` *and* `payouts_enabled` are true. `charges_enabled` alone means money comes in and stays in Stripe.
 2. **Vercel Pro.** Hobby is non-commercial; taking real money on it breaks Vercel's terms.
 3. **Create the restricted key again in live mode** — same single permission.
 4. **Create the webhook again in live mode**, same URL and events, and copy its *new* signing secret.
