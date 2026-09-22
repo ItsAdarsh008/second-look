@@ -143,7 +143,7 @@ Vercel Logs carry one JSON line per event: `analysis.*`, `generation.*`, `billin
 
 | What people see | Fix |
 |---|---|
-| "Live analysis is off on this deployment" | Set `ANTHROPIC_API_KEY`, **redeploy** |
+| "Live analysis is off on this deployment" | Set `ANTHROPIC_API_KEY`, **redeploy**. If it's already set, see below. |
 | "The analysis model is unavailable right now." | Key wrong/revoked, or Anthropic is down |
 | "The analysis request was rejected upstream." | Spend limit or credits — Console → Billing |
 | "The analysis model is busy." | Rate limit or tier cap — Console → Rate limits |
@@ -153,6 +153,26 @@ Vercel Logs carry one JSON line per event: `analysis.*`, `generation.*`, `billin
 | Anything about payments, checkout or the paywall | `STRIPE.md` §7 |
 
 **Buyer support** — recovery codes, refunds, granting reviews by hand: `STRIPE.md` §7.
+
+### ⬜ Open: "Live analysis is off" with the key apparently set
+
+As of 2026-09-22 the live landing page says *"Live analysis is off on this deployment"*, so **nobody can run a review**, even though `ANTHROPIC_API_KEY` is listed on Production and Preview.
+
+What the evidence rules out:
+
+- **Not a stale build.** The same page renders the paywall UI, and the Stripe keys were added minutes before that deployment. It is the current build.
+- **Not "Sensitive" blocking build-time access.** All eight vars are Sensitive, and `STRIPE_SECRET_KEY` reached the same build fine — `capabilities().paywall` came out true while `analysisAvailable` came out false.
+- **Not the key itself.** The value in `.env.local` is 108 chars, `sk-ant-a…`, and successfully ran three reviews for the gallery build.
+
+`capabilities()` is just `Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN)` (`src/lib/capabilities.ts:9`), so the build is seeing an empty or absent value. Sensitive vars can't be read back, so it can't be confirmed from outside — but everything else is eliminated.
+
+**Fix:** delete `ANTHROPIC_API_KEY` from Production and Preview in the Vercel dashboard, re-add it with the value from `.env.local`, then `vercel deploy --prod`. Confirm with:
+
+```bash
+curl -s https://2nd-look.vercel.app/ | grep -c "Live analysis is off"   # want 0
+```
+
+Also worth doing while you're in there: `MAGIC_HOUR_API_KEY` was added in the same sitting and may have the same problem. The generation panel only reveals it on a report page, which needs a working review first.
 
 ### Local development
 
