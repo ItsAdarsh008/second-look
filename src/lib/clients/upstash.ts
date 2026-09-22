@@ -25,10 +25,26 @@ export interface UpstashConfig {
   token: string;
 }
 
-export function upstashConfigFromEnv(): UpstashConfig | null {
-  const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
+/** A pair only counts if both halves are set and non-blank, so credentials are never mixed across stores. */
+function configPair(urlName: string, tokenName: string): UpstashConfig | null {
+  const url = process.env[urlName]?.trim();
+  const token = process.env[tokenName]?.trim();
   return url && token ? { url: url.replace(/\/$/, ""), token } : null;
+}
+
+/**
+ * Upstash sets `UPSTASH_REDIS_REST_*` directly; Vercel's marketplace integration sets
+ * `KV_REST_API_*`. Either pair works, and whichever is complete wins.
+ *
+ * Checked pair by pair rather than variable by variable, and blank-tolerant, because both mistakes
+ * are live hazards on Vercel: a variable left empty in the dashboard is `""`, not `undefined`, so
+ * `??` would happily take it and shadow a working value — which is exactly what an abandoned
+ * `UPSTASH_REDIS_REST_URL` did here after the integration arrived with its own `KV_REST_API_URL`.
+ * Falling back per variable would be worse still: it could pair one store's URL with another's
+ * token and fail at request time instead of at configuration time.
+ */
+export function upstashConfigFromEnv(): UpstashConfig | null {
+  return configPair("UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN") ?? configPair("KV_REST_API_URL", "KV_REST_API_TOKEN");
 }
 
 export function createUpstashClient(config: UpstashConfig) {

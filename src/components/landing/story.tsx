@@ -121,13 +121,6 @@ export function Story({ photos }: { photos: readonly HistoryPhoto[] }) {
             );
           })}
         </ol>
-        <p className="mt-10 max-w-[70ch] text-[0.88rem] text-ink-3">
-          Photographs of the promotion and of the protests that followed belong to news agencies, so they aren&rsquo;t reproduced here. The{" "}
-          <Link href="/cases/starbucks-korea" className="underline decoration-rule-strong underline-offset-4 hover:text-ink">
-            case study
-          </Link>{" "}
-          links to the coverage.
-        </p>
       </div>
     </section>
   );
