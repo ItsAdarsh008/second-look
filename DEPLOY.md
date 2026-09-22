@@ -11,58 +11,28 @@ Live: **https://2nd-look.vercel.app** (Vercel project `adarsh-eeb5/second-look`)
 | Vercel project, connected to the repo | ✅ `second-look`, production alias `2nd-look.vercel.app` |
 | `ANTHROPIC_API_KEY`, `MAGIC_HOUR_API_KEY` | ✅ set on Production + Preview |
 | Upstash Redis | ✅ proven live — charge, refund and a completed review all logged |
+| Vercel Blob | ✅ proven live — `/api/upload` returns a client token for the attached store |
 | Running a review | ✅ proven live — green-hat returned one finding in 30s, with precedent and dispute |
-| Vercel Blob | 🔴 store added, but an orphaned token shadows it. See below. |
-| Magic Hour generation | 🔴 refused by the daily ceiling. See below. |
+| Magic Hour generation | 🔴 ceiling cleared, but Magic Hour returns 401 on the key. See below. |
 | `MAX_DAILY_CREDITS` | ✅ set |
 | 300-second analyze route | ✅ deployed and running on the current plan |
 | `typecheck` / `lint` / `test` / `build` | ✅ all green (100 tests, 21 routes) |
 | Payments work committed and pushed | ✅ wallets, packs, Stripe checkout + webhook, on `origin/main` |
 | Payments build deployed to production | ✅ `second-look-5kya1t6w8`, serving `2nd-look.vercel.app` |
 
-> ## 🔴 Blob: the store is attached, an orphaned token is shadowing it
+> ## 🔴 Magic Hour is rejecting the production key
 >
-> `BLOB_STORE_ID` and `BLOB_WEBHOOK_PUBLIC_KEY` arrived with the integration, but
-> `BLOB_READ_WRITE_TOKEN` still shows the original creation date — the integration would not
-> overwrite a variable that already existed, so the empty one is still what the app reads. Verified
-> after redeploying: `POST /api/upload` still answers `{"error":{"code":"upload_not_configured"}}`.
+> The daily ceiling is no longer the blocker. A render on a live report now charges and then fails:
+> `generation.failed — code: "unauthorized", status: 401`, with `billing.refunded` right behind it,
+> so the credit accounting is correct and the key is not.
 >
-> **Fix:** delete `BLOB_READ_WRITE_TOKEN` in Vercel, then disconnect and reconnect the Blob store so
-> it injects its own, and redeploy. Built-in cases work meanwhile, because their creatives ship with
-> the app — but "Upload your ad" stays dead until this is done.
+> The `MAGIC_HOUR_API_KEY` in `.env.local` works — it rendered the gallery. Copy that exact value
+> into Vercel and redeploy.
 >
-> Same shape as the Upstash problem, and the reason that one is fixed in code: a blank variable is
-> `""`, not absent, so it wins over the real value. Blob has only one variable name, so there is
-> nothing to fall back to — the orphan has to go.
-
-> ## 🔴 Magic Hour generation is switched off by the ceiling
->
-> Generating an alternative on a live report answers *"Today's generation budget for this public demo
-> is used up."* That is `MAX_DAILY_CREDITS` refusing a 5-credit render, and the counter cannot be
-> exhausted — it lives in a Redis instance created the same day. So the ceiling is set below 5, which
-> in practice means `0`, the documented way to turn generation off.
->
-> **What to set it to.** The ceiling counts Magic Hour credits across every visitor per UTC day.
-> Each review includes one render, and the panel defaults to `flux-2-klein` at 5 credits, so:
->
-> ```
-> MAX_DAILY_CREDITS = 5 × renders you will pay for in a day
-> ```
->
-> | Setting | Buys | For |
-> |---|---|---|
-> | `0` | nothing | generation off — current state |
-> | `100` | 20 default renders | testing and recording the demo |
-> | `300` | 60 default renders | a soft launch |
-> | `1000` | 200 default renders | a real launch day |
->
-> **The catch:** the panel lets a visitor pick the model and ask for four images, so one person can
-> spend far more than 5. A 4-image `nano-banana-2` run is **400 credits** — most of a 500 ceiling, on
-> one click, from one stranger. Size the ceiling against that worst case, not the average, and keep
-> it at or below what you are willing to lose in a day.
->
-> **300 is the sensible starting point:** enough for a soft launch, and it caps the damage one
-> visitor can do at a single expensive run.
+> **On the ceiling:** setting it to 300 did not take; the deployment logged `"ceiling": 0`, which
+> only happens when the variable is blank. The code now treats blank as the 200 default, so
+> generation is no longer switched off — but if you want 300 specifically, set it and confirm it
+> saved.
 
 ### Deploying, and how to tell it worked
 

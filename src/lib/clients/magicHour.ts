@@ -58,6 +58,9 @@ export class MagicHourError extends Error {
       case "rate_limited":
         return "Magic Hour is rate limiting requests. Wait a moment and try again.";
       case "unauthorized":
+        // Separate from "not configured": the key is present, Magic Hour just refused it. Saying
+        // it is missing sends whoever is debugging to look for a variable that is already there.
+        return "Magic Hour rejected this deployment's API key.";
       case "not_configured":
         return "Image generation isn't configured on this deployment.";
       case "timeout":
