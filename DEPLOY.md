@@ -13,26 +13,34 @@ Live: **https://2nd-look.vercel.app** (Vercel project `adarsh-eeb5/second-look`)
 | Upstash Redis | ✅ proven live — charge, refund and a completed review all logged |
 | Vercel Blob | ✅ proven live — `/api/upload` returns a client token for the attached store |
 | Running a review | ✅ proven live — green-hat returned one finding in 30s, with precedent and dispute |
-| Magic Hour generation | 🔴 ceiling cleared, but Magic Hour returns 401 on the key. See below. |
+| Magic Hour generation | ✅ proven live — rendered an alternative in ~7s, 5 credits, charged once |
 | `MAX_DAILY_CREDITS` | ✅ set |
 | 300-second analyze route | ✅ deployed and running on the current plan |
 | `typecheck` / `lint` / `test` / `build` | ✅ all green (100 tests, 21 routes) |
 | Payments work committed and pushed | ✅ wallets, packs, Stripe checkout + webhook, on `origin/main` |
 | Payments build deployed to production | ✅ `second-look-5kya1t6w8`, serving `2nd-look.vercel.app` |
 
-> ## 🔴 Magic Hour is rejecting the production key
+> ## ✅ Everything is working, verified on production 2026-09-22
 >
-> The daily ceiling is no longer the blocker. A render on a live report now charges and then fails:
-> `generation.failed — code: "unauthorized", status: 401`, with `billing.refunded` right behind it,
-> so the credit accounting is correct and the key is not.
+> Run end to end against the live site, not inferred from configuration:
 >
-> The `MAGIC_HOUR_API_KEY` in `.env.local` works — it rendered the gallery. Copy that exact value
-> into Vercel and redeploy.
+> | Checked | How |
+> |---|---|
+> | Review | `billing.charged` → `analysis.completed` in 30s, one finding with precedent and a dispute control |
+> | Redis | the charge, the refund on failure, and the wallet moving to "Buy reviews" |
+> | Blob | `/api/upload` returns a client token for the attached store |
+> | Magic Hour | `generation.submitted` → `polled: complete`, 5 credits, image rendered and downloadable |
+> | Stripe | `/api/checkout` returns a live `cs_live_…` session |
+> | Pages | landing, gallery, all three cases, report, OG image, favicon — all 200 |
 >
-> **On the ceiling:** setting it to 300 did not take; the deployment logged `"ceiling": 0`, which
-> only happens when the variable is blank. The code now treats blank as the 200 default, so
-> generation is no longer switched off — but if you want 300 specifically, set it and confirm it
-> saved.
+> **One setting to confirm:** `MAX_DAILY_CREDITS` is on the 200 default, because the 300 never saved.
+> Set it if you want 300.
+>
+> **Four variables on this deployment were blank rather than absent**, and each one failed
+> differently and misleadingly: the Anthropic key read as an outage, the Upstash pair as missing
+> storage, the Blob token as an unconfigured upload, the credit ceiling as a spent budget. Three are
+> now defended in code; Blob has only one variable name, so nothing can cover for it. If something
+> here breaks again, suspect a blank variable before suspecting the service.
 
 ### Deploying, and how to tell it worked
 
