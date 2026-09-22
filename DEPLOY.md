@@ -119,7 +119,7 @@ Divide that day's Opus 5 spend by 9. If it's far off $0.25, revisit step 1's num
 
 ### 7. Launch checklist
 
-- [ ] Redeployed since the last env-var change (the paywall and live-analysis flags are baked in at build time)
+- [x] Redeployed since the last env-var change — paywall live as of second-look-ilhg1kn80
 - [x] Anthropic credits loaded (no spend limit, by choice — step 1)
 - [x] Gallery pre-built (step 5) — ⬜ **still needs a human read of the generated findings**
 - [ ] `MAX_DAILY_CREDITS` set to what you'll spend on Magic Hour per UTC day, and the Magic Hour account holds at least that

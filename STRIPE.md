@@ -35,8 +35,10 @@ Account: **`acct_1UHukUIXXgSDMNPU`** (`second-look`), country CA, live mode.
 | Restricted key | 🟡 staged in the dashboard — one click left (§1) |
 | **Identity verification** | 🔴 **past due — payouts blocked now, payments pause at CA$982 volume** |
 | Bank account for payouts | ⬜ §1 (needs identity cleared first) |
-| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` in Vercel | ⬜ §4 |
-| Sandbox test | ⬜ §2 — skipped so far; live was set up first |
+| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` in Vercel | ✅ set, deployed — **paywall is live** |
+| Live keys scoped to Preview too | ⚠️ §4 — preview deploys will take real money |
+| Sandbox test | ⬜ §2 — skipped; live was set up first |
+| End-to-end purchase test | ⬜ §5 — never run, in any environment |
 
 **The paywall is off until `STRIPE_SECRET_KEY` exists.** Without it there's no header button, no pricing sheet, and every review is free and unlimited. `/api/wallet` and `/api/checkout` answer `{"error":{"code":"not_configured"}}` with a 404 — that's the healthy off state, not a broken route.
 
@@ -123,6 +125,18 @@ Vercel → Settings → Environment Variables. Mark both **Sensitive**.
 | `STRIPE_WEBHOOK_SECRET` | that environment's own webhook signing secret | never share one across environments |
 
 **Redeploy after any key change.** Whether the paywall exists at all is decided at build time, so a key added without a redeploy changes nothing.
+
+> ### ⚠️ The live keys are currently on Preview as well as Production
+>
+> Every preview deployment — every branch, every PR — will charge real cards with real money, and its purchases land in the live Dashboard next to genuine ones. Preview is where you'd normally test with `4242 4242 4242 4242`, and that card will simply be declined against a live key.
+>
+> Fix it either way:
+> - **Remove** `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` from Preview, leaving previews paywall-free, or
+> - **Replace** them on Preview with a sandbox key and a sandbox webhook secret, which is what §2 assumes and what makes the §5 test script runnable.
+
+> ### Housekeeping: `VERCEL_OIDC_TOKEN` is set manually
+>
+> It rode along from `.env.local`, where `vercel link` had written it. Vercel injects this per deployment on its own, so a pinned copy is at best dead weight and at worst a stale value shadowing the real one. Nothing in this app reads it. Remove it: `vercel env rm VERCEL_OIDC_TOKEN`.
 
 ---
 
