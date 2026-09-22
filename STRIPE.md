@@ -12,11 +12,18 @@ Everything payments. `DEPLOY.md` covers the rest of shipping the app and links h
 
 Account: **`acct_1UHukUIXXgSDMNPU`** (`second-look`), country CA, live mode.
 
-> ## ⚠ Identity verification is past due — payments pause on Sep 21, 2026
+> ## ⚠ Identity verification is past due
 >
-> Account status shows **"Verify Adarshkrishna Thoduvakkal's identity — Past due"**, and the Status panel reads **Payments: paused soon**. Cartes Bancaires is already paused. This blocks both payments *and* payouts, so nothing else in this file matters until it's cleared.
+> **Task:** *Verify Adarshkrishna Thoduvakkal's identity* — provide a valid government-issued photo ID. Standard KYC; every account taking live payments has to verify the person behind it. Due **Sep 20, 2026**, now past.
 >
-> **Settings → Business → Account status → the past-due task.** It needs government ID, so it's yours to do — I can't submit identity documents.
+> **What it actually blocks:**
+> - **Payouts — blocked now.** "Won't be active until this is completed." Money can arrive and cannot leave.
+> - **Payments — not blocked yet.** "Will be paused if volume reaches **CA$982**." Current volume CA$0, so there's roughly a thousand dollars of runway before charging stops.
+> - Cartes Bancaires is already paused (a French card network — irrelevant to this buyer base).
+>
+> So it is not a same-day emergency for taking payments, but it *is* a hard block on ever being paid, and the runway is small enough that a decent launch day would hit it.
+>
+> **Settings → Business → Account status → the task → Start.** Review is usually under 24 hours, 2–3 business days for complicated ones. It needs government ID, so it's yours to do — I can't submit identity documents.
 
 | | |
 |---|---|
@@ -27,7 +34,7 @@ Account: **`acct_1UHukUIXXgSDMNPU`** (`second-look`), country CA, live mode.
 | Live webhook | ✅ `we_1UHvLFIXXgSDMNPU22fOazuu`, 3 events, API `2026-08-26.dahlia` |
 | Restricted key | 🟡 staged in the dashboard — one click left (§1) |
 | **Identity verification** | 🔴 **past due, pauses payments** |
-| Bank account for payouts | ⬜ §1 |
+| Bank account for payouts | ⬜ §1 (needs identity cleared first) |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` in Vercel | ⬜ §4 |
 | Sandbox test | ⬜ §2 — skipped so far; live was set up first |
 
