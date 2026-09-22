@@ -10,35 +10,40 @@ Live: **https://2nd-look.vercel.app** (Vercel project `adarsh-eeb5/second-look`)
 |---|---|
 | Vercel project, connected to the repo | ✅ `second-look`, production alias `2nd-look.vercel.app` |
 | `ANTHROPIC_API_KEY`, `MAGIC_HOUR_API_KEY` | ✅ set on Production + Preview |
-| Upstash Redis | ✅ `upstash-kv-cerise-basket`, proven live: charge and refund both logged |
-| Vercel Blob | 🔴 **not attached** — uploads are refused. See below. |
+| Upstash Redis | ✅ proven live — charge, refund and a completed review all logged |
+| Running a review | ✅ proven live — green-hat returned one finding in 30s, with precedent and dispute |
+| Vercel Blob | 🔴 store added, but an orphaned token shadows it. See below. |
+| Magic Hour generation | 🔴 refused by the daily ceiling. See below. |
 | `MAX_DAILY_CREDITS` | ✅ set |
 | 300-second analyze route | ✅ deployed and running on the current plan |
 | `typecheck` / `lint` / `test` / `build` | ✅ all green (100 tests, 21 routes) |
 | Payments work committed and pushed | ✅ wallets, packs, Stripe checkout + webhook, on `origin/main` |
 | Payments build deployed to production | ✅ `second-look-5kya1t6w8`, serving `2nd-look.vercel.app` |
 
-> ## 🔴 Blob is not attached, so nobody can upload their own ad
+> ## 🔴 Blob: the store is attached, an orphaned token is shadowing it
 >
-> Verified against production: `POST /api/upload` with a Blob handshake answers
-> `{"error":{"code":"upload_not_configured"}}`, which means `blobConfigured()` is false and
-> `BLOB_READ_WRITE_TOKEN` is empty or absent at runtime. The built-in cases still run, because their
-> creatives ship with the app — but "Upload your ad", the whole point of the tool, is dead.
+> `BLOB_STORE_ID` and `BLOB_WEBHOOK_PUBLIC_KEY` arrived with the integration, but
+> `BLOB_READ_WRITE_TOKEN` still shows the original creation date — the integration would not
+> overwrite a variable that already existed, so the empty one is still what the app reads. Verified
+> after redeploying: `POST /api/upload` still answers `{"error":{"code":"upload_not_configured"}}`.
 >
-> **Fix:** Vercel → Storage → add **Vercel Blob**, then redeploy. Delete the orphaned
-> `BLOB_READ_WRITE_TOKEN` first so the integration's own value isn't shadowed.
+> **Fix:** delete `BLOB_READ_WRITE_TOKEN` in Vercel, then disconnect and reconnect the Blob store so
+> it injects its own, and redeploy. Built-in cases work meanwhile, because their creatives ship with
+> the app — but "Upload your ad" stays dead until this is done.
+>
+> Same shape as the Upstash problem, and the reason that one is fixed in code: a blank variable is
+> `""`, not absent, so it wins over the real value. Blob has only one variable name, so there is
+> nothing to fall back to — the orphan has to go.
 
-> ## 🔴 Anthropic is rejecting the production key
+> ## 🔴 Magic Hour generation is switched off by the ceiling
 >
-> A real review on the live site charged the free review, failed in 150 ms with
-> `code: "upstream_unavailable"`, and refunded — so billing and storage are sound and the model call
-> is not. A 150 ms failure is a rejection, not an outage.
+> Generating an alternative on a live report answers *"Today's generation budget for this public demo
+> is used up."* That is `MAX_DAILY_CREDITS` refusing a 5-credit render, and the counter cannot be
+> exhausted — it lives in a Redis instance created the same day. So the ceiling is set below 5, which
+> in practice means `0`, the documented way to turn generation off.
 >
-> The key in `.env.local` works (it built the gallery), so copy **that exact value** into Vercel and
-> redeploy. A truncated paste looks identical to a good one in the dashboard.
->
-> This reported itself as "The analysis model is unavailable right now" until now, because an `auth`
-> error fell through to the default branch of `mapClientError`. It now says the key was rejected.
+> **Fix:** set `MAX_DAILY_CREDITS` in Vercel to the credits you will spend per UTC day (200 is the
+> code's default) and redeploy.
 
 ### Deploying, and how to tell it worked
 
