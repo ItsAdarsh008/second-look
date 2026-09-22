@@ -10,24 +10,35 @@ Live: **https://2nd-look.vercel.app** (Vercel project `adarsh-eeb5/second-look`)
 |---|---|
 | Vercel project, connected to the repo | ✅ `second-look`, production alias `2nd-look.vercel.app` |
 | `ANTHROPIC_API_KEY`, `MAGIC_HOUR_API_KEY` | ✅ set on Production + Preview |
-| Upstash Redis + Vercel Blob | 🔴 **not attached** — `vercel integration list` returns "No resources found". See below. |
+| Upstash Redis | ✅ `upstash-kv-cerise-basket`, proven live: charge and refund both logged |
+| Vercel Blob | 🔴 **not attached** — uploads are refused. See below. |
 | `MAX_DAILY_CREDITS` | ✅ set |
 | 300-second analyze route | ✅ deployed and running on the current plan |
 | `typecheck` / `lint` / `test` / `build` | ✅ all green (100 tests, 21 routes) |
 | Payments work committed and pushed | ✅ wallets, packs, Stripe checkout + webhook, on `origin/main` |
 | Payments build deployed to production | ✅ `second-look-5kya1t6w8`, serving `2nd-look.vercel.app` |
 
-> ## 🔴 No Redis is attached, and with the paywall on that breaks every review
+> ## 🔴 Blob is not attached, so nobody can upload their own ad
 >
-> `vercel integration list` returns **"No resources found."** The `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` and `BLOB_READ_WRITE_TOKEN` variables are listed in the project env, but there is no store behind them — they were typed in rather than injected by a marketplace integration, or the integration was removed afterwards.
+> Verified against production: `POST /api/upload` with a Blob handshake answers
+> `{"error":{"code":"upload_not_configured"}}`, which means `blobConfigured()` is false and
+> `BLOB_READ_WRITE_TOKEN` is empty or absent at runtime. The built-in cases still run, because their
+> creatives ship with the app — but "Upload your ad", the whole point of the tool, is dead.
 >
-> **Why it only broke now.** `chargeReview` returns early when `billingEnabled()` is false, never touching the store, so reviews worked while Stripe was unset. Setting `STRIPE_SECRET_KEY` turned that check on: `requireSharedStore` now throws on Vercel whenever the store isn't Redis, and it runs *before* the model call (`src/app/api/analyze/route.ts:45`, analysis at :58). So **every review fails with a 503 — including the free one.** Nothing is charged and no Anthropic spend is incurred, but the tool does not work.
+> **Fix:** Vercel → Storage → add **Vercel Blob**, then redeploy. Delete the orphaned
+> `BLOB_READ_WRITE_TOKEN` first so the integration's own value isn't shadowed.
+
+> ## 🔴 Anthropic is rejecting the production key
 >
-> **Fix:** Vercel → Storage → add **Upstash Redis** and **Vercel Blob** from the Marketplace, then redeploy. The integration sets its own variables; delete the orphaned ones first so they can't shadow the real values.
+> A real review on the live site charged the free review, failed in 150 ms with
+> `code: "upstream_unavailable"`, and refunded — so billing and storage are sound and the model call
+> is not. A 150 ms failure is a rejection, not an outage.
 >
-> **Stopgap if that has to wait:** remove `STRIPE_SECRET_KEY` from Production and redeploy. Reviews go back to free and unlimited, the paywall disappears, and the site works.
+> The key in `.env.local` works (it built the gallery), so copy **that exact value** into Vercel and
+> redeploy. A truncated paste looks identical to a good one in the dashboard.
 >
-> Blob is the same story: uploads have nowhere to go, so a visitor's own ad can't be analyzed even once Redis is back.
+> This reported itself as "The analysis model is unavailable right now" until now, because an `auth`
+> error fell through to the default branch of `mapClientError`. It now says the key was rejected.
 
 ### Deploying, and how to tell it worked
 
@@ -156,7 +167,8 @@ Vercel Logs carry one JSON line per event: `analysis.*`, `generation.*`, `billin
 | What people see | Fix |
 |---|---|
 | "Live analysis is off on this deployment" | Set `ANTHROPIC_API_KEY`, **redeploy**. If it's already set, see below. |
-| "The analysis model is unavailable right now." | Key wrong/revoked, or Anthropic is down |
+| "The analysis model rejected this deployment's API key." | `ANTHROPIC_API_KEY` is present but invalid. Re-copy it from the Console — a truncated paste looks identical to a good one. |
+| "The analysis model is unavailable right now." | Anthropic is unreachable or erroring. Check their status page. |
 | "The analysis request was rejected upstream." | Spend limit or credits — Console → Billing |
 | "The analysis model is busy." | Rate limit or tier cap — Console → Rate limits |
 | "…until shared storage (Upstash Redis) is configured." | Connect Upstash |

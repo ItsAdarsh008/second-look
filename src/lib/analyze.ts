@@ -103,6 +103,11 @@ function mapClientError(err: AnthropicClientError): AnalysisError {
   switch (err.code) {
     case "not_configured":
       return new AnalysisError("not_configured", "Analysis is not configured on this deployment.", { cause: err });
+    case "auth":
+      // Distinct from "unavailable" on purpose: a rejected key looks exactly like an outage from
+      // the outside — an instant failure — and reporting it as one sends the operator to
+      // Anthropic's status page instead of to their own environment variable.
+      return new AnalysisError("not_configured", "The analysis model rejected this deployment's API key.", { cause: err });
     case "rate_limited":
       return new AnalysisError("rate_limited", "The analysis model is busy. Try again in a minute.", { cause: err });
     case "bad_request":
