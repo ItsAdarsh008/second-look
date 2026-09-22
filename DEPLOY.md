@@ -42,8 +42,27 @@ Live: **https://2nd-look.vercel.app** (Vercel project `adarsh-eeb5/second-look`)
 > exhausted — it lives in a Redis instance created the same day. So the ceiling is set below 5, which
 > in practice means `0`, the documented way to turn generation off.
 >
-> **Fix:** set `MAX_DAILY_CREDITS` in Vercel to the credits you will spend per UTC day (200 is the
-> code's default) and redeploy.
+> **What to set it to.** The ceiling counts Magic Hour credits across every visitor per UTC day.
+> Each review includes one render, and the panel defaults to `flux-2-klein` at 5 credits, so:
+>
+> ```
+> MAX_DAILY_CREDITS = 5 × renders you will pay for in a day
+> ```
+>
+> | Setting | Buys | For |
+> |---|---|---|
+> | `0` | nothing | generation off — current state |
+> | `100` | 20 default renders | testing and recording the demo |
+> | `300` | 60 default renders | a soft launch |
+> | `1000` | 200 default renders | a real launch day |
+>
+> **The catch:** the panel lets a visitor pick the model and ask for four images, so one person can
+> spend far more than 5. A 4-image `nano-banana-2` run is **400 credits** — most of a 500 ceiling, on
+> one click, from one stranger. Size the ceiling against that worst case, not the average, and keep
+> it at or below what you are willing to lose in a day.
+>
+> **300 is the sensible starting point:** enough for a soft launch, and it caps the damage one
+> visitor can do at a single expensive run.
 
 ### Deploying, and how to tell it worked
 
@@ -161,7 +180,7 @@ Divide that day's Opus 5 spend by 9. If it's far off $0.25, revisit step 1's num
 ### Money
 
 - **Claude:** only "Run a second look" costs anything. The game, case pages and link previews are free to serve. ~$0.25/review; retry doubles it; worst case ~$1.
-- **Magic Hour:** its own credits. `flux-2-klein` (default) 5/image; `gpt-image-2` billed **100** on a real 1k run, not the 50 listed — trust the charge Magic Hour returns, not this table. `flux-2-klein` is weak at editing lettering (it removed a date badge and ignored two wording instructions); `gpt-image-2` did all three. `MAX_DAILY_CREDITS` (default 200) caps all visitors per UTC day; `0` turns generation off. Needs Redis.
+- **Magic Hour:** its own credits. `flux-2-klein` (panel default) 5/image, `gpt-image-2` 100, `nano-banana-2` 100, and a run can ask for 4 images. `flux-2-klein` is weak at editing lettering (it removed a date badge and ignored two wording instructions); `gpt-image-2` did all three. `MAX_DAILY_CREDITS` (code default 200) caps all visitors per UTC day; `0` turns generation off. Needs Redis.
 - **Packs and margins:** `STRIPE.md` §6. Free 1 · Starter 10/$15 · Team 50/$59 · Agency 200/$199.
 - **Failures auto-refund** the visitor — but you still paid Anthropic if the model ran. Watch `analysis.failed`.
 

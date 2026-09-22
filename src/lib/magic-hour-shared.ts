@@ -39,10 +39,18 @@ export function buildEditRequestBody(params: EditImageParams): EditImageRequestB
 }
 
 /** Published per-image credit costs (docs.magichour.ai, AI Image Editor). `default` is model-dependent. */
+/**
+ * Credits per image, used both to quote a run in the UI and to reserve against the daily ceiling.
+ *
+ * `gpt-image-2` is 100 from a measured 1k run, not the 50 published. The reservation is what the
+ * ceiling checks, so under-quoting let a run be admitted on half the headroom it needed and then
+ * overshoot when `settleCredits` corrected it to the real charge. Over-quoting is safe — settling
+ * refunds the difference — so when a figure is in doubt, the higher one belongs here.
+ */
 export const MODEL_CREDITS_PER_IMAGE: Record<MagicHourModel, number | null> = {
   default: null,
   "flux-2-klein": 5,
-  "gpt-image-2": 50,
+  "gpt-image-2": 100,
   "nano-banana-2": 100,
 };
 
