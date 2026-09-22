@@ -32,7 +32,7 @@ Account: **`acct_1UHukUIXXgSDMNPU`** (`second-look`), country CA, live mode.
 | Statement descriptor | ✅ `2ND LOOK` |
 | Business URL | ✅ `https://2nd-look.vercel.app` |
 | Live webhook | ✅ `we_1UHvLFIXXgSDMNPU22fOazuu`, 3 events, API `2026-08-26.dahlia` |
-| Restricted key | 🟡 staged in the dashboard — one click left (§1) |
+| Restricted key | ✅ created and in use — `rk_live_`, Checkout Sessions: Write only |
 | **Identity verification** | 🔴 **past due — payouts blocked now, payments pause at CA$982 volume** |
 | Bank account for payouts | ⬜ §1 (needs identity cleared first) |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` in Vercel | ✅ set, deployed — **paywall is live** |
@@ -65,14 +65,9 @@ Everything here is on `acct_1UHukUIXXgSDMNPU` (`second-look`). Not the tutoring 
 - ⬜ **Attach a bank account.** Without one `payouts_enabled` stays false and money arrives but can never reach you.
 - ⬜ **Branding** → Settings → Branding: name, icon, colours. This is the Checkout page and the receipt.
 
-### The restricted key — one click left
+### The restricted key ✅
 
-Staged in the dashboard at **API keys → Create a secret key**, on the "Name and review your key" step:
-
-- Name: `Second Look — Vercel production`
-- Permissions: **1 permission — Checkout Sessions: Write**, and nothing else
-
-Click **Create key**, copy the `rk_…` value, and put it straight into Vercel (§4). Stripe shows it once. I deliberately stopped before that click so the secret never lands in a transcript.
+Created as `Second Look — Vercel production`, a `rk_live_` key whose only permission is **Checkout Sessions: Write**. Confirmed sufficient — it creates sessions against the live account with nothing else granted. To make another (a sandbox one for §2, say), the path is **API keys → Create a secret key → Building your own integration → Custom permissions → Checkout Sessions: Write**.
 
 Verify the account once the CLI is logged into it:
 
@@ -119,7 +114,7 @@ Only after §2 passes end to end.
 
 1. **Vercel Pro.** Hobby is non-commercial; taking real money on it breaks Vercel's terms.
 2. Confirm `charges_enabled` **and** `payouts_enabled` (§1).
-3. ✅ **Restricted key staged** — finish it per §1.
+3. ✅ **Restricted key created** — see §1.
 4. ✅ **Live webhook already created** — `we_1UHvLFIXXgSDMNPU22fOazuu`, listening to the three checkout events on API `2026-08-26.dahlia`. Its signing secret is on the destination page behind the reveal icon; copy it into `STRIPE_WEBHOOK_SECRET`.
 5. Put the live pair in **Production only**, redeploy.
 6. **Make one real purchase and refund it** from the Dashboard. Note that refunding returns the money but does not take the reviews back (§7).
