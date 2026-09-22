@@ -33,7 +33,7 @@ Account: **`acct_1UHukUIXXgSDMNPU`** (`second-look`), country CA, live mode.
 | Business URL | ✅ `https://2nd-look.vercel.app` |
 | Live webhook | ✅ `we_1UHvLFIXXgSDMNPU22fOazuu`, 3 events, API `2026-08-26.dahlia` |
 | Restricted key | 🟡 staged in the dashboard — one click left (§1) |
-| **Identity verification** | 🔴 **past due, pauses payments** |
+| **Identity verification** | 🔴 **past due — payouts blocked now, payments pause at CA$982 volume** |
 | Bank account for payouts | ⬜ §1 (needs identity cleared first) |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` in Vercel | ⬜ §4 |
 | Sandbox test | ⬜ §2 — skipped so far; live was set up first |
@@ -48,7 +48,7 @@ Everything here is on `acct_1UHukUIXXgSDMNPU` (`second-look`). Not the tutoring 
 
 - ✅ **Statement descriptor** — `2ND LOOK`. What a buyer sees on their card statement weeks later, when they've forgotten the purchase.
 - ✅ **Business URL** — `https://2nd-look.vercel.app`.
-- 🔴 **Identity verification** — past due, pausing payments. See the banner above.
+- 🔴 **Identity verification** — past due. Blocks payouts outright; pauses payments once volume reaches CA$982. See the banner above.
 - ⬜ **Attach a bank account.** Without one `payouts_enabled` stays false and money arrives but can never reach you.
 - ⬜ **Branding** → Settings → Branding: name, icon, colours. This is the Checkout page and the receipt.
 
