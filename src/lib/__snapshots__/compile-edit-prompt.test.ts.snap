@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`compileEditPrompt > matches the snapshot 1`] = `"Make a minimal, surgical retouch of this advertisement image, not a redesign. Replace the radiating red-and-white ray pattern behind the can with a flat warm-orange background. Change the hand in the lower right to hold the can with a relaxed open grip. Keep everything else exactly as it is: the product and its packaging, the logo and its placement, every piece of existing text and its legibility, the brand colors, the composition and framing, and the lighting and illustration style. Brand direction to respect: Keep the can artwork and the Volt wordmark exactly as they are. Do not add any new text, logos, people or objects."`;
+exports[`compileEditPrompt > matches the snapshot 1`] = `"Make a minimal, surgical retouch of this advertisement image, not a redesign. Replace the radiating red-and-white ray pattern behind the can with a flat warm-orange background. Change the hand in the lower right to hold the can with a relaxed open grip. Remove the printed date badge reading “5.18” and anything else in the artwork that states that date. Replace every printed occurrence of the wording “Tank”, including any headline lockup and pack strip, with neutral placeholder wording at the same size, weight and position. Keep everything else exactly as it is: the product and its packaging, the logo and its placement, the brand colors, the composition and framing, the lighting and illustration style, and the type size, weight and position of any wording that is replaced. Brand direction to respect: Keep the can artwork and the Volt wordmark exactly as they are. Beyond the wording named above, do not add any new text, logos, people or objects."`;
 
 exports[`compileEditPrompt > matches the snapshot 2`] = `
 [
@@ -11,6 +11,14 @@ exports[`compileEditPrompt > matches the snapshot 2`] = `
   {
     "findingId": "f-hand",
     "prompt": "Make a minimal, surgical retouch of this advertisement image, not a redesign. Change the hand in the lower right to hold the can with a relaxed open grip. Keep everything else exactly as it is: the product and its packaging, the logo and its placement, every piece of existing text and its legibility, the brand colors, the composition and framing, and the lighting and illustration style. Brand direction to respect: Keep the can artwork and the Volt wordmark exactly as they are. Do not add any new text, logos, people or objects.",
+  },
+  {
+    "findingId": "f-timing",
+    "prompt": "Make a minimal, surgical retouch of this advertisement image, not a redesign. Remove the printed date badge reading “5.18” and anything else in the artwork that states that date. Keep everything else exactly as it is: the product and its packaging, the logo and its placement, the brand colors, the composition and framing, the lighting and illustration style, and the type size, weight and position of any wording that is replaced. Brand direction to respect: Keep the can artwork and the Volt wordmark exactly as they are. Beyond the wording named above, do not add any new text, logos, people or objects.",
+  },
+  {
+    "findingId": "f-copy",
+    "prompt": "Make a minimal, surgical retouch of this advertisement image, not a redesign. Replace every printed occurrence of the wording “Tank”, including any headline lockup and pack strip, with neutral placeholder wording at the same size, weight and position. Keep everything else exactly as it is: the product and its packaging, the logo and its placement, the brand colors, the composition and framing, the lighting and illustration style, and the type size, weight and position of any wording that is replaced. Brand direction to respect: Keep the can artwork and the Volt wordmark exactly as they are. Beyond the wording named above, do not add any new text, logos, people or objects.",
   },
 ]
 `;

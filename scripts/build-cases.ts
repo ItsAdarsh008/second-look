@@ -3,13 +3,14 @@
  *
  *   npm run cases:build                          # analyze every case (leave-one-out)
  *   npm run cases:build -- --case rising-sun-rays
- *   npm run cases:build -- --generate            # also render Magic Hour alternatives for cases with image findings
+ *   npm run cases:build -- --generate            # also render Magic Hour alternatives
+ *   npm run cases:build -- --generate --keep-analysis --case starbucks-korea   # re-render only
  *   npm run cases:build -- --generate --model gpt-image-2
  *
  * Writes src/data/cases/results/<slug>.json, downloads generated images to
  * public/cases/generated/, and regenerates src/data/cases/results/index.ts.
  */
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { ensureServerConditions, loadEnv } from "./lib/env";
 
@@ -51,6 +52,10 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const only = args.includes("--case") ? args[args.indexOf("--case") + 1] : null;
   const generate = args.includes("--generate");
+  // Re-render without re-analyzing. The analyzer is non-deterministic, so a rebuild just to attach
+  // a Magic Hour render can quietly trade a good result for a worse one; this keeps the committed
+  // analysis and redoes only the generation step.
+  const keepAnalysis = args.includes("--keep-analysis");
   const model = MagicHourModelSchema.parse(args.includes("--model") ? args[args.indexOf("--model") + 1] : "flux-2-klein");
 
   mkdirSync(RESULTS_DIR, { recursive: true });
@@ -58,7 +63,15 @@ async function main(): Promise<void> {
 
   for (const c of cases) {
     console.log(`\n${c.slug}`);
-    const analysis = await analyzeCampaign(c.input, { excludeIncidentIds: c.ownIncidentIds, id: `case-${c.slug}` });
+    const existingPath = path.join(RESULTS_DIR, `${c.slug}.json`);
+    let analysis;
+    if (keepAnalysis) {
+      if (!existsSync(existingPath)) throw new Error(`--keep-analysis needs an existing ${existingPath}`);
+      analysis = CaseResultSchema.parse(JSON.parse(readFileSync(existingPath, "utf8"))).analysis;
+      console.log("  reusing the committed analysis");
+    } else {
+      analysis = await analyzeCampaign(c.input, { excludeIncidentIds: c.ownIncidentIds, id: `case-${c.slug}` });
+    }
     console.log(`  ${analysis.findings.length} findings: ${analysis.findings.map((f) => `${f.severity}/${f.category}/${f.locus.kind}`).join(", ") || "none"}`);
 
     let generation = null;
@@ -89,7 +102,8 @@ async function main(): Promise<void> {
         requestBody: { ...job.body, assets: { image_file_paths: ["api-assets/…"] } },
         creditsCharged: done.creditsCharged || job.creditsCharged,
         images,
-        findingIds: compiled.addressed.map((f) => f.id),
+        // Both kinds the render acted on: repairs to the image, and wording struck from the artwork.
+        findingIds: [...compiled.addressed, ...compiled.printed].map((f) => f.id),
       };
     }
 

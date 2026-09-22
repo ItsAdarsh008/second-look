@@ -133,7 +133,7 @@ Divide that day's Opus 5 spend by 9. If it's far off $0.25, revisit step 1's num
 ### Money
 
 - **Claude:** only "Run a second look" costs anything. The game, case pages and link previews are free to serve. ~$0.25/review; retry doubles it; worst case ~$1.
-- **Magic Hour:** its own credits. `flux-2-klein` (default) 5/image, `gpt-image-2` 50, `nano-banana-2` 100. `MAX_DAILY_CREDITS` (default 200) caps all visitors per UTC day; `0` turns generation off. Needs Redis.
+- **Magic Hour:** its own credits. `flux-2-klein` (default) 5/image; `gpt-image-2` billed **100** on a real 1k run, not the 50 listed — trust the charge Magic Hour returns, not this table. `flux-2-klein` is weak at editing lettering (it removed a date badge and ignored two wording instructions); `gpt-image-2` did all three. `MAX_DAILY_CREDITS` (default 200) caps all visitors per UTC day; `0` turns generation off. Needs Redis.
 - **Packs and margins:** `STRIPE.md` §6. Free 1 · Starter 10/$15 · Team 50/$59 · Agency 200/$199.
 - **Failures auto-refund** the visitor — but you still paid Anthropic if the model ran. Watch `analysis.failed`.
 

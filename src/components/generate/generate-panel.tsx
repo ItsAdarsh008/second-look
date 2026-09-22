@@ -254,17 +254,24 @@ export function GeneratePanel({ analysis, enabled }: { analysis: AnalysisResult;
             <p className="mt-2 text-[0.95rem] text-ink-3">Every finding lives in the image.</p>
           ) : (
             <ul className="mt-2 space-y-2">
-              {compiledAll.unaddressable.map((f) => (
-                <li key={f.id} className="rounded-[4px] border border-critical/35 bg-critical-wash/50 px-3.5 py-3">
-                  <span className="flex flex-wrap items-center gap-2 text-sm text-ink-2">
-                    <span className="font-semibold text-ink">{indexOf(f.id)}</span>
-                    <SeverityTag severity={f.severity} />
-                    {CATEGORY_LABEL[f.category]}
-                  </span>
-                  <span className="mt-1 block text-[0.97rem] text-ink">{f.claim}</span>
-                  <span className="mt-1 block text-sm font-medium text-critical">{f.explanation}</span>
-                </li>
-              ))}
+              {compiledAll.unaddressable.map((f) => {
+                // Words set in the artwork get the sharper sentence: the render struck them, and
+                // the decision they record is still standing. Saying only "cannot resolve this"
+                // beside a render that visibly changed those words would read as a contradiction.
+                const printed = compiledAll.printed.find((p) => p.id === f.id);
+                return (
+                  <li key={f.id} className="rounded-[4px] border border-critical/35 bg-critical-wash/50 px-3.5 py-3">
+                    <span className="flex flex-wrap items-center gap-2 text-sm text-ink-2">
+                      <span className="font-semibold text-ink">{indexOf(f.id)}</span>
+                      <SeverityTag severity={f.severity} />
+                      {CATEGORY_LABEL[f.category]}
+                      {printed && <span className="rounded-[3px] border border-rule px-1.5 py-0.5 font-mono text-[0.72rem] text-ink-3">printed in the ad</span>}
+                    </span>
+                    <span className="mt-1 block text-[0.97rem] text-ink">{f.claim}</span>
+                    <span className="mt-1 block text-sm font-medium text-critical">{printed?.explanation ?? f.explanation}</span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

@@ -261,12 +261,13 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
           </div>
           <div className="px-5 py-6 sm:px-8 sm:py-8">
             <p className="max-w-[64ch] text-[1.02rem] text-ink-2">
-              Drafted from the image findings above by the{" "}
+              Drafted from the findings above by the{" "}
               <a href="https://docs.magichour.ai" className="font-medium text-pencil underline underline-offset-2">
                 Magic Hour API
               </a>
-              , for the team to react to in the meeting. Anything living in the copy or the timing is untouched — an image editor cannot rename a
-              product or move a launch date.
+              , for the team to react to in the meeting. It changes what the poster shows and says — including wording lettered into the artwork.{" "}
+              <strong className="font-medium text-ink">It does not rename the product or move the launch date.</strong> Those findings stand, and
+              they are the ones a reviewer still has to answer.
             </p>
             <p className="mt-3 font-mono text-[0.82rem] text-ink-3">
               model {result.generation.model} · {result.generation.creditsCharged} credits · one request, shown in full below
