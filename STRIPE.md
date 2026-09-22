@@ -37,8 +37,19 @@ Account: **`acct_1UHukUIXXgSDMNPU`** (`second-look`), country CA, live mode.
 | Bank account for payouts | ⬜ §1 (needs identity cleared first) |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` in Vercel | ✅ set, deployed — **paywall is live** |
 | Live keys scoped to Preview too | ⚠️ §4 — preview deploys will take real money |
+| Managed Payments | ✅ opted out per session — see below |
+| Checkout session creation | ✅ verified live: `/api/checkout` returns a real Checkout URL |
+| Live analysis (`ANTHROPIC_API_KEY`) | ✅ fixed by re-entering the value in Vercel |
 | Sandbox test | ⬜ §2 — skipped; live was set up first |
-| End-to-end purchase test | ⬜ §5 — never run, in any environment |
+| **Paying for one and being credited** | ⬜ §5 — **still never run end to end** |
+
+> ### Managed Payments is off, deliberately
+>
+> Stripe turns **Managed Payments** on by default for new accounts. It makes Stripe the merchant of record — they calculate, collect and remit sales tax and VAT — and it requires a `tax_code` on every line item. This integration sends inline `price_data` without one, so every checkout failed with `Invalid line_items[0]: the product tax code is missing` (HTTP 400) until `managed_payments[enabled]=false` was added to the session.
+>
+> That keeps Second Look as merchant of record, collecting no tax, which is what the rest of this file assumes. **The flip side is that any sales-tax or VAT obligation on international digital sales is yours to track.** If that becomes real, the alternatives are Stripe Tax with registrations (§6), or turning Managed Payments back on and giving the line item a digital-services tax code.
+>
+> The opt-out lives in `createCheckoutSession` (`src/lib/clients/stripe.ts`). It's spread rather than written inline because the parameter is live on API `2026-08-26.dahlia` but missing from the Node SDK's types at 22.6.2.
 
 **The paywall is off until `STRIPE_SECRET_KEY` exists.** Without it there's no header button, no pricing sheet, and every review is free and unlimited. `/api/wallet` and `/api/checkout` answer `{"error":{"code":"not_configured"}}` with a 404 — that's the healthy off state, not a broken route.
 
@@ -204,7 +215,7 @@ Edit `PACKS` in `src/lib/pricing.ts` — the pricing sheet and checkout both rea
 | What people see | Fix |
 |---|---|
 | No header button or pricing sheet after adding keys | Built before the keys existed — **redeploy** |
-| "Payments are unavailable right now. Nothing was charged." | Stripe rejected the key or a permission — Vercel logs, `billing.checkout` line, find the request id in the Dashboard's request log |
+| "Payments are unavailable right now. Nothing was charged." | Stripe rejected the request. The Vercel log line `billing.checkout` carries Stripe's `requestId`; look it up in the Dashboard's request log for the real message, which the user-facing copy deliberately hides. Seen so far: a missing product tax code (Managed Payments, above). Not always the key. |
 | "Payments need shared storage (Upstash Redis) on this deployment." | Paywall on, Redis missing — connect Upstash |
 | Paid, but the reviews didn't appear | Webhook failing (wrong secret or URL). Fix it, then **Resend** the event — it's credited once however many times it arrives |
 | 404 with `{"error":{"code":"not_configured"}}` | Working as designed: no `STRIPE_SECRET_KEY`, paywall off |
