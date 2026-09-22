@@ -84,6 +84,18 @@ export interface CreateCheckoutParams {
 }
 
 /**
+ * Stripe enables Managed Payments by default on new accounts, which makes Stripe the merchant of
+ * record and requires a `tax_code` on every line item — inline `price_data` without one is rejected
+ * outright ("the product tax code is missing", HTTP 400). Second Look stays the merchant of record
+ * and collects no tax, so it opts out per session.
+ *
+ * Spread rather than written inline: the parameter is live on API version 2026-08-26.dahlia but not
+ * yet in the Node SDK's types (22.6.2 is the latest stable), and a spread skips TypeScript's
+ * excess-property check without resorting to a cast.
+ */
+const MANAGED_PAYMENTS_OFF = { managed_payments: { enabled: false } } as const;
+
+/**
  * A hosted Checkout page for a one-time purchase. Payment methods are left to the Dashboard
  * (dynamic payment methods), and tax isn't collected: turn on Stripe Tax only with a registration.
  */
@@ -107,6 +119,7 @@ export async function createCheckoutSession(params: CreateCheckoutParams): Promi
       success_url: params.successUrl,
       cancel_url: params.cancelUrl,
       integration_identifier: INTEGRATION_IDENTIFIER,
+      ...MANAGED_PAYMENTS_OFF,
     }),
   );
   return narrow(session);
