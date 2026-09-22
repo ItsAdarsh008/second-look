@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { capabilities } from "@/lib/capabilities";
 import { WalletButton } from "./billing/billing";
+import { NavLink } from "./nav-link";
 import { Mark } from "./mark";
 
 export function SiteHeader() {
@@ -17,12 +18,12 @@ export function SiteHeader() {
         </Link>
         <nav aria-label="Primary" className="flex items-baseline gap-4 whitespace-nowrap text-[0.88rem] sm:gap-5 sm:text-[0.95rem]">
           {/* On a phone the wordmark already goes home, which leaves room for the reviews button. */}
-          <Link href="/" className={`text-ink-2 underline-offset-4 hover:text-ink hover:underline ${paywall ? "max-sm:hidden" : ""}`}>
+          <NavLink href="/" className={paywall ? "max-sm:hidden" : ""}>
             Review a campaign
-          </Link>
-          <Link href="/cases" className="text-ink-2 underline-offset-4 hover:text-ink hover:underline">
+          </NavLink>
+          <NavLink href="/cases" match="/cases">
             Case studies
-          </Link>
+          </NavLink>
           <WalletButton />
         </nav>
       </div>
