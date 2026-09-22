@@ -1,13 +1,18 @@
 import Link from "next/link";
 import { capabilities } from "@/lib/capabilities";
 import { WalletButton } from "./billing/billing";
+import { Mark } from "./mark";
 
 export function SiteHeader() {
   const { paywall } = capabilities();
   return (
     <header className="border-b border-rule">
       <div className="mx-auto flex max-w-[88rem] items-baseline justify-between gap-4 px-5 py-4 sm:px-8">
-        <Link href="/" className="whitespace-nowrap font-serif text-[1.5rem] leading-none tracking-tight text-ink sm:text-[1.65rem]">
+        <Link
+          href="/"
+          className="group inline-flex items-center gap-2.5 whitespace-nowrap font-serif text-[1.5rem] leading-none tracking-tight text-ink sm:text-[1.65rem]"
+        >
+          <Mark className="size-[0.92em] shrink-0 text-pencil transition-colors group-hover:text-ink" />
           Second Look
         </Link>
         <nav aria-label="Primary" className="flex items-baseline gap-4 whitespace-nowrap text-[0.88rem] sm:gap-5 sm:text-[0.95rem]">
