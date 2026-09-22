@@ -8,26 +8,16 @@ export const KIND_LABEL: Record<CaseFixture["kind"], string> = {
 };
 
 /** Gallery sections, in reading order. */
-/**
- * Section order on /cases. The gallery renders these top to bottom, so this — not the order of
- * `CASES` — is what decides which case a visitor meets first. `CASES[0]` only picks which card
- * inside a group is drawn large.
- *
- * "The risk is in the picture" leads so the first case on the page is one whose finding is in the
- * image, and so carries a generated alternative and its Magic Hour request. The cost is that
- * "Real failures, rebuilt" — the reconstructions of campaigns that actually happened, and the
- * page's strongest claim to credibility — now comes second.
- */
 export const CASE_GROUPS: { kind: CaseFixture["kind"]; title: string; description: string }[] = [
-  {
-    kind: "synthetic-visual",
-    title: "The risk is in the picture",
-    description: "The copy is clean. The problem is a symbol, colour or gesture in the image.",
-  },
   {
     kind: "incident-reconstruction",
     title: "Real failures, rebuilt",
     description: "Documented campaigns reconstructed with fictional brands, so the analyzer can't recognize them by name.",
+  },
+  {
+    kind: "synthetic-visual",
+    title: "The risk is in the picture",
+    description: "The copy is clean. The problem is a symbol, colour or gesture in the image.",
   },
   {
     kind: "synthetic-language",
