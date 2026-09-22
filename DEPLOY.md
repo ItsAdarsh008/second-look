@@ -78,13 +78,32 @@ Set `NEXT_PUBLIC_SITE_URL` to `https://2nd-look.vercel.app` so link previews and
 5. **Paywall** (sandbox): run a second review → pricing sheet opens. Buy Starter with `4242 4242 4242 4242`, any future expiry/CVC. You should see *"10 reviews added"* plus a recovery code, and the header reads **10 reviews left**. Stripe's webhook log shows a **200**. In a private window, restore the recovery code and confirm the balance follows.
 6. **Link preview** — open `/opengraph-image`.
 
-### 5. Pre-build the gallery — *do before recording the demo*
+### 5. Gallery — built ✅, but **read it before you launch**
 
-`src/data/cases/results/` is empty, so case pages have no pre-computed findings. This makes them render real results with zero API cost per view:
+Built 2026-09-21 and committed. Case pages now render real findings at zero API cost per view.
+
+| Case | Findings | Alternative rendered |
+|---|---|---|
+| `starbucks-korea` | 3 — 2 critical, 1 high | none, and that's the point: every finding is in the name, the date or the copy |
+| `rising-sun-rays` | 1 critical (image) | yes, 5 credits |
+| `green-hat` | 1 moderate (image) | yes, 5 credits |
+
+All three ran **leave-one-out** — each case's own incident was withheld from the corpus, so nothing cites itself.
+
+> ### ⬜ TODO — review and edit the generated copy
+>
+> These are model-written findings that are about to be the most-read pages on the site, and the Tank Day case is the whole pitch. Read all five findings end to end before any public post, checking that:
+> - every `claim` is specific and falsifiable, not "may be culturally insensitive" (product rule 3)
+> - every `precedent` is real and actually supports the claim (rule 2) — the starbucks findings cite 2, 2 and 1
+> - no copy anywhere reads as "fixed", "safe", "cleared" or "approved" (rule 1)
+>
+> Edit `src/data/cases/results/<slug>.json` by hand where the wording is weak, then `vercel deploy --prod`. Re-running `cases:build` overwrites the whole file, so edit *or* regenerate, not both.
+
+To rebuild from scratch:
 
 ```bash
 # needs ANTHROPIC_API_KEY + MAGIC_HOUR_API_KEY in .env.local
-npm run cases:build -- --generate     # 3 reviews (~$1) + Magic Hour credits
+npm run cases:build -- --generate     # 3 reviews (~$1) + 10 Magic Hour credits
 git add src/data/cases/results public/cases/generated
 git commit -m "Publish case study results"
 vercel deploy --prod                  # a push alone will not deploy
@@ -102,7 +121,7 @@ Divide that day's Opus 5 spend by 9. If it's far off $0.25, revisit step 1's num
 
 - [ ] Redeployed since the last env-var change (the paywall and live-analysis flags are baked in at build time)
 - [x] Anthropic credits loaded (no spend limit, by choice — step 1)
-- [ ] Gallery pre-built (step 5)
+- [x] Gallery pre-built (step 5) — ⬜ **still needs a human read of the generated findings**
 - [ ] `MAX_DAILY_CREDITS` set to what you'll spend on Magic Hour per UTC day, and the Magic Hour account holds at least that
 - [ ] If charging: the whole of `STRIPE.md` §1–§5, then live keys in Production only, one real purchase made and refunded, live webhook delivering 200s
 - [ ] Demo clips recorded (below) **before** you post
@@ -154,7 +173,7 @@ Record **one master session**, then cut four clips from it. The narration script
 
 ### Before you hit record
 
-- Step 5 done — the gallery must be pre-built or case pages look thin.
+- Step 5 done ✅ — gallery is built; give the findings a read first (step 5 TODO).
 - The master take runs **2 live reviews and 1 render** (~$0.50 of Claude + 5 Magic Hour credits), and a dry run doubles that. With the paywall on you only get **one** free review, so either record **before** setting `STRIPE_SECRET_KEY`, or buy a Starter pack in the sandbox first — otherwise the pricing sheet interrupts your second take.
 - `MAX_DAILY_CREDITS` ≥ 50 so renders don't get refused mid-take.
 - Browser at **1440×900**, bookmarks bar hidden, one window, no extensions visible, no notifications. Clean profile.

@@ -1,0 +1,180 @@
+{
+  "slug": "starbucks-korea",
+  "computedAt": "2026-09-22T03:46:48.430Z",
+  "leaveOneOut": true,
+  "analysis": {
+    "id": "case-starbucks-korea",
+    "input": {
+      "imageUrl": "/cases/starbucks-korea.png?v=fcac3adfbc",
+      "imageFilePath": null,
+      "brandName": "Harbor Coffee Korea",
+      "headline": "Thwack it on the table!",
+      "bodyCopy": "Meet the Tank — our biggest tumbler yet, built for all-day refills. Tank Day, May 18 only.",
+      "productName": "Tank",
+      "markets": [
+        "KR"
+      ],
+      "launchDate": "2026-05-18",
+      "channel": "social",
+      "brandNotes": "Preserve the Harbor Coffee wordmark and the navy/cream palette."
+    },
+    "findings": [
+      {
+        "severity": "critical",
+        "category": "historical-memory",
+        "markets": [
+          "KR"
+        ],
+        "locus": {
+          "kind": "copy",
+          "field": "productName",
+          "excerpt": "Tank"
+        },
+        "claim": "Naming the product \"Tank\" and the promotion \"TANK DAY\" on May 18 collides with the Gwangju Uprising, where martial-law tanks and troops killed civilians.",
+        "rationale": "May 18, 1980 is the date martial-law forces, including armoured columns, were deployed against civilians in Gwangju; the massacre is a foundational memory of Korean democracy and is commemorated as a national solemn anniversary. A coffee chain declaring \"TANK DAY — ONE DAY ONLY\" on exactly that date reads in Korean as turning the instrument of that killing into a celebratory promotional label. The footer line \"NEW 2L TANK TUMBLER\" and the body copy \"Tank Day, May 18 only\" repeat the pairing, so a screenshot of any part of the creative carries it.",
+        "precedents": [
+          {
+            "kind": "referent",
+            "title": "Gwangju Democratization Movement (5·18), 1980",
+            "brand": null,
+            "year": 1980,
+            "market": "South Korea",
+            "summary": "Martial-law paratroopers and armoured units suppressed the Gwangju uprising on and after 18 May 1980, killing hundreds of civilians. \"5·18\" and tank imagery are core memorial referents, marked annually with a state ceremony at the May 18th National Cemetery.",
+            "outcome": null,
+            "sourceUrl": "https://en.wikipedia.org/wiki/Gwangju_Uprising"
+          },
+          {
+            "kind": "incident",
+            "title": "Li Jiaqi tank-shaped cake shown on the eve of the Tiananmen anniversary",
+            "brand": "Li Jiaqi (Austin Li) livestream",
+            "year": 2022,
+            "market": "China",
+            "summary": "A tank-shaped ice-cream cake presented on a sales livestream on 3 June 2022 was read as a reference to the 1989 crackdown; intent was irrelevant to the reaction.",
+            "outcome": "The stream was cut, the channel went dark for more than three months, and images were scrubbed.",
+            "sourceUrl": "https://hongkongfp.com/2022/06/07/top-chinese-blogger-goes-silent-after-showing-tank-shaped-cake-before-tiananmen-crackdown-anniversary/",
+            "incidentId": "li-jiaqi-tank-cake-2022"
+          }
+        ],
+        "confidence": 0.93,
+        "fixDirective": "Rename the product and promotion away from \"Tank\" in all Korean-market copy (e.g. \"Harbor 2L Grande Tumbler\" / \"Refill Day\"), replacing the headline lockup, the body copy and the \"NEW 2L TANK TUMBLER\" footer bar.",
+        "id": "f_-SBba00wF6"
+      },
+      {
+        "severity": "critical",
+        "category": "calendar-timing",
+        "markets": [
+          "KR"
+        ],
+        "locus": {
+          "kind": "timing",
+          "date": "2026-05-18",
+          "reason": "May 18 Gwangju Democratization Movement anniversary (1980), a solemn national memorial date on which \"5.18\" is itself the memorial symbol"
+        },
+        "claim": "Launching a one-day sale on 2026-05-18 and using \"5.18\" as a festive orange sale badge appropriates the memorial shorthand for the Gwangju massacre.",
+        "rationale": "In Korea \"5·18\" is not read as a calendar date but as the name of the massacre and the democratization movement, used on memorials, in the official ceremony attended by the president, and in law (the 5·18 Special Act). Setting it in a dotted-edge sale roundel beside \"ONE DAY ONLY\" turns a memorial number into a discount stamp, independent of the word \"Tank\". On social, where the badge crops cleanly into a shareable image, this is the element most likely to be screenshotted and circulated.",
+        "precedents": [
+          {
+            "kind": "referent",
+            "title": "\"5·18\" as memorial shorthand in South Korea",
+            "brand": null,
+            "year": 1980,
+            "market": "South Korea",
+            "summary": "The Gwangju Democratization Movement is universally referred to as 5·18; the date names the event in the national cemetery, the 5·18 Memorial Foundation and the annual state commemoration.",
+            "outcome": null,
+            "sourceUrl": "https://en.wikipedia.org/wiki/Gwangju_Uprising"
+          },
+          {
+            "kind": "incident",
+            "title": "Uniqlo Korea fleece ad subtitle referencing \"80 years ago\"",
+            "brand": "Uniqlo",
+            "year": 2019,
+            "market": "South Korea",
+            "summary": "An added Korean subtitle placing a throwaway line 80 years in the past was read as dismissing the colonial-era history of that date, showing how sensitised Korean audiences are to date arithmetic in ad copy.",
+            "outcome": "The ad was pulled in South Korea in October 2019 amid protests and parody videos.",
+            "sourceUrl": "https://www.aljazeera.com/economy/2019/10/21/uniqlo-ad-pulled-in-south-korea-over-wartime-sexual-slavery-row",
+            "incidentId": "uniqlo-korea-remember-2019"
+          }
+        ],
+        "confidence": 0.9,
+        "fixDirective": "Move the launch off May 18 and outside May 17–19, and delete the \"5.18\" badge entirely, replacing it with the new non-memorial promotion date.",
+        "id": "f_WNu4Km3ubM"
+      },
+      {
+        "severity": "high",
+        "category": "historical-memory",
+        "markets": [
+          "KR"
+        ],
+        "locus": {
+          "kind": "copy",
+          "field": "headline",
+          "excerpt": "Thwack it on the table!"
+        },
+        "claim": "\"Thwack it on the table!\" with the impact-line slam illustration reads, on 5.18, as a beating gesture echoing the baton assaults on Gwangju civilians.",
+        "rationale": "The paratroopers' baton beatings of unarmed residents are among the most reproduced images of 18 May 1980, alongside the armoured columns. A dark cylindrical object shown striking a surface with radiating impact marks, captioned with an onomatopoeic instruction to hit, lands very differently on that anniversary than in a normal tumbler ad. Combined with the \"Tank\" name and the 5.18 badge, Korean readers will treat the whole creative as a violence motif rather than a durability claim.",
+        "precedents": [
+          {
+            "kind": "referent",
+            "title": "Baton beatings of civilians during the Gwangju suppression",
+            "brand": null,
+            "year": 1980,
+            "market": "South Korea",
+            "summary": "Special forces troops beat unarmed Gwangju residents with batons and rifle butts on 18 May 1980; photographs and testimony of those beatings are central to how the date is remembered and commemorated.",
+            "outcome": null,
+            "sourceUrl": "https://en.wikipedia.org/wiki/Gwangju_Uprising"
+          }
+        ],
+        "confidence": 0.6,
+        "fixDirective": "Replace the headline with a non-impact line about capacity or refills (e.g. \"All-day refills, one big pour\") and remove the radiating impact marks under the tumbler, resting it flat on the table surface.",
+        "id": "f_u-4OXn60Jo"
+      }
+    ],
+    "marketsAnalyzed": [
+      "KR"
+    ],
+    "corpusHits": [
+      "uniqlo-korea-remember-2019",
+      "gs25-pinching-hand-2021",
+      "liverpool-rising-sun-korea-2019",
+      "nike-air-jordan-rising-sun-korea-2016",
+      "li-jiaqi-tank-cake-2022",
+      "leica-the-hunt-2019",
+      "nike-air-allah-logo-1997"
+    ],
+    "calendarHits": [
+      {
+        "entryId": "kr-gwangju-may-18",
+        "market": "KR",
+        "label": "May 18 Gwangju Democratization Movement anniversary (1980)",
+        "gravity": "solemn",
+        "guidance": "Martial-law troops with tanks and paratroopers killed hundreds of civilians in Gwangju; \"5.18\" and \"518\" are themselves memorial symbols. Avoid tanks, armoured vehicles, soldiers or batons, the numbers 518/5.18 in prices, codes or product names, and anything \"Tank\"-named: Starbucks Korea's \"Tank Day\" tumbler launch on this date in 2026 was pulled within hours and the CEO was fired.",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Gwangju_Uprising",
+        "occurrence": {
+          "start": "2026-05-18",
+          "end": "2026-05-18"
+        },
+        "daysOffset": 0,
+        "needsVerification": false
+      },
+      {
+        "entryId": "kr-buddhas-birthday",
+        "market": "KR",
+        "label": "Buddha's Birthday (Bucheonim Osinnal)",
+        "gravity": "religious-observance",
+        "guidance": "Temples hold lantern festivals (Yeondeunghoe). Do not put Buddha images or temple iconography on alcohol, meat or footwear, and avoid treating lanterns or monks as party props.",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Buddha%27s_Birthday",
+        "occurrence": {
+          "start": "2026-05-24",
+          "end": "2026-05-25"
+        },
+        "daysOffset": null,
+        "needsVerification": true,
+        "note": "Eighth day of the fourth month of the Korean lunisolar calendar, plus a substitute holiday when it falls on a weekend. Confirm against the government's public-holiday announcement."
+      }
+    ],
+    "reviewNotes": "Reviewed the product name (\"Tank\"), the in-image headline \"TANK DAY\", the \"ONE DAY ONLY\" / \"5.18\" promotional badge, the supplied headline \"Thwack it on the table!\", the body copy, the footer \"NEW 2L TANK TUMBLER\", the launch date, the social channel, and the illustration (navy tumbler, impact lines, coffee beans, wordmark). The dominant issue is the collision of a \"Tank\"-named one-day promotion, the numeral \"5.18\" as a festive badge, and a May 18 launch in South Korea. I also considered the navy/cream palette, the wave wordmark, the straw-lid tumbler form and the May 24 Buddha's Birthday window, and found no separate referent in those. The tumbler silhouette itself does not read as a military vehicle; the risk is carried by the naming, date and slam gesture.",
+    "analyzedAt": "2026-09-22T03:46:48.423Z",
+    "modelUsed": "claude-opus-5"
+  },
+  "generation": null
+}

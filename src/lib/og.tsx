@@ -160,18 +160,19 @@ export async function renderReportCard(opts: { imageUrl: string; title: string; 
           </div>
           {counts && opts.findings ? (
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ fontSize: 30, color: critical ? C.critical : C.ink, marginBottom: 24 }}>{verdictLine(opts.findings)}</div>
+              {/* Satori needs an explicit display on every node it lays out, text ones included. */}
+              <div style={{ display: "flex", fontSize: 30, color: critical ? C.critical : C.ink, marginBottom: 24 }}>{verdictLine(opts.findings)}</div>
               <div style={{ display: "flex", gap: 40 }}>
                 {SEVERITIES.map((s) => (
                   <div key={s} style={{ display: "flex", flexDirection: "column", color: counts[s] === 0 ? "#9aa0a8" : s === "critical" ? C.critical : C.ink }}>
-                    <div style={{ fontSize: 22 }}>{SEVERITY_LABEL[s]}</div>
-                    <div style={{ fontSize: 72, lineHeight: 1 }}>{counts[s]}</div>
+                    <div style={{ display: "flex", fontSize: 22 }}>{SEVERITY_LABEL[s]}</div>
+                    <div style={{ display: "flex", fontSize: 72, lineHeight: 1 }}>{String(counts[s])}</div>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div style={{ fontSize: 30, color: C.ink2 }}>A cultural pre-flight check for ad campaigns</div>
+            <div style={{ display: "flex", fontSize: 30, color: C.ink2 }}>A cultural pre-flight check for ad campaigns</div>
           )}
           <div style={{ fontFamily: SERIF, fontSize: 34, color: C.pencil }}>Second Look</div>
         </div>

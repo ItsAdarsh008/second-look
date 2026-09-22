@@ -1,0 +1,114 @@
+{
+  "slug": "green-hat",
+  "computedAt": "2026-09-22T03:48:07.753Z",
+  "leaveOneOut": true,
+  "analysis": {
+    "id": "case-green-hat",
+    "input": {
+      "imageUrl": "/cases/green-hat.png?v=eea3ee3e56",
+      "imageFilePath": null,
+      "brandName": "Northline",
+      "headline": "Dressed for the season.",
+      "bodyCopy": "Wool-blend layers for cold mornings. New in stores this week.",
+      "productName": "Northline Autumn Collection",
+      "markets": [
+        "CN"
+      ],
+      "channel": "digital-display",
+      "brandNotes": "Keep the camel coat and the Northline wordmark."
+    },
+    "findings": [
+      {
+        "severity": "moderate",
+        "category": "gender-sexuality",
+        "markets": [
+          "CN"
+        ],
+        "locus": {
+          "kind": "image",
+          "bbox": [
+            0.35,
+            0.185,
+            0.3,
+            0.115
+          ],
+          "description": "Bright green fedora worn by the male figure, directly above his face and centered in the frame"
+        },
+        "claim": "The bright green hat on the male model reads in China as 戴绿帽子 — 'wearing a green hat', the idiom for a man whose partner is cheating on him.",
+        "rationale": "In Mandarin, 戴绿帽子 (wearing a green hat) is the standard idiom for being cuckolded, which is why green hats are effectively unsellable menswear in China and why the phrase is an instant comment-section joke. Here the hat is the single brightest element in an otherwise neutral camel-and-grey frame, worn by a smiling man facing the viewer, so it is the first thing a Chinese viewer reads. On digital display, where the image is screenshot and reposted, the campaign invites the 'green hat' caption rather than the autumn-outerwear message.",
+        "precedents": [
+          {
+            "kind": "incident",
+            "title": "Dove chocolate Qixi gift-box video nicknamed '绿帽巧克力' (green hat chocolate)",
+            "brand": "Dove chocolate (Mars China)",
+            "year": 2026,
+            "market": "China",
+            "summary": "Chinese netizens nicknamed a Dove Qixi promo video 'green hat chocolate' because its storyline cast the product as a prop for cheating; the 'green hat' label is the reflexive Chinese shorthand for cuckoldry.",
+            "outcome": "Mars China pulled the video, delisted the gift box and apologized on Weibo.",
+            "sourceUrl": "https://www.chinadaily.com.cn/a/202608/26/WS6a8e8bd8e4b06d4aa055a8e6.html",
+            "incidentId": "dove-chocolate-qixi-green-hat-2026"
+          },
+          {
+            "kind": "referent",
+            "title": "戴绿帽子 — the Chinese 'green hat' idiom",
+            "brand": null,
+            "year": null,
+            "market": "China",
+            "summary": "In Chinese usage, to 'wear a green hat' means one's spouse or partner is unfaithful; the association is strong enough that green hats and green-hat gifts are avoided for men in the Chinese market.",
+            "outcome": null
+          }
+        ],
+        "confidence": 0.9,
+        "fixDirective": "Recolour the green fedora to a neutral tone that sits with the outfit — charcoal grey or a deeper brown than the camel coat — keeping its shape, size and position unchanged.",
+        "id": "f_atssnSxFv9"
+      }
+    ],
+    "marketsAnalyzed": [
+      "CN"
+    ],
+    "corpusHits": [
+      "li-jiaqi-tank-cake-2022",
+      "dove-chocolate-qixi-green-hat-2026",
+      "swatch-slanted-eye-2025",
+      "li-ning-japanese-military-2022",
+      "burger-king-nz-chopsticks-2019",
+      "versace-coach-givenchy-tshirts-2019",
+      "leica-the-hunt-2019",
+      "dolce-gabbana-chopsticks-china-2018",
+      "gap-china-map-tshirt-2018",
+      "marriott-china-tibet-survey-2018",
+      "mercedes-benz-dalai-lama-2018",
+      "purcotton-makeup-wipe-2021"
+    ],
+    "calendarHits": [],
+    "reviewNotes": "Examined the wordmark \"NORTHLINE\", the headline \"Dressed for the season.\", the body copy, the product name, the digital-display channel and every visual element (camel trench, charcoal knit and trousers, hat, flat grey background, figure's rendering). No launch date was supplied, so calendar-timing could not be checked. The only live referent I found for China is the green hat on a male figure (\"戴绿帽子\" = being cuckolded); I considered and ruled out the camel/brown palette, the Western trench-and-fedora silhouette (read as generic menswear, not military or period-specific), the brand name (no problematic Mandarin homophone), and the copy, which carries no idiomatic second reading in Chinese.",
+    "analyzedAt": "2026-09-22T03:48:00.378Z",
+    "modelUsed": "claude-opus-5"
+  },
+  "generation": {
+    "model": "flux-2-klein",
+    "prompt": "Make a minimal, surgical retouch of this advertisement image, not a redesign. Recolour the green fedora to a neutral tone that sits with the outfit — charcoal grey or a deeper brown than the camel coat — keeping its shape, size and position unchanged (in the upper center). Keep everything else exactly as it is: the product and its packaging, the logo and its placement, every piece of existing text and its legibility, the brand colors, the composition and framing, and the lighting and illustration style. Brand direction to respect: Keep the camel coat and the Northline wordmark. Do not add any new text, logos, people or objects.",
+    "requestBody": {
+      "name": "Second Look case green-hat",
+      "image_count": 1,
+      "model": "flux-2-klein",
+      "aspect_ratio": "auto",
+      "resolution": "1k",
+      "style": {
+        "prompt": "Make a minimal, surgical retouch of this advertisement image, not a redesign. Recolour the green fedora to a neutral tone that sits with the outfit — charcoal grey or a deeper brown than the camel coat — keeping its shape, size and position unchanged (in the upper center). Keep everything else exactly as it is: the product and its packaging, the logo and its placement, every piece of existing text and its legibility, the brand colors, the composition and framing, and the lighting and illustration style. Brand direction to respect: Keep the camel coat and the Northline wordmark. Do not add any new text, logos, people or objects."
+      },
+      "assets": {
+        "image_file_paths": [
+          "api-assets/…"
+        ]
+      }
+    },
+    "creditsCharged": 5,
+    "images": [
+      "/cases/generated/green-hat-1.png"
+    ],
+    "findingIds": [
+      "f_atssnSxFv9"
+    ]
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "slug": "rising-sun-rays",
+  "computedAt": "2026-09-22T03:47:32.063Z",
+  "leaveOneOut": true,
+  "analysis": {
+    "id": "case-rising-sun-rays",
+    "input": {
+      "imageUrl": "/cases/rising-sun-rays.png?v=88bcfcc3e9",
+      "imageFilePath": null,
+      "brandName": "Morrow",
+      "headline": "Light enough for every morning.",
+      "bodyCopy": "Daily sun fluid, SPF 50+ PA++++. No white cast, no sticky finish.",
+      "productName": "Morrow Daily Sun Fluid",
+      "markets": [
+        "KR",
+        "CN"
+      ],
+      "channel": "ooh",
+      "brandNotes": "Keep the white tube, the arched window and the Morrow wordmark."
+    },
+    "findings": [
+      {
+        "severity": "critical",
+        "category": "historical-memory",
+        "markets": [
+          "KR",
+          "CN"
+        ],
+        "locus": {
+          "kind": "image",
+          "bbox": [
+            0.13,
+            0.12,
+            0.74,
+            0.68
+          ],
+          "description": "Red rays radiating symmetrically from a red half-sun on the horizon, filling the arched window panel behind the tube"
+        },
+        "claim": "The red sunburst rays radiating from a rising sun in the arch reproduce the Japanese Rising Sun flag (Kyokujitsu-ki), a militarist symbol in Korea and China.",
+        "rationale": "The Kyokujitsu-ki — a red disc with red rays on white — was the flag of the Imperial Japanese Army and Navy and is read in South Korea and China as the emblem of colonial rule, wartime occupation and atrocities; Korean civic groups monitor and publicly call out its commercial use. The illustration here is not a generic sunburst: it is a red half-disc sitting on the horizon with evenly spaced red rays fanning across a pale cream field, the exact construction of the flag. The brand name 'Morrow' and the headline 'Light enough for every morning' push the reading further toward 'land of the rising sun', and as out-of-home the artwork is unavoidable on the street and trivially screenshotted into a side-by-side with the flag.",
+        "precedents": [
+          {
+            "kind": "incident",
+            "title": "Liverpool FC Rising Sun graphics",
+            "brand": "Liverpool FC",
+            "year": 2019,
+            "market": "South Korea",
+            "summary": "Liverpool FC used Rising Sun flag imagery in content around the signing of Takumi Minamino; Korean fans complained, the club apologised on its Korea-facing page, and a repeat post deepened the backlash.",
+            "outcome": "Images removed; sustained complaints from Korean fans questioning the apology's sincerity.",
+            "sourceUrl": "https://asiatimes.com/2019/12/why-koreans-are-calling-for-the-world-to-stop-using-rising-sun-flag/",
+            "incidentId": "liverpool-rising-sun-korea-2019"
+          },
+          {
+            "kind": "referent",
+            "title": "Kyokujitsu-ki (Rising Sun flag) as symbol of Imperial Japanese militarism",
+            "brand": null,
+            "year": null,
+            "market": "South Korea / China",
+            "summary": "The red-rayed rising sun was the ensign of the Imperial Japanese Army and Navy during the colonisation of Korea (1910–45) and the invasion of China (1931–45). In both markets it functions much as Nazi iconography does in Europe, and its appearance in sport, fashion and advertising has repeatedly triggered organised complaint campaigns.",
+            "outcome": null
+          },
+          {
+            "kind": "incident",
+            "title": "Li-Ning collection likened to Japanese army uniforms",
+            "brand": "Li-Ning",
+            "year": 2022,
+            "market": "China",
+            "summary": "Chinese social media read army-green flapped caps in a Li-Ning show as Imperial Japanese Army uniforms, showing how sensitised the Chinese market is to visual echoes of Japanese wartime iconography.",
+            "outcome": "Share price fell sharply; brand apologised and the hats were reportedly scrapped.",
+            "sourceUrl": "https://www.scmp.com/lifestyle/fashion-beauty/article/3197277/it-hurts-our-feelings-why-chinese-people-are-angry-over-sportswear-giant-li-nings-new-line-and-how",
+            "incidentId": "li-ning-japanese-military-2022"
+          }
+        ],
+        "confidence": 0.89,
+        "fixDirective": "Remove the radiating red rays inside the arch entirely and replace the panel with a flat warm gradient sky (cream to soft peach), keeping only the half-disc sun on the horizon and recoloring it amber-gold rather than flag red, with the sea band, birds and tube position unchanged.",
+        "id": "f_bs1z2O2XTe"
+      }
+    ],
+    "marketsAnalyzed": [
+      "KR",
+      "CN"
+    ],
+    "corpusHits": [
+      "starbucks-korea-tank-day-2026",
+      "li-jiaqi-tank-cake-2022",
+      "uniqlo-korea-remember-2019",
+      "dove-chocolate-qixi-green-hat-2026",
+      "swatch-slanted-eye-2025",
+      "li-ning-japanese-military-2022",
+      "gs25-pinching-hand-2021",
+      "burger-king-nz-chopsticks-2019",
+      "versace-coach-givenchy-tshirts-2019",
+      "leica-the-hunt-2019",
+      "liverpool-rising-sun-korea-2019",
+      "dolce-gabbana-chopsticks-china-2018"
+    ],
+    "calendarHits": [],
+    "reviewNotes": "Examined the illustration (arched panel, ray pattern, sun-on-horizon, sea band, birds, sunglasses, white tube), all on-image text ('MORROW', 'DAILY SUN FLUID', 'SPF 50+', 'PA++++', '50 ml'), the supplied headline and body copy, the product name in Korean and Mandarin readings, and the out-of-home channel; no launch date was supplied, so calendar-timing could not be checked and should be re-run once a date exists. The dominant issue is the ray-and-disc construction behind the product, which tracks the Rising Sun flag rather than a generic sunrise, and which the 'Morrow' / 'every morning' framing reinforces. I considered and ruled out: 'no white cast' (standard sunscreen category language in KR/CN, not a skin-tone claim), the PA++++ notation and SPF 50+ numerals (no numerological reading in either market), the red/cream palette on its own, the sunglasses and the arch motif, and 'Morrow' as a phonetic clash in Korean or Mandarin — none carry a distinct referent.",
+    "analyzedAt": "2026-09-22T03:47:24.759Z",
+    "modelUsed": "claude-opus-5"
+  },
+  "generation": {
+    "model": "flux-2-klein",
+    "prompt": "Make a minimal, surgical retouch of this advertisement image, not a redesign. Remove the radiating red rays inside the arch entirely and replace the panel with a flat warm gradient sky (cream to soft peach), keeping only the half-disc sun on the horizon and recoloring it amber-gold rather than flag red, with the (across most of the frame). Keep everything else exactly as it is: the product and its packaging, the logo and its placement, every piece of existing text and its legibility, the brand colors, the composition and framing, and the lighting and illustration style. Brand direction to respect: Keep the white tube, the arched window and the Morrow wordmark. Do not add any new text, logos, people or objects.",
+    "requestBody": {
+      "name": "Second Look case rising-sun-rays",
+      "image_count": 1,
+      "model": "flux-2-klein",
+      "aspect_ratio": "auto",
+      "resolution": "1k",
+      "style": {
+        "prompt": "Make a minimal, surgical retouch of this advertisement image, not a redesign. Remove the radiating red rays inside the arch entirely and replace the panel with a flat warm gradient sky (cream to soft peach), keeping only the half-disc sun on the horizon and recoloring it amber-gold rather than flag red, with the (across most of the frame). Keep everything else exactly as it is: the product and its packaging, the logo and its placement, every piece of existing text and its legibility, the brand colors, the composition and framing, and the lighting and illustration style. Brand direction to respect: Keep the white tube, the arched window and the Morrow wordmark. Do not add any new text, logos, people or objects."
+      },
+      "assets": {
+        "image_file_paths": [
+          "api-assets/…"
+        ]
+      }
+    },
+    "creditsCharged": 5,
+    "images": [
+      "/cases/generated/rising-sun-rays-1.png"
+    ],
+    "findingIds": [
+      "f_bs1z2O2XTe"
+    ]
+  }
+}
