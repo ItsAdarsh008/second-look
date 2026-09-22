@@ -246,28 +246,39 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
       )}
 
       {result?.generation && (
-        <section aria-labelledby="alternative" className="mt-16 border-t-2 border-ink pt-8">
-          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
-            <h2 id="alternative" className="font-serif text-[2.2rem] leading-none">
-              An alternative to consider
-            </h2>
-            <PoweredByMagicHour />
+        <section
+          aria-labelledby="alternative"
+          className="mt-16 overflow-hidden rounded-[10px] border-2 border-pencil/35 bg-pencil-wash/45"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-b border-pencil/25 px-5 py-5 sm:px-8 sm:py-6">
+            <div>
+              <p className="font-mono text-[0.76rem] uppercase tracking-[0.14em] text-pencil">Generated creative</p>
+              <h2 id="alternative" className="mt-2 font-serif text-[2.6rem] leading-none sm:text-[3.1rem]">
+                An alternative to consider
+              </h2>
+            </div>
+            <PoweredByMagicHour className="border-pencil/30" />
           </div>
-          <p className="mt-3 max-w-[64ch] text-ink-2">
-            Generated with the{" "}
-            <a href="https://docs.magichour.ai" className="text-pencil underline underline-offset-2">
-              Magic Hour API
-            </a>{" "}
-            ({result.generation.model}, {result.generation.creditsCharged} credits) from the image findings above. It is a draft for discussion;
-            anything in the copy or timing is untouched.
-          </p>
-          <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)]">
-            <BeforeAfter before={input.imageUrl} after={result.generation.images[0]} />
-            <div className="code-plate self-start overflow-hidden rounded-[6px]">
-              <p className="border-b border-[var(--plate-rule)] px-5 py-3 font-mono text-[0.85rem] text-[var(--plate-dim)]">POST https://api.magichour.ai/v1/ai-image-editor</p>
-              <pre className="overflow-auto whitespace-pre-wrap px-5 py-4 font-mono text-[0.8rem] leading-relaxed [overflow-wrap:anywhere]">
-                {JSON.stringify(result.generation.requestBody, null, 2)}
-              </pre>
+          <div className="px-5 py-6 sm:px-8 sm:py-8">
+            <p className="max-w-[64ch] text-[1.02rem] text-ink-2">
+              Drafted from the image findings above by the{" "}
+              <a href="https://docs.magichour.ai" className="font-medium text-pencil underline underline-offset-2">
+                Magic Hour API
+              </a>
+              , for the team to react to in the meeting. Anything living in the copy or the timing is untouched — an image editor cannot rename a
+              product or move a launch date.
+            </p>
+            <p className="mt-3 font-mono text-[0.82rem] text-ink-3">
+              model {result.generation.model} · {result.generation.creditsCharged} credits · one request, shown in full below
+            </p>
+            <div className="mt-7 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,38rem)_minmax(0,1fr)]">
+              <BeforeAfter before={input.imageUrl} after={result.generation.images[0]} />
+              <div className="code-plate self-start overflow-hidden rounded-[6px]">
+                <p className="border-b border-[var(--plate-rule)] px-5 py-3 font-mono text-[0.85rem] text-[var(--plate-dim)]">POST https://api.magichour.ai/v1/ai-image-editor</p>
+                <pre className="overflow-auto whitespace-pre-wrap px-5 py-4 font-mono text-[0.8rem] leading-relaxed [overflow-wrap:anywhere]">
+                  {JSON.stringify(result.generation.requestBody, null, 2)}
+                </pre>
+              </div>
             </div>
           </div>
         </section>

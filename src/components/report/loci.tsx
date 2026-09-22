@@ -115,7 +115,13 @@ export function TimingLocus({
         <p className="max-w-[40ch] text-[0.98rem] text-ink">{locus.reason}</p>
       </div>
 
-      <div className="mt-5 overflow-x-auto">
+      {/*
+        overflow-x-auto alone computes overflow-y to auto, so the launch cell's outline and its
+        scale-1.6 entrance spring were enough to raise a vertical scrollbar on a strip that only
+        ever scrolls sideways. Pin the y axis shut, and pad it so nothing that overshoots gets
+        clipped (the padding comes back out of the top margin).
+      */}
+      <div className="mt-3 overflow-x-auto overflow-y-hidden py-2">
         <ol className="grid min-w-[36rem] grid-cols-[repeat(15,minmax(0,1fr))] gap-px bg-rule" aria-label={`Fifteen days around ${formatDate(launch)}`}>
           {days.map((day, i) => {
             const isLaunch = day === launch;
