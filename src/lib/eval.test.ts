@@ -11,7 +11,11 @@ describe("case fixtures", () => {
   it("are schema-valid, keep controls out of the app, and give Tank Day zero image expectations", () => {
     for (const c of EVAL_CASES) expect(() => CaseFixtureSchema.parse(c), c.slug).not.toThrow();
     expect(EVAL_CASES.length).toBeGreaterThanOrEqual(8);
-    expect(CASES[0].slug).toBe("starbucks-korea");
+    // Whichever case leads is the landing page's light table and the featured card on /cases, so
+    // it's pinned rather than left to array order. Currently rising-sun-rays: its finding is in the
+    // image, so its page carries a generated alternative, where Tank Day's picture is fine and
+    // shows none.
+    expect(CASES[0].slug).toBe("rising-sun-rays");
     // Controls stay in the eval set (false positives) but never appear in the app.
     expect(EVAL_CASES.filter((c) => c.kind === "control").length).toBeGreaterThanOrEqual(2);
     expect(CASES.some((c) => c.kind === "control")).toBe(false);
