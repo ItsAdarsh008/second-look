@@ -2,7 +2,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { CreditCeilingError, RateLimitError, creditsUsedToday, enforceRateLimit, reserveCredits, settleCredits } from "./limits";
+import { CreditCeilingError, DEFAULT_DAILY_CREDITS, RateLimitError, creditsUsedToday, dailyCreditCeiling, enforceRateLimit, reserveCredits, settleCredits } from "./limits";
 import { createFileStore } from "./store";
 
 const freshStore = () => createFileStore(mkdtempSync(path.join(tmpdir(), "secondlook-")));
@@ -40,6 +40,40 @@ describe("daily credit ceiling", () => {
     const store = freshStore();
     await reserveCredits(7, store);
     expect(await creditsUsedToday(store)).toBe(7);
+  });
+});
+
+describe("dailyCreditCeiling", () => {
+  afterEach(() => {
+    delete process.env.MAX_DAILY_CREDITS;
+  });
+
+  it("reads a number, and takes an explicit zero as off", () => {
+    process.env.MAX_DAILY_CREDITS = "300";
+    expect(dailyCreditCeiling()).toBe(300);
+    process.env.MAX_DAILY_CREDITS = "0";
+    expect(dailyCreditCeiling()).toBe(0);
+  });
+
+  it("defaults when unset", () => {
+    delete process.env.MAX_DAILY_CREDITS;
+    expect(dailyCreditCeiling()).toBe(DEFAULT_DAILY_CREDITS);
+  });
+
+  // The bug this guards: Number("") is 0, which is finite and non-negative, so a variable left
+  // blank in the dashboard silently switched generation off while every document promised 200.
+  it("defaults on a blank value rather than reading it as off", () => {
+    process.env.MAX_DAILY_CREDITS = "";
+    expect(dailyCreditCeiling()).toBe(DEFAULT_DAILY_CREDITS);
+    process.env.MAX_DAILY_CREDITS = "   ";
+    expect(dailyCreditCeiling()).toBe(DEFAULT_DAILY_CREDITS);
+  });
+
+  it("defaults on nonsense and on negatives", () => {
+    process.env.MAX_DAILY_CREDITS = "lots";
+    expect(dailyCreditCeiling()).toBe(DEFAULT_DAILY_CREDITS);
+    process.env.MAX_DAILY_CREDITS = "-5";
+    expect(dailyCreditCeiling()).toBe(DEFAULT_DAILY_CREDITS);
   });
 });
 

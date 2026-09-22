@@ -55,9 +55,20 @@ export class CreditCeilingError extends Error {
   }
 }
 
+export const DEFAULT_DAILY_CREDITS = 200;
+
+/**
+ * Credits all visitors may spend per UTC day. `0` switches generation off.
+ *
+ * A blank variable falls back to the default rather than reading as `0`: `Number("")` is `0`, which
+ * is finite and non-negative, so an empty `MAX_DAILY_CREDITS` used to disable generation outright
+ * while every document said the default was 200. Turning it off should take someone typing a zero.
+ */
 export function dailyCreditCeiling(): number {
-  const raw = Number(process.env.MAX_DAILY_CREDITS);
-  return Number.isFinite(raw) && raw >= 0 ? raw : 200;
+  const raw = process.env.MAX_DAILY_CREDITS?.trim();
+  if (!raw) return DEFAULT_DAILY_CREDITS;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? n : DEFAULT_DAILY_CREDITS;
 }
 
 function today(now = new Date()): string {
