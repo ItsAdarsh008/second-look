@@ -10,12 +10,24 @@ Live: **https://2nd-look.vercel.app** (Vercel project `adarsh-eeb5/second-look`)
 |---|---|
 | Vercel project, connected to the repo | ✅ `second-look`, production alias `2nd-look.vercel.app` |
 | `ANTHROPIC_API_KEY`, `MAGIC_HOUR_API_KEY` | ✅ set on Production + Preview |
-| Upstash Redis + Vercel Blob | ✅ connected, variables injected |
+| Upstash Redis + Vercel Blob | 🔴 **not attached** — `vercel integration list` returns "No resources found". See below. |
 | `MAX_DAILY_CREDITS` | ✅ set |
 | 300-second analyze route | ✅ deployed and running on the current plan |
 | `typecheck` / `lint` / `test` / `build` | ✅ all green (100 tests, 21 routes) |
 | Payments work committed and pushed | ✅ wallets, packs, Stripe checkout + webhook, on `origin/main` |
 | Payments build deployed to production | ✅ `second-look-5kya1t6w8`, serving `2nd-look.vercel.app` |
+
+> ## 🔴 No Redis is attached, and with the paywall on that breaks every review
+>
+> `vercel integration list` returns **"No resources found."** The `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` and `BLOB_READ_WRITE_TOKEN` variables are listed in the project env, but there is no store behind them — they were typed in rather than injected by a marketplace integration, or the integration was removed afterwards.
+>
+> **Why it only broke now.** `chargeReview` returns early when `billingEnabled()` is false, never touching the store, so reviews worked while Stripe was unset. Setting `STRIPE_SECRET_KEY` turned that check on: `requireSharedStore` now throws on Vercel whenever the store isn't Redis, and it runs *before* the model call (`src/app/api/analyze/route.ts:45`, analysis at :58). So **every review fails with a 503 — including the free one.** Nothing is charged and no Anthropic spend is incurred, but the tool does not work.
+>
+> **Fix:** Vercel → Storage → add **Upstash Redis** and **Vercel Blob** from the Marketplace, then redeploy. The integration sets its own variables; delete the orphaned ones first so they can't shadow the real values.
+>
+> **Stopgap if that has to wait:** remove `STRIPE_SECRET_KEY` from Production and redeploy. Reviews go back to free and unlimited, the paywall disappears, and the site works.
+>
+> Blob is the same story: uploads have nowhere to go, so a visitor's own ad can't be analyzed even once Redis is back.
 
 ### Deploying, and how to tell it worked
 

@@ -250,29 +250,43 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
             </div>
             <PoweredByMagicHour className="border-pencil/30" />
           </div>
-          <div className="px-5 py-5 sm:px-7 sm:py-6">
-            <p className="max-w-[72ch] text-[1.02rem] text-ink-2">
-              Drafted by the{" "}
-              <a href="https://docs.magichour.ai" className="font-medium text-pencil underline underline-offset-2">
-                Magic Hour API
-              </a>{" "}
-              from the findings below, including wording lettered into the artwork.{" "}
-              <strong className="font-medium text-ink">It does not rename the product or move the launch date</strong> — those findings stand.
-            </p>
-            <p className="mt-2 font-mono text-[0.8rem] text-ink-3">
-              model {result.generation.model} · {result.generation.creditsCharged} credits · one request, shown in full
-            </p>
-            {/*
-              The creative is portrait, so the image column's width sets the panel's height: at
-              38rem the slider alone ran past a laptop viewport and the ad couldn't be seen whole.
-              22rem keeps it inside one screen, and the payload is capped and scrolled rather than
-              allowed to stretch the row.
-            */}
-            <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-7 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+          {/*
+            The slider is the point of this panel, so it gets the whole left column and everything
+            written — note, metadata, payload — goes right. Putting the prose above the grid, as it
+            was, pushed the slider down and left it whatever height remained.
+
+            The creative is portrait, so the column's WIDTH sets the panel's height (h ≈ w × 1.25).
+            Sizing it in vh rather than rem lets the image spend the viewport it actually has
+            instead of a guessed pixel value: 60vh of width lands the panel around 719px on a
+            777px viewport, and it scales with the window rather than overflowing a short one. The
+            rem term is the upper bound on a tall display.
+
+            The payload is capped at 42vh for the same reason — uncapped, the JSON became the
+            tallest thing in the row and set the panel's height on its own, leaving the image
+            short in a panel that still overflowed.
+
+            Stacked on narrow screens, with the text ordered first so the slider is introduced
+            before it appears.
+          */}
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-x-7 gap-y-6 px-5 py-5 sm:px-7 lg:grid-cols-[minmax(0,min(30rem,60vh))_minmax(0,1fr)]">
+            <div className="order-2 lg:order-1">
               <BeforeAfter before={input.imageUrl} after={result.generation.images[0]} />
-              <div className="code-plate self-start overflow-hidden rounded-[6px]">
-                <p className="border-b border-[var(--plate-rule)] px-5 py-2.5 font-mono text-[0.82rem] text-[var(--plate-dim)]">POST https://api.magichour.ai/v1/ai-image-editor</p>
-                <pre className="max-h-[26rem] overflow-auto whitespace-pre-wrap px-5 py-4 font-mono text-[0.78rem] leading-relaxed [overflow-wrap:anywhere]">
+            </div>
+            <div className="order-1 flex min-w-0 flex-col lg:order-2">
+              <p className="text-[1.02rem] text-ink-2">
+                Drafted by the{" "}
+                <a href="https://docs.magichour.ai" className="font-medium text-pencil underline underline-offset-2">
+                  Magic Hour API
+                </a>{" "}
+                from the findings below, including wording lettered into the artwork.{" "}
+                <strong className="font-medium text-ink">It does not rename the product or move the launch date</strong> — those findings stand.
+              </p>
+              <p className="mt-2 font-mono text-[0.8rem] text-ink-3">
+                model {result.generation.model} · {result.generation.creditsCharged} credits · one request, shown in full
+              </p>
+              <div className="code-plate mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[6px]">
+                <p className="shrink-0 border-b border-[var(--plate-rule)] px-5 py-2.5 font-mono text-[0.82rem] text-[var(--plate-dim)]">POST https://api.magichour.ai/v1/ai-image-editor</p>
+                <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap px-5 py-4 font-mono text-[0.78rem] leading-relaxed [overflow-wrap:anywhere] max-lg:max-h-[24rem] lg:max-h-[42vh]">
                   {JSON.stringify(result.generation.requestBody, null, 2)}
                 </pre>
               </div>
