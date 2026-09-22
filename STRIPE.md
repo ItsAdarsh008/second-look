@@ -37,11 +37,25 @@ Account: **`acct_1UHukUIXXgSDMNPU`** (`second-look`), country CA, live mode.
 | Bank account for payouts | ⬜ §1 (needs identity cleared first) |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` in Vercel | ✅ set, deployed — **paywall is live** |
 | Live keys scoped to Preview too | ⚠️ §4 — preview deploys will take real money |
-| Managed Payments | ✅ opted out per session — see below |
+| Managed Payments | ✅ opted out per session — ⬜ **revisit when sales are real, see below** |
 | Checkout session creation | ✅ verified live: `/api/checkout` returns a real Checkout URL |
 | Live analysis (`ANTHROPIC_API_KEY`) | ✅ fixed by re-entering the value in Vercel |
 | Sandbox test | ⬜ §2 — skipped; live was set up first |
 | **Paying for one and being credited** | ⬜ §5 — **still never run end to end** |
+
+> ### ⬜ TODO — revisit Managed Payments once money is real
+>
+> It's off (below). Turning it on later is a small change — add a digital-services `tax_code` to `product_data` and drop the opt-out — so this is a "when", not a fork you're locked out of.
+>
+> **What deferring costs you:** as merchant of record you owe any sales tax, VAT or GST on your sales, whether or not you collected it. Tax you didn't charge comes out of revenue you already banked, and it's owed from the sale that crossed the threshold, not from when you noticed. Rough shape of the exposure, all of which needs checking against current rules rather than taken from here:
+> - **EU / UK VAT on B2C digital services** has no small-seller threshold for a non-resident seller — in principle it's owed from the first consumer sale.
+> - **B2B is usually reverse-charge**, so a buyer with a valid VAT number accounts for it themselves. Second Look sells to brand and agency teams, so most sales likely land here, which is what makes deferring reasonable rather than reckless.
+> - **Canada GST/HST** has a small-supplier threshold (CA$30k over four quarters) below which registration isn't required.
+> - **US sales tax** turns on per-state economic nexus, typically six figures of in-state sales.
+>
+> **Revisit when any of these happens:** consumer (non-business) sales start arriving, EU or UK volume becomes non-trivial, or total revenue approaches the Canadian threshold. At that point talk to an accountant and decide between Managed Payments and Stripe Tax with your own registrations (§6). Below that, the exposure is small and the admin isn't worth it.
+>
+> None of the above is tax advice — it's the shape of the question, so you know when to ask someone qualified.
 
 > ### Managed Payments is off, deliberately
 >
